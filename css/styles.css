@@ -24,7 +24,8 @@
   --divider-weight: 4px;        /* full-width line between page sections */
 
   --header-pad-y: 1vw;
-  --header-height: 92px;        /* updated by JS */
+  --header-height: 65px;        /* updated by JS */
+  --header-solid-bg: #ffffff;   /* header background once content scrolls under it */
 
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --dur: 0.9s;
@@ -33,8 +34,8 @@
   --fs-text: clamp(1.0625rem, 0.55vw + 1rem, 1.9rem);      /* hero lines, lists, footer */
   --fs-body: clamp(1rem, 0.3vw + 1rem, 1.5rem);             /* long-form paragraphs */
   --fs-small: 0.875rem;
-  --fs-nav: clamp(1rem, 0.2vw + 1rem, 1.35rem);
-  --fs-title: clamp(1.15rem, 0.4vw + 1rem, 1.6rem);
+  --fs-nav: 0.875rem;
+  --fs-title: 1rem;
   --fs-h1: clamp(2.6rem, 4.6vw + 1rem, 8rem);
   --fs-h2: clamp(2rem, 3.3vw + 1rem, 6rem);
   --fs-h3: clamp(1.5rem, 1.6vw + 1rem, 3.25rem);
@@ -169,14 +170,18 @@ main > section + nav,
 .site-footer { border-top: var(--divider-weight) solid var(--color-rule); }
 
 /* ---------- Header ---------- */
+/* See-through at the top of the page (and over the whole home-page hero, so the
+   glow shows behind it); fades to a solid background once other content is under it. */
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 100;
-  background: var(--color-bg);
+  background-color: transparent;
   border-bottom: var(--rule-weight) solid var(--color-rule);
-  transition: transform 0.45s var(--ease);
+  transition: transform 0.45s var(--ease), background-color 0.5s var(--ease);
 }
+.site-header.is-solid { background-color: var(--header-solid-bg); }
+.menu-open .site-header { background-color: transparent; }
 
 /* "Scroll back" header: hides when scrolling down, returns on scroll up */
 .site-header.is-hidden { transform: translateY(-100%); }
@@ -188,7 +193,7 @@ main > section + nav,
   max-width: calc(var(--max-width) + var(--gutter) * 2);
   margin: 0 auto;
   padding: var(--header-pad-y) var(--gutter);
-  min-height: calc(50px + var(--header-pad-y) * 2);
+  min-height: calc(33px + var(--header-pad-y) * 2);
 }
 
 .site-title {
@@ -219,14 +224,14 @@ main > section + nav,
 .site-icons {
   display: flex;
   align-items: center;
-  gap: 2.25rem;
+  gap: 1.5rem;
   margin-left: auto;
 }
 
 .icon-link {
   display: inline-flex;
-  width: 28px;
-  height: 28px;
+  width: 21px;
+  height: 21px;
   transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
 }
 .icon-link svg { width: 100%; height: 100%; }
@@ -323,15 +328,16 @@ main > section + nav,
 }
 
 main { padding-top: var(--header-height); }
+main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* ---------- Home: hero ---------- */
 .hero {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: calc(100vh - var(--header-height));
-  min-height: calc(100svh - var(--header-height));
-  padding: calc(var(--row) * 3) 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: calc(var(--header-height) + var(--row) * 3) 0 calc(var(--row) * 3);
   overflow: hidden;
   isolation: isolate;
 }
@@ -385,7 +391,7 @@ main { padding-top: var(--header-height); }
 
 
 @media (max-width: 767px) {
-  .hero { min-height: calc(88svh - var(--header-height)); }
+  .hero { min-height: 88svh; }
   .hero__location,
   .hero__status { grid-column: 1 / -1; }
   .hero__location { margin-bottom: 1rem; }

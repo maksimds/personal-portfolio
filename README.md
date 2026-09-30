@@ -60,6 +60,10 @@ The glow behind the hero is drawn with WebGL in `js/main.js`. It always follows 
 
 For visitors who have turned on reduced motion, the glow still follows the cursor but keeps one colour and a still edge. On phones there's no cursor, so the glow stays in its resting spot and keeps changing colour. Browsers without WebGL get a plain CSS gradient that follows the cursor and changes colour, without the grain or the moving edge.
 
+## Header
+
+The header has no background at the top of every page. On the home page it stays see-through over the whole hero, so the glow shows behind it. Once other content scrolls under it, it fades to white. To change that colour, edit `--header-solid-bg` in `css/styles.css`, for example to `var(--color-bg)` to match the page grey.
+
 ## Deploy
 
 Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build.

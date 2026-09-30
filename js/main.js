@@ -59,14 +59,21 @@
     });
   }
 
-  /* ---------- Scroll-back header ---------- */
+  /* ---------- Scroll-back header ----------
+     Hides on scroll down and returns on scroll up. It stays see-through while it
+     sits over the home-page hero (or at the top of other pages), and turns solid
+     once other content is underneath it. */
   if (header) {
     var lastY = window.scrollY;
     var ticking = false;
+    var heroSection = document.querySelector('.hero');
 
     function onScroll() {
       var y = window.scrollY;
-      header.classList.toggle('is-scrolled', y > 10);
+      var solid = heroSection
+        ? heroSection.getBoundingClientRect().bottom <= header.offsetHeight
+        : y > 2;
+      header.classList.toggle('is-solid', solid);
       if (!body.classList.contains('menu-open')) {
         var goingDown = y > lastY;
         header.classList.toggle('is-hidden', goingDown && y > header.offsetHeight);
@@ -81,6 +88,7 @@
         ticking = true;
       }
     }, { passive: true });
+    window.addEventListener('resize', onScroll);
     onScroll();
   }
 
