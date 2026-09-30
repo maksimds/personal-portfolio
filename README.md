@@ -1,14 +1,13 @@
 # Personal portfolio
 
-A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the Inter font from Google Fonts, and the pages fall back to system fonts without it.
+A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the Inter and Inter Tight fonts from Google Fonts, and the pages fall back to system fonts without them.
 
 ```
-index.html                     Home: hero, Work list, Side Projects, footer
+index.html                     Home: hero with cursor-following glow, Work list, Side Projects, footer
 about.html                     About page
-photography.html               Photo grid
 projects/project-template.html Reusable case-study page
 css/styles.css                 All styles
-js/main.js                     Mobile menu, scroll-back header, live clock, fade-in
+js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in
 images/                        Grey placeholder images (swap for your own)
 assets/                        Put resume.pdf here
 ```
@@ -47,9 +46,17 @@ grep -rn "YOUR" --include=*.html .
 3. In `index.html`, copy one `<li class="project">` block inside the Work list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
    - Side projects work the same way. Use the Side Projects list, and link straight to an external site if the project has no case study.
 
-## Add a photo
+## Hero glow
 
-In `photography.html`, copy one `<li>` inside `.photo-grid`. Add the class `photo--wide` to make a photo span both columns on desktop.
+The blue glow behind the hero is drawn with WebGL in `js/main.js`. Its settings are in the `GLOW` object near the middle of that file:
+
+- `inner` / `outer`: the centre colour and the edge colour. `outer` should match `--color-bg` in `css/styles.css`.
+- `x` / `y`: where the glow rests when the cursor isn't over the hero, as fractions of the hero's width and height.
+- `radius`: how far the glow spreads.
+- `followSpeed`: how quickly it catches up with the cursor.
+- `grain`, `warp`, `warpSpeed`: the film grain, and how much and how fast the edge distorts.
+
+The round button at the bottom right of the hero pauses and resumes the animation. The glow also pauses when the hero is off-screen or the tab is hidden, and it starts paused for visitors who have turned on reduced motion. Browsers without WebGL get a plain CSS gradient that follows the cursor, without the grain or the moving edge.
 
 ## Deploy
 
