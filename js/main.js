@@ -129,14 +129,23 @@
   }
 
   /* ---------- Hero glow ----------
-     A radial gradient (grey edge → blue centre) drawn with WebGL:
-     - the centre eases toward the cursor while it is over the hero
+     A radial gradient (grey edge → coloured centre) drawn with WebGL:
+     - the centre always eases toward the cursor, wherever it is on the page
+     - every so often the centre colour fades to the next one in `colors`
      - the edge is slowly warped by animated noise
      - animated grain dithers the blend, so it only shows in the fade
-     If WebGL is unavailable, the CSS gradient on .hero__bg is used instead,
-     and its position still follows the cursor. */
+     If WebGL is unavailable, the CSS gradient on .hero__bg is used instead;
+     it still follows the cursor and changes colour. */
   var GLOW = {
-    inner: '#2f4881',          // centre colour
+    colors: [                  // centre colours, visited in order, then looping
+      '#2f4881',               // dark blue
+      '#7a1f2b',               // dark red
+      '#9a4612',               // dark orange
+      '#4e2a6a',               // dark plum
+      '#1d5a52'                // dark teal
+    ],
+    hold: 8,                   // seconds each colour stays before changing
+    fade: 5,                   // seconds each colour change takes
     outer: '#dedfda',          // edge colour (page background)
     x: 0.61, y: 0.60,          // resting position (fraction of the hero)
     radius: 0.8,               // relative to the hero's size
@@ -149,7 +158,6 @@
   var hero = document.querySelector('.hero');
   var heroBg = hero && hero.querySelector('.hero__bg');
   var canvas = hero && hero.querySelector('.hero__canvas');
-  var toggleBtn = hero && hero.querySelector('.hero__toggle');
 
   if (hero && heroBg) initGlow();
 
@@ -158,9 +166,19 @@
     return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
   }
 
+  // Blend two sRGB colours in linear light, so fades between hues don't go muddy.
+  function toLinear(c) { return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
+  function toSrgb(c) { return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; }
+  function mixRgb(a, b, t) {
+    return a.map(function (v, i) { return toSrgb(toLinear(v) + (toLinear(b[i]) - toLinear(v)) * t); });
+  }
+
   function initGlow() {
-    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var playing = !reduceMotion;
+    // With reduced motion the glow still follows the cursor, but the colour,
+    // grain and edge stay still.
+    var animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var palette = GLOW.colors.map(hexToRgb);
+    var colorClock = 0;
     var inView = true;
     var rafId = 0;
     var last = 0;
@@ -170,11 +188,27 @@
     // Current and target glow centre, in CSS px relative to the hero.
     var pos = { x: 0, y: 0 };
     var target = { x: 0, y: 0 };
-    var hasPointer = false;
+    var pointer = null;   // last cursor position in viewport coordinates
 
-    function resetTarget() {
-      target.x = w * GLOW.x;
-      target.y = h * GLOW.y;
+    function updateTarget() {
+      if (!pointer) {
+        target.x = w * GLOW.x;
+        target.y = h * GLOW.y;
+        return;
+      }
+      // Track the cursor anywhere on the page, kept inside the hero so the glow stays visible.
+      var r = hero.getBoundingClientRect();
+      target.x = Math.min(Math.max(pointer.x - r.left, 0), w);
+      target.y = Math.min(Math.max(pointer.y - r.top, 0), h);
+    }
+
+    function currentColor() {
+      if (palette.length < 2) return palette[0];
+      var cycle = GLOW.hold + GLOW.fade;
+      var i = Math.floor(colorClock / cycle) % palette.length;
+      var t = Math.max(0, (colorClock % cycle) - GLOW.hold) / GLOW.fade;
+      t = t * t * (3 - 2 * t);   // ease in and out
+      return mixRgb(palette[i], palette[(i + 1) % palette.length], t);
     }
 
     function radiusPx() {
@@ -260,7 +294,6 @@
       ['uRes', 'uCenter', 'uRadius', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'].forEach(function (n) {
         loc[n] = gl.getUniformLocation(prog, n);
       });
-      gl.uniform3fv(loc.uInner, hexToRgb(GLOW.inner));
       gl.uniform3fv(loc.uOuter, hexToRgb(GLOW.outer));
       gl.uniform1f(loc.uGrain, GLOW.grain);
       gl.uniform1f(loc.uWarp, GLOW.warp);
@@ -272,7 +305,7 @@
       var first = w === 1 && h === 1;
       w = Math.max(1, r.width);
       h = Math.max(1, r.height);
-      if (!hasPointer) resetTarget();
+      updateTarget();
       if (first) { pos.x = target.x; pos.y = target.y; }
       if (gl) {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -284,17 +317,20 @@
     }
 
     function draw() {
+      var c = currentColor();
       if (gl) {
+        gl.uniform3fv(loc.uInner, c);
         gl.uniform2f(loc.uRes, canvas.width, canvas.height);
         gl.uniform2f(loc.uCenter, pos.x * dpr, pos.y * dpr);
         gl.uniform1f(loc.uRadius, radiusPx() * dpr);
         gl.uniform1f(loc.uTime, elapsed * GLOW.warpSpeed);
-        gl.uniform1f(loc.uSeed, playing ? Math.random() * 100 : 0);
+        gl.uniform1f(loc.uSeed, animate ? Math.random() * 100 : 0);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       } else {
         heroBg.style.setProperty('--glow-x', pos.x + 'px');
         heroBg.style.setProperty('--glow-y', pos.y + 'px');
         heroBg.style.setProperty('--glow-r', Math.round(radiusPx()) + 'px');
+        heroBg.style.setProperty('--color-accent', 'rgb(' + c.map(function (v) { return Math.round(v * 255); }).join(',') + ')');
       }
     }
 
@@ -302,7 +338,10 @@
       rafId = 0;
       var dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
       last = now;
-      elapsed += dt;
+      if (animate) {
+        elapsed += dt;
+        colorClock += dt;
+      }
       var k = 1 - Math.exp(-dt * GLOW.followSpeed);
       pos.x += (target.x - pos.x) * k;
       pos.y += (target.y - pos.y) * k;
@@ -311,7 +350,13 @@
     }
 
     function schedule() {
-      if (!rafId && playing && inView && !document.hidden) rafId = requestAnimationFrame(frame);
+      if (rafId || !inView || document.hidden) return;
+      // Without animation, stop redrawing once the glow has caught up with the cursor.
+      if (!animate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
+        last = 0;
+        return;
+      }
+      rafId = requestAnimationFrame(frame);
     }
 
     function stop() {
@@ -320,31 +365,16 @@
       last = 0;
     }
 
-    hero.addEventListener('pointermove', function (e) {
+    window.addEventListener('pointermove', function (e) {
       if (e.pointerType === 'touch') return;
-      var r = hero.getBoundingClientRect();
-      target.x = e.clientX - r.left;
-      target.y = e.clientY - r.top;
-      hasPointer = true;
-    });
-    hero.addEventListener('pointerleave', function () {
-      hasPointer = false;
-      resetTarget();
-    });
-
-    if (toggleBtn) {
-      toggleBtn.hidden = false;
-      var syncBtn = function () {
-        toggleBtn.setAttribute('aria-pressed', String(!playing));
-        toggleBtn.setAttribute('aria-label', playing ? 'Pause background animation' : 'Play background animation');
-      };
-      syncBtn();
-      toggleBtn.addEventListener('click', function () {
-        playing = !playing;
-        syncBtn();
-        if (playing) schedule(); else { stop(); draw(); }
-      });
-    }
+      pointer = { x: e.clientX, y: e.clientY };
+      updateTarget();
+      schedule();
+    }, { passive: true });
+    // Scrolling moves the hero under a still cursor, so re-aim the glow.
+    window.addEventListener('scroll', function () {
+      if (pointer) { updateTarget(); schedule(); }
+    }, { passive: true });
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {

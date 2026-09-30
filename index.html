@@ -47,7 +47,7 @@
   <main id="main">
 
     <!-- ===== Hero =====
-         The blue glow is drawn on the canvas by js/main.js (WebGL) and follows the cursor.
+         The glow is drawn on the canvas by js/main.js (WebGL), follows the cursor and slowly changes colour.
          The CSS radial gradient on .hero__bg is the fallback when WebGL is unavailable. -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__bg" aria-hidden="true"><canvas class="hero__canvas"></canvas></div>
@@ -67,10 +67,6 @@
           </div>
         </div>
       </div>
-      <button class="hero__toggle" type="button" aria-pressed="false" aria-label="Pause background animation" hidden>
-        <svg class="hero__toggle-pause" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>
-        <svg class="hero__toggle-play" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M8 4.8v14.4L19.5 12z"/></svg>
-      </button>
     </section>
 
     <!-- ===== Work ===== -->
@@ -160,7 +156,6 @@
 
   <footer class="site-footer container">
     <div class="grid">
-      <hr class="rule">
       <div class="footer-col footer-col--a">
         <p><span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a></p>
         <p><span class="arrow">→</span> <a class="link" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></p>

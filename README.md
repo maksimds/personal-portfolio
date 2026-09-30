@@ -48,15 +48,17 @@ grep -rn "YOUR" --include=*.html .
 
 ## Hero glow
 
-The blue glow behind the hero is drawn with WebGL in `js/main.js`. Its settings are in the `GLOW` object near the middle of that file:
+The glow behind the hero is drawn with WebGL in `js/main.js`. It always follows the cursor, wherever it is on the page, and every so often fades to a new colour. Its settings are in the `GLOW` object near the middle of that file:
 
-- `inner` / `outer`: the centre colour and the edge colour. `outer` should match `--color-bg` in `css/styles.css`.
-- `x` / `y`: where the glow rests when the cursor isn't over the hero, as fractions of the hero's width and height.
+- `colors`: the centre colours, visited in order and then looping (dark blue, dark red, dark orange, dark plum, dark teal). Add, remove or reorder hex values to change the cycle.
+- `hold` / `fade`: how many seconds each colour stays, and how long each change takes.
+- `outer`: the edge colour. It should match `--color-bg` in `css/styles.css`.
+- `x` / `y`: where the glow sits before the cursor first moves, as fractions of the hero's width and height.
 - `radius`: how far the glow spreads.
 - `followSpeed`: how quickly it catches up with the cursor.
 - `grain`, `warp`, `warpSpeed`: the film grain, and how much and how fast the edge distorts.
 
-The round button at the bottom right of the hero pauses and resumes the animation. The glow also pauses when the hero is off-screen or the tab is hidden, and it starts paused for visitors who have turned on reduced motion. Browsers without WebGL get a plain CSS gradient that follows the cursor, without the grain or the moving edge.
+For visitors who have turned on reduced motion, the glow still follows the cursor but keeps one colour and a still edge. On phones there's no cursor, so the glow stays in its resting spot and keeps changing colour. Browsers without WebGL get a plain CSS gradient that follows the cursor and changes colour, without the grain or the moving edge.
 
 ## Deploy
 
