@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>[YOUR PROJECT NAME] — [YOUR NAME]</title>
+  <meta name="description" content="[YOUR ONE-LINE INTRO / TITLE]">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,700;1,14..32,400&display=swap">
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-title" href="../index.html">[YOUR NAME]</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a class="link" href="../index.html#work">Work</a></li>
+          <li><a class="link" href="../about.html">About</a></li>
+          <li><a class="link" href="../photography.html">Photography</a></li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <ul>
+      <li><a href="../index.html#work">Work</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../photography.html">Photography</a></li>
+    </ul>
+    <div class="mobile-menu__meta">
+      <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a>
+      <a class="link" href="../assets/resume.pdf" target="_blank" rel="noopener">Resume</a>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ===== Intro ===== -->
+    <section class="case-top container">
+      <div class="grid">
+        <a class="case-back link" href="../index.html#work"><span class="arrow">←</span> All work</a>
+      </div>
+      <div class="grid case-intro">
+        <h1 class="reveal">[YOUR PROJECT NAME]</h1>
+        <div class="case-intro__logo reveal">
+          <img src="../images/placeholder-square.svg" alt="[YOUR PROJECT LOGO]" width="800" height="800">
+        </div>
+        <div class="kv reveal">
+          <p>Role <strong><span class="arrow">→</span> [YOUR ROLE]</strong></p>
+          <p>Timeline <strong><span class="arrow">→</span> [YOUR START – END DATES]</strong></p>
+          <p>Team <strong><span class="arrow">→</span> [YOUR TEAM / COLLABORATORS]</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="grid">
+        <h2 class="case-quote reveal">&ldquo;[YOUR PROJECT TAGLINE]&rdquo;</h2>
+        <div class="case-lead reveal">
+          <strong>Intro</strong>
+          <p>[YOUR INTRO — the context: company, team, the problem, and your part in it.]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Selected work ===== -->
+    <section class="section container">
+      <div class="grid case-section-head reveal">
+        <h2>Selected Work</h2>
+        <p>&#10022; Want to see more? <span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com"><strong>Reach out here</strong></a></p>
+      </div>
+      <hr class="rule">
+
+      <div class="grid case-overview reveal">
+        <h3>[YOUR WORKSTREAM NAME]</h3>
+        <div class="case-overview__body">
+          <strong>Overview</strong>
+          <p>[YOUR OVERVIEW — what was built, why it mattered, and the constraints.]</p>
+        </div>
+      </div>
+
+      <!-- Image/text rows. Add "case-row--flip" to put the image on the right. Copy a row to add more. -->
+      <div class="grid case-row reveal">
+        <div class="case-row__media">
+          <img src="../images/placeholder-4x5.svg" alt="[YOUR SCREEN 1 DESCRIPTION]" width="1000" height="1250" loading="lazy">
+        </div>
+        <div class="case-row__text">
+          <h3>[YOUR SECTION 1 TITLE]</h3>
+          <p>[YOUR SECTION 1 TEXT — the problem, what you explored, and the decision.]</p>
+        </div>
+      </div>
+
+      <div class="grid case-row case-row--flip reveal">
+        <div class="case-row__media">
+          <img src="../images/placeholder-4x3.svg" alt="[YOUR SCREEN 2 DESCRIPTION]" width="1200" height="900" loading="lazy">
+        </div>
+        <div class="case-row__text">
+          <h3>[YOUR SECTION 2 TITLE]</h3>
+          <p>[YOUR SECTION 2 TEXT]</p>
+        </div>
+      </div>
+
+      <div class="grid case-row reveal">
+        <div class="case-row__media">
+          <img src="../images/placeholder-phone.svg" alt="[YOUR SCREEN 3 DESCRIPTION]" width="600" height="1200" loading="lazy">
+        </div>
+        <div class="case-row__text">
+          <h3>[YOUR SECTION 3 TITLE]</h3>
+          <p>[YOUR SECTION 3 TEXT]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Outcomes ===== -->
+    <section class="section container">
+      <hr class="rule">
+      <div class="grid case-row case-outcomes reveal">
+        <div class="case-row__text">
+          <h3>Outcomes</h3>
+          <p>[YOUR OUTCOMES — launch status, metrics, recognition. Link out if there's a live product.]</p>
+        </div>
+        <div class="case-row__media">
+          <img src="../images/placeholder-16x10.svg" alt="[YOUR OUTCOME IMAGE DESCRIPTION]" width="1600" height="1000" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Reflection ===== -->
+    <section class="section container">
+      <div class="grid case-reflection reveal">
+        <h2>[YOUR REFLECTION HEADING]</h2>
+        <div class="case-reflection__body">
+          <p>[YOUR REFLECTION — what you learned and what you'd do differently.]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Prev / next ===== -->
+    <nav class="case-next container" aria-label="More projects">
+      <hr class="rule">
+      <div class="grid">
+        <div class="case-next__prev"><a href="../index.html#work"><span class="arrow">←</span> All work</a></div>
+        <div class="case-next__next"><a href="project-template.html">[YOUR NEXT PROJECT] <span class="arrow">→</span></a></div>
+      </div>
+    </nav>
+
+  </main>
+
+
+  <footer class="site-footer container">
+    <div class="grid">
+      <hr class="rule">
+      <div class="footer-col footer-col--a">
+        <p><span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a></p>
+        <p><span class="arrow">→</span> <a class="link" href="../assets/resume.pdf" target="_blank" rel="noopener">Resume</a></p>
+      </div>
+      <div class="footer-col footer-col--b">
+        <p><span class="arrow">→</span> <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+      <div class="footer-col footer-col--meta">
+        <p>Updated [YOUR MM/YY]</p>
+        <p>© [YOUR NAME] <span data-year>2026</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>

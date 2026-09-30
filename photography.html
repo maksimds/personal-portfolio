@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Photography — [YOUR NAME]</title>
+  <meta name="description" content="[YOUR ONE-LINE INTRO / TITLE]">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,700;1,14..32,400&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-title" href="index.html">[YOUR NAME]</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a class="link" href="index.html#work">Work</a></li>
+          <li><a class="link" href="about.html">About</a></li>
+          <li><a class="link" href="photography.html" aria-current="page">Photography</a></li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <ul>
+      <li><a href="index.html#work">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="photography.html">Photography</a></li>
+    </ul>
+    <div class="mobile-menu__meta">
+      <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a>
+      <a class="link" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <section class="section container">
+      <div class="grid photo-head reveal">
+        <h1>My Photography</h1>
+        <div class="kv">
+          <p>Gear <strong><span class="arrow">→</span> [YOUR CAMERA GEAR]</strong></p>
+        </div>
+      </div>
+
+      <!-- To add a photo: copy one <li> block. Add class "photo--wide" to span both columns. -->
+      <ul class="photo-grid">
+        <li class="reveal photo--wide">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-3x2.svg" alt="[YOUR PHOTO 1 DESCRIPTION]" width="1200" height="800" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 1 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+        <li class="reveal">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-4x5.svg" alt="[YOUR PHOTO 2 DESCRIPTION]" width="1000" height="1250" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 2 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+        <li class="reveal">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-4x5.svg" alt="[YOUR PHOTO 3 DESCRIPTION]" width="1000" height="1250" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 3 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+        <li class="reveal">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-3x2.svg" alt="[YOUR PHOTO 4 DESCRIPTION]" width="1200" height="800" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 4 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+        <li class="reveal">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-3x2.svg" alt="[YOUR PHOTO 5 DESCRIPTION]" width="1200" height="800" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 5 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+        <li class="reveal photo--wide">
+          <figure>
+            <div class="photo__frame"><img src="images/placeholder-16x10.svg" alt="[YOUR PHOTO 6 DESCRIPTION]" width="1600" height="1000" loading="lazy"></div>
+            <figcaption>[YOUR PHOTO 6 CAPTION — place, year]</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+
+  <footer class="site-footer container">
+    <div class="grid">
+      <hr class="rule">
+      <div class="footer-col footer-col--a">
+        <p><span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a></p>
+        <p><span class="arrow">→</span> <a class="link" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></p>
+      </div>
+      <div class="footer-col footer-col--b">
+        <p><span class="arrow">→</span> <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+      <div class="footer-col footer-col--meta">
+        <p>Updated [YOUR MM/YY]</p>
+        <p>© [YOUR NAME] <span data-year>2026</span></p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
