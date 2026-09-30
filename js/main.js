@@ -131,21 +131,28 @@
   /* ---------- Hero glow ----------
      A radial gradient (grey edge → coloured centre) drawn with WebGL:
      - the centre always eases toward the cursor, wherever it is on the page
-     - every so often the centre colour fades to the next one in `colors`
+     - the centre colour drifts slowly and steadily through `colors`
      - the edge is slowly warped by animated noise
      - animated grain dithers the blend, so it only shows in the fade
      If WebGL is unavailable, the CSS gradient on .hero__bg is used instead;
      it still follows the cursor and changes colour. */
   var GLOW = {
-    colors: [                  // centre colours, visited in order, then looping
+    colors: [                  // centre colours, visited in order, then looping.
+                               // Ordered around the colour wheel so each step is a small one.
       '#2f4881',               // dark blue
-      '#7a1f2b',               // dark red
-      '#9a4612',               // dark orange
+      '#3b3783',               // indigo
       '#4e2a6a',               // dark plum
-      '#1d5a52'                // dark teal
+      '#6a2352',               // dark berry
+      '#7a1f2b',               // dark red
+      '#86301a',               // rust
+      '#9a4612',               // dark orange
+      '#8a5a12',               // dark ochre
+      '#55591c',               // dark olive
+      '#26553a',               // forest green
+      '#1d5a52',               // dark teal
+      '#1f4c6b'                // petrol blue
     ],
-    hold: 8,                   // seconds each colour stays before changing
-    fade: 5,                   // seconds each colour change takes
+    change: 8,                 // average seconds to drift from one colour to the next
     outer: '#dedfda',          // edge colour (page background)
     x: 0.61, y: 0.60,          // resting position (fraction of the hero)
     radius: 0.8,               // relative to the hero's size
@@ -166,19 +173,51 @@
     return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255];
   }
 
-  // Blend two sRGB colours in linear light, so fades between hues don't go muddy.
+  // Colours are blended in OKLab, a perceptual colour space, so a change looks
+  // equally paced from start to finish instead of rushing through part of it.
   function toLinear(c) { return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }
   function toSrgb(c) { return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055; }
-  function mixRgb(a, b, t) {
-    return a.map(function (v, i) { return toSrgb(toLinear(v) + (toLinear(b[i]) - toLinear(v)) * t); });
+
+  function rgbToOklab(rgb) {
+    var r = toLinear(rgb[0]), g = toLinear(rgb[1]), b = toLinear(rgb[2]);
+    var l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+    var m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+    var s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [
+      0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+      1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+      0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+    ];
+  }
+
+  function oklabToRgb(lab) {
+    var l = Math.pow(lab[0] + 0.3963377774 * lab[1] + 0.2158037573 * lab[2], 3);
+    var m = Math.pow(lab[0] - 0.1055613458 * lab[1] - 0.0638541728 * lab[2], 3);
+    var s = Math.pow(lab[0] - 0.0894841775 * lab[1] - 1.2914855480 * lab[2], 3);
+    return [
+      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+      -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+    ].map(function (c) { return Math.min(1, Math.max(0, toSrgb(c))); });
+  }
+
+  function labDistance(a, b) {
+    return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
   }
 
   function initGlow() {
     // With reduced motion the glow still follows the cursor, but the colour,
     // grain and edge stay still.
     var animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var palette = GLOW.colors.map(hexToRgb);
+    var palette = GLOW.colors.map(function (hex) { return rgbToOklab(hexToRgb(hex)); });
     var colorClock = 0;
+
+    // The colour drifts continuously at one steady speed, never pausing: a bigger
+    // step between two colours simply takes proportionally longer.
+    var steps = palette.map(function (c, i) { return labDistance(c, palette[(i + 1) % palette.length]); });
+    var avgStep = steps.reduce(function (a, b) { return a + b; }, 0) / steps.length || 1;
+    var durations = steps.map(function (d) { return Math.max(0.001, GLOW.change * d / avgStep); });
+    var cycleLength = durations.reduce(function (a, d) { return a + d; }, 0);
     var inView = true;
     var rafId = 0;
     var last = 0;
@@ -203,12 +242,15 @@
     }
 
     function currentColor() {
-      if (palette.length < 2) return palette[0];
-      var cycle = GLOW.hold + GLOW.fade;
-      var i = Math.floor(colorClock / cycle) % palette.length;
-      var t = Math.max(0, (colorClock % cycle) - GLOW.hold) / GLOW.fade;
-      t = t * t * (3 - 2 * t);   // ease in and out
-      return mixRgb(palette[i], palette[(i + 1) % palette.length], t);
+      if (palette.length < 2) return oklabToRgb(palette[0]);
+      var time = colorClock % cycleLength;
+      for (var i = 0; i < palette.length; i++) {
+        if (time < durations[i] || i === palette.length - 1) break;
+        time -= durations[i];
+      }
+      var t = Math.min(1, time / durations[i]);
+      var a = palette[i], b = palette[(i + 1) % palette.length];
+      return oklabToRgb([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
     }
 
     function radiusPx() {

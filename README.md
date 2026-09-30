@@ -48,10 +48,10 @@ grep -rn "YOUR" --include=*.html .
 
 ## Hero glow
 
-The glow behind the hero is drawn with WebGL in `js/main.js`. It always follows the cursor, wherever it is on the page, and every so often fades to a new colour. Its settings are in the `GLOW` object near the middle of that file:
+The glow behind the hero is drawn with WebGL in `js/main.js`. It always follows the cursor, wherever it is on the page, and its colour drifts slowly and steadily through a palette, never pausing or jumping. Its settings are in the `GLOW` object near the middle of that file:
 
-- `colors`: the centre colours, visited in order and then looping (dark blue, dark red, dark orange, dark plum, dark teal). Add, remove or reorder hex values to change the cycle.
-- `hold` / `fade`: how many seconds each colour stays, and how long each change takes.
+- `colors`: the centre colours, visited in order and then looping. There are 12, ordered around the colour wheel: dark blue, indigo, plum, berry, red, rust, orange, ochre, olive, forest green, teal and petrol blue. Keep neighbouring colours fairly close so each step stays gentle.
+- `change`: the average number of seconds to drift from one colour to the next. A full loop takes about 12 × `change`. A bigger step between two colours takes proportionally longer, so the speed stays even.
 - `outer`: the edge colour. It should match `--color-bg` in `css/styles.css`.
 - `x` / `y`: where the glow sits before the cursor first moves, as fractions of the hero's width and height.
 - `radius`: how far the glow spreads.
