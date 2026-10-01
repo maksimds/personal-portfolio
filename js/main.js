@@ -61,20 +61,16 @@
   }
 
   /* ---------- Scroll-back header ----------
-     Hides on scroll down and returns on scroll up. It stays see-through while it
-     sits over the home-page hero (or at the top of other pages), and turns solid
-     once other content is underneath it. */
+     Hides on scroll down and returns on scroll up. It's see-through only when the
+     page is scrolled all the way to the top; anywhere else it has a solid
+     background, so the text underneath never shows through it. */
   if (header) {
     var lastY = window.scrollY;
     var ticking = false;
-    var heroSection = document.querySelector('.hero');
 
     function onScroll() {
       var y = window.scrollY;
-      var solid = heroSection
-        ? heroSection.getBoundingClientRect().bottom <= header.offsetHeight
-        : y > 2;
-      header.classList.toggle('is-solid', solid);
+      header.classList.toggle('is-solid', y > 1);
       if (!body.classList.contains('menu-open')) {
         var goingDown = y > lastY;
         header.classList.toggle('is-hidden', goingDown && y > header.offsetHeight);

@@ -178,8 +178,8 @@ main > section + nav,
 .site-footer { border-top: var(--divider-weight) solid var(--color-rule); }
 
 /* ---------- Header ---------- */
-/* See-through at the top of the page (and over the whole home-page hero, so the
-   glow shows behind it); fades to a solid background once other content is under it. */
+/* See-through only when the page is at the very top (on the home page the hero's glow
+   shows behind it there); as soon as the page scrolls it fades to a solid background. */
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
