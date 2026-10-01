@@ -508,10 +508,12 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 /* ---------- Footer ---------- */
+/* --footer-scale sizes the whole footer (spacing and text) in one place. */
 .site-footer {
-  padding-top: calc(var(--row) * 2);
-  padding-bottom: calc(var(--row) * 2);
-  font-size: var(--fs-text);
+  --footer-scale: 0.75;
+  padding-top: calc(var(--row) * 2 * var(--footer-scale));
+  padding-bottom: calc(var(--row) * 2 * var(--footer-scale));
+  font-size: calc(var(--fs-text) * var(--footer-scale));
 }
 
 .footer-col p { margin: 0 0 0.5em; }
@@ -522,7 +524,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 @media (max-width: 767px) {
   .footer-col--a { grid-column: 1 / 5; }
   .footer-col--b { grid-column: 5 / -1; }
-  .footer-col--meta { grid-column: 1 / -1; text-align: left; margin-top: 2rem; }
+  .footer-col--meta { grid-column: 1 / -1; text-align: left; margin-top: calc(2rem * var(--footer-scale)); }
 }
 
 /* ---------- About ---------- */
