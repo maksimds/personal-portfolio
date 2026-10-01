@@ -46,14 +46,22 @@ grep -rn "YOUR" --include=*.html .
 3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
-## Hero glow
+## Glow (hero and footers)
 
-The glow behind the hero is drawn with WebGL in `js/main.js`. It always follows the cursor, wherever it is on the page, and its colour drifts slowly and steadily through a palette, never pausing or jumping. Its settings are in the `GLOW` object near the middle of that file:
+The glow behind the home-page hero and behind the footer on every page is drawn with WebGL in `js/main.js`. Each one always follows the cursor, wherever it is on the page, staying inside its own section. Its colour drifts slowly and steadily through a palette, never pausing or jumping. All glows share one clock, so they always show the same colour.
+
+To add the glow to another section, give the section the class `glow` and put this as its first child:
+
+```html
+<div class="glow__bg" aria-hidden="true"><canvas class="glow__canvas"></canvas></div>
+```
+
+The settings are in the `GLOW` object near the middle of `js/main.js`:
 
 - `colors`: the centre colours, visited in order and then looping. There are 12, ordered around the colour wheel: dark blue, indigo, plum, berry, red, rust, orange, ochre, olive, forest green, teal and petrol blue. Keep neighbouring colours fairly close so each step stays gentle.
 - `change`: the average number of seconds to drift from one colour to the next. A full loop takes about 12 × `change`. A bigger step between two colours takes proportionally longer, so the speed stays even.
 - `outer`: the edge colour. It should match `--color-bg` in `css/styles.css`.
-- `x` / `y`: where the glow sits before the cursor first moves, as fractions of the hero's width and height.
+- `x` / `y`: where the glow sits before the cursor first moves, as fractions of its section's width and height.
 - `radius`: how far the glow spreads.
 - `followSpeed`: how quickly it catches up with the cursor.
 - `grain`, `warp`, `warpSpeed`: the film grain, and how much and how fast the edge distorts.

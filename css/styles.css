@@ -338,12 +338,19 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   min-height: 100vh;
   min-height: 100svh;
   padding: calc(var(--header-height) + var(--row) * 3) 0 calc(var(--row) * 3);
+}
+
+/* ---------- Glow surfaces (hero and footer) ----------
+   Any element with class "glow" containing .glow__bg > canvas.glow__canvas gets the
+   cursor-following glow from js/main.js. The CSS gradient is the no-WebGL fallback;
+   the canvas paints over it. */
+.glow {
+  position: relative;
   overflow: hidden;
   isolation: isolate;
 }
 
-/* Glow layer. The CSS gradient is the no-WebGL fallback; the canvas paints over it. */
-.hero__bg {
+.glow__bg {
   --glow-x: 61%;
   --glow-y: 60%;
   --glow-r: 73vmax;
@@ -356,7 +363,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
     var(--color-accent) 10%, var(--color-bg) 100%);
 }
 
-.hero__canvas {
+.glow__canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -365,7 +372,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   opacity: 0;
   transition: opacity 0.8s var(--ease);
 }
-.hero__canvas.is-ready { opacity: 1; }
+.glow__canvas.is-ready { opacity: 1; }
 
 .hero__content { position: relative; }
 

@@ -48,9 +48,9 @@
 
     <!-- ===== Hero =====
          The glow is drawn on the canvas by js/main.js (WebGL), follows the cursor and slowly changes colour.
-         The CSS radial gradient on .hero__bg is the fallback when WebGL is unavailable. -->
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__bg" aria-hidden="true"><canvas class="hero__canvas"></canvas></div>
+         The CSS radial gradient on .glow__bg is the fallback when WebGL is unavailable. -->
+    <section class="hero glow" aria-labelledby="hero-title">
+      <div class="glow__bg" aria-hidden="true"><canvas class="glow__canvas"></canvas></div>
       <div class="hero__content container">
         <div class="grid">
           <p class="hero__location reveal">
@@ -145,18 +145,22 @@
 
   </main>
 
-  <footer class="site-footer container">
-    <div class="grid">
-      <div class="footer-col footer-col--a">
-        <p><span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a></p>
-        <p><span class="arrow">→</span> <a class="link" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></p>
-      </div>
-      <div class="footer-col footer-col--b">
-        <p><span class="arrow">→</span> <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a></p>
-      </div>
-      <div class="footer-col footer-col--meta">
-        <p>Updated [YOUR MM/YY]</p>
-        <p>© [YOUR NAME] <span data-year>2026</span></p>
+  <!-- The glow behind the footer works like the hero's (see js/main.js). -->
+  <footer class="site-footer glow">
+    <div class="glow__bg" aria-hidden="true"><canvas class="glow__canvas"></canvas></div>
+    <div class="container">
+      <div class="grid">
+        <div class="footer-col footer-col--a">
+          <p><span class="arrow">→</span> <a class="link" href="mailto:YOUR_EMAIL@example.com">Email</a></p>
+          <p><span class="arrow">→</span> <a class="link" href="assets/resume.pdf" target="_blank" rel="noopener">Resume</a></p>
+        </div>
+        <div class="footer-col footer-col--b">
+          <p><span class="arrow">→</span> <a class="link" href="https://www.linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener">LinkedIn</a></p>
+        </div>
+        <div class="footer-col footer-col--meta">
+          <p>Updated [YOUR MM/YY]</p>
+          <p>© [YOUR NAME] <span data-year>2026</span></p>
+        </div>
       </div>
     </div>
   </footer>

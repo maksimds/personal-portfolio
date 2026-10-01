@@ -4,6 +4,7 @@
    - "scroll back" header (hides on scroll down, shows on scroll up)
    - live local clock in the hero
    - fade-in on scroll
+   - cursor-following glow behind the hero and footers
    - current year in the footer
    ========================================================================== */
 (function () {
@@ -136,13 +137,16 @@
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
-  /* ---------- Hero glow ----------
-     A radial gradient (grey edge → coloured centre) drawn with WebGL:
-     - the centre always eases toward the cursor, wherever it is on the page
-     - the centre colour drifts slowly and steadily through `colors`
+  /* ---------- Cursor-following glow (hero and footers) ----------
+     A radial gradient (grey edge → coloured centre) drawn with WebGL on every
+     element with class "glow" (markup: .glow > .glow__bg > canvas.glow__canvas):
+     - the centre always eases toward the cursor, wherever it is on the page,
+       kept inside its own section so it stays visible
+     - the centre colour drifts slowly and steadily through `colors`; all glows
+       share one clock, so they always show the same colour
      - the edge is slowly warped by animated noise
      - animated grain dithers the blend, so it only shows in the fade
-     If WebGL is unavailable, the CSS gradient on .hero__bg is used instead;
+     If WebGL is unavailable, the CSS gradient on .glow__bg is used instead;
      it still follows the cursor and changes colour. */
   var GLOW = {
     colors: [                  // centre colours, visited in order, then looping.
@@ -162,19 +166,13 @@
     ],
     change: 8,                 // average seconds to drift from one colour to the next
     outer: '#dedfda',          // edge colour (page background)
-    x: 0.61, y: 0.60,          // resting position (fraction of the hero)
-    radius: 0.8,               // relative to the hero's size
+    x: 0.61, y: 0.60,          // resting position (fraction of the section)
+    radius: 0.8,               // relative to the section's size
     followSpeed: 3.2,          // higher = catches up with the cursor faster
     grain: 0.10,               // grain strength (strongest mid-fade, none at either end)
     warp: 0.15,                // how much the edge distorts
     warpSpeed: 0.08            // how fast the distortion changes
   };
-
-  var hero = document.querySelector('.hero');
-  var heroBg = hero && hero.querySelector('.hero__bg');
-  var canvas = hero && hero.querySelector('.hero__canvas');
-
-  if (hero && heroBg) initGlow();
 
   function hexToRgb(hex) {
     var n = parseInt(hex.slice(1), 16);
@@ -213,26 +211,43 @@
     return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
   }
 
-  function initGlow() {
-    // With reduced motion the glow still follows the cursor, but the colour,
-    // grain and edge stay still.
-    var animate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var palette = GLOW.colors.map(function (hex) { return rgbToOklab(hexToRgb(hex)); });
-    var colorClock = 0;
+  // Shared colour timeline. The colour drifts continuously at one steady speed,
+  // never pausing: a bigger step between two colours simply takes proportionally longer.
+  // With reduced motion the colour, grain and edge stay still (the glow still follows the cursor).
+  var glowAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var glowPalette = GLOW.colors.map(function (hex) { return rgbToOklab(hexToRgb(hex)); });
+  var glowSteps = glowPalette.map(function (c, i) { return labDistance(c, glowPalette[(i + 1) % glowPalette.length]); });
+  var glowAvgStep = glowSteps.reduce(function (a, b) { return a + b; }, 0) / glowSteps.length || 1;
+  var glowDurations = glowSteps.map(function (d) { return Math.max(0.001, GLOW.change * d / glowAvgStep); });
+  var glowCycle = glowDurations.reduce(function (a, d) { return a + d; }, 0);
 
-    // The colour drifts continuously at one steady speed, never pausing: a bigger
-    // step between two colours simply takes proportionally longer.
-    var steps = palette.map(function (c, i) { return labDistance(c, palette[(i + 1) % palette.length]); });
-    var avgStep = steps.reduce(function (a, b) { return a + b; }, 0) / steps.length || 1;
-    var durations = steps.map(function (d) { return Math.max(0.001, GLOW.change * d / avgStep); });
-    var cycleLength = durations.reduce(function (a, d) { return a + d; }, 0);
+  // Seconds on the shared clock (time since the page loaded; frozen with reduced motion).
+  function glowTime() {
+    return glowAnimate ? performance.now() / 1000 : 0;
+  }
+
+  function glowColorAt(seconds) {
+    var palette = glowPalette;
+    if (palette.length < 2) return oklabToRgb(palette[0]);
+    var time = seconds % glowCycle;
+    for (var i = 0; i < palette.length; i++) {
+      if (time < glowDurations[i] || i === palette.length - 1) break;
+      time -= glowDurations[i];
+    }
+    var t = Math.min(1, time / glowDurations[i]);
+    var a = palette[i], b = palette[(i + 1) % palette.length];
+    return oklabToRgb([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
+  }
+
+  function initGlow(surface) {
+    var bg = surface.querySelector('.glow__bg');
+    var canvas = bg.querySelector('.glow__canvas');
     var inView = true;
     var rafId = 0;
     var last = 0;
-    var elapsed = 0;
     var w = 1, h = 1, dpr = 1;
 
-    // Current and target glow centre, in CSS px relative to the hero.
+    // Current and target glow centre, in CSS px relative to the section.
     var pos = { x: 0, y: 0 };
     var target = { x: 0, y: 0 };
     var pointer = null;   // last cursor position in viewport coordinates
@@ -243,26 +258,14 @@
         target.y = h * GLOW.y;
         return;
       }
-      // Track the cursor anywhere on the page, kept inside the hero so the glow stays visible.
-      var r = hero.getBoundingClientRect();
+      // Track the cursor anywhere on the page, kept inside this section so the glow stays visible.
+      var r = surface.getBoundingClientRect();
       target.x = Math.min(Math.max(pointer.x - r.left, 0), w);
       target.y = Math.min(Math.max(pointer.y - r.top, 0), h);
     }
 
-    function currentColor() {
-      if (palette.length < 2) return oklabToRgb(palette[0]);
-      var time = colorClock % cycleLength;
-      for (var i = 0; i < palette.length; i++) {
-        if (time < durations[i] || i === palette.length - 1) break;
-        time -= durations[i];
-      }
-      var t = Math.min(1, time / durations[i]);
-      var a = palette[i], b = palette[(i + 1) % palette.length];
-      return oklabToRgb([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
-    }
-
     function radiusPx() {
-      // Scales with the hero's shorter side, but never below half its longer side.
+      // Scales with the section's shorter side, but never below half its longer side.
       return GLOW.radius * Math.max(Math.min(w, h), 0.5 * Math.max(w, h));
     }
 
@@ -351,7 +354,7 @@
     }
 
     function resize() {
-      var r = hero.getBoundingClientRect();
+      var r = surface.getBoundingClientRect();
       var first = w === 1 && h === 1;
       w = Math.max(1, r.width);
       h = Math.max(1, r.height);
@@ -367,20 +370,21 @@
     }
 
     function draw() {
-      var c = currentColor();
+      var time = glowTime();
+      var c = glowColorAt(time);
       if (gl) {
         gl.uniform3fv(loc.uInner, c);
         gl.uniform2f(loc.uRes, canvas.width, canvas.height);
         gl.uniform2f(loc.uCenter, pos.x * dpr, pos.y * dpr);
         gl.uniform1f(loc.uRadius, radiusPx() * dpr);
-        gl.uniform1f(loc.uTime, elapsed * GLOW.warpSpeed);
-        gl.uniform1f(loc.uSeed, animate ? Math.random() * 100 : 0);
+        gl.uniform1f(loc.uTime, time * GLOW.warpSpeed);
+        gl.uniform1f(loc.uSeed, glowAnimate ? Math.random() * 100 : 0);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       } else {
-        heroBg.style.setProperty('--glow-x', pos.x + 'px');
-        heroBg.style.setProperty('--glow-y', pos.y + 'px');
-        heroBg.style.setProperty('--glow-r', Math.round(radiusPx()) + 'px');
-        heroBg.style.setProperty('--color-accent', 'rgb(' + c.map(function (v) { return Math.round(v * 255); }).join(',') + ')');
+        bg.style.setProperty('--glow-x', pos.x + 'px');
+        bg.style.setProperty('--glow-y', pos.y + 'px');
+        bg.style.setProperty('--glow-r', Math.round(radiusPx()) + 'px');
+        bg.style.setProperty('--color-accent', 'rgb(' + c.map(function (v) { return Math.round(v * 255); }).join(',') + ')');
       }
     }
 
@@ -388,10 +392,6 @@
       rafId = 0;
       var dt = last ? Math.min((now - last) / 1000, 0.1) : 0;
       last = now;
-      if (animate) {
-        elapsed += dt;
-        colorClock += dt;
-      }
       var k = 1 - Math.exp(-dt * GLOW.followSpeed);
       pos.x += (target.x - pos.x) * k;
       pos.y += (target.y - pos.y) * k;
@@ -402,7 +402,7 @@
     function schedule() {
       if (rafId || !inView || document.hidden) return;
       // Without animation, stop redrawing once the glow has caught up with the cursor.
-      if (!animate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
+      if (!glowAnimate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
         last = 0;
         return;
       }
@@ -421,16 +421,17 @@
       updateTarget();
       schedule();
     }, { passive: true });
-    // Scrolling moves the hero under a still cursor, so re-aim the glow.
+    // Scrolling moves the section under a still cursor, so re-aim the glow.
     window.addEventListener('scroll', function () {
       if (pointer) { updateTarget(); schedule(); }
     }, { passive: true });
 
+    // Only animate while the section is on screen and the tab is visible.
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
         inView = entries[0].isIntersecting;
         if (inView) schedule(); else stop();
-      }).observe(hero);
+      }).observe(surface);
     }
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) stop(); else schedule();
@@ -441,6 +442,10 @@
     if (gl) canvas.classList.add('is-ready');
     schedule();
   }
+
+  document.querySelectorAll('.glow').forEach(function (surface) {
+    if (surface.querySelector('.glow__bg')) initGlow(surface);
+  });
 
   /* ---------- Footer year ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {
