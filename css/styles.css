@@ -580,6 +580,27 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 .footer-col p { margin: 0 0 0.5em; }
+
+/* Footer links get the header's hover: a black box fades in behind white text over 0.9s
+   and snaps back instantly. Instead of adding a ↗, the → in front turns to ↗ as it fades in. */
+.footer-link {
+  padding: 0.1em 0;            /* a snug box like the site name's; doesn't move the layout */
+}
+
+.footer-link .arrow { transition: none; }
+
+.footer-link:hover,
+.footer-link:focus-visible {
+  background-color: #000;
+  color: #fff;
+  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
+}
+
+.footer-link:hover .arrow,
+.footer-link:focus-visible .arrow {
+  transform: rotate(-45deg);
+  transition: transform 0.9s ease 0.04s;
+}
 .footer-col--a { grid-column: 1 / 5; }
 .footer-col--b { grid-column: 5 / 9; }
 .footer-col--meta { grid-column: 17 / -1; text-align: right; }
