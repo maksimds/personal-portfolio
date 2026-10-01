@@ -3,7 +3,7 @@
 A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the Inter and Inter Tight fonts from Google Fonts, and the pages fall back to system fonts without them.
 
 ```
-index.html                     Home: hero with cursor-following glow, Work list, Side Projects, footer
+index.html                     Home: hero with cursor-following glow, "My works" list, footer
 about.html                     About page
 projects/project-template.html Reusable case-study page
 css/styles.css                 All styles
@@ -43,8 +43,8 @@ grep -rn "YOUR" --include=*.html .
    - To add an image/text section, copy one `<div class="grid case-row">` block.
    - Add `case-row--flip` to a row to put the image on the right.
    - Point the "next project" link at the bottom to another case study.
-3. In `index.html`, copy one `<li class="project">` block inside the Work list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
-   - Side projects work the same way. Use the Side Projects list, and link straight to an external site if the project has no case study.
+3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
+   - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
 ## Hero glow
 
