@@ -447,7 +447,15 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 .hero__clock { font-variant-numeric: tabular-nums; }
 
-.hero .rule { grid-column: 1 / -1; }
+/* The hero line is 15% thinner than the other rules (1.7px instead of 2px). Browsers round
+   border widths to whole pixels, so it's drawn as a background whose lower edge fades over
+   one pixel, which renders as exactly 1.7px. It still takes up 2px, so nothing moves. */
+.hero .rule {
+  grid-column: 1 / -1;
+  height: var(--rule-weight);
+  border-top: 0;
+  background: linear-gradient(var(--color-rule) 1.2px, transparent 2.2px);
+}
 
 .hero__title {
   grid-column: 1 / -1;
