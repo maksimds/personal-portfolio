@@ -10,7 +10,6 @@
   --color-text: #0b0b0b;
   --color-muted: #55564f;
   --color-rule: #111111;
-  --color-placeholder: #c9cac4;
   --color-accent: #2f4881;      /* hero glow blue */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -39,6 +38,7 @@
   --fs-nav: 0.875rem;
   --fs-title: 1rem;
   --fs-h1: clamp(2.6rem, 4.6vw + 1rem, 8rem);
+  --fs-hero-text: max(1rem, calc(var(--fs-text) - 4px));   /* hero's small text: 4px under body text, never below 16px */
   --fs-h2: clamp(2rem, 3.3vw + 1rem, 6rem);
   --fs-h3: clamp(1.5rem, 1.6vw + 1rem, 3.25rem);
   --fs-h4: clamp(1.25rem, 0.9vw + 1rem, 2.25rem);
@@ -442,7 +442,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .hero__location {
   grid-column: 1 / -1;
   margin: 0 0 1.6vw;
-  font-size: var(--fs-text);
+  font-size: var(--fs-hero-text);
   line-height: 1.6;
 }
 .hero__clock { font-variant-numeric: tabular-nums; }
@@ -457,14 +457,17 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   background: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
 }
 
+/* 94px from a 1470px-wide window up, scaling down on smaller screens (phones keep 2.6rem) */
 .hero__title {
   grid-column: 1 / -1;
   padding-top: 3vw;
+  font-size: clamp(2.6rem, 6.4vw, 94px);
 }
 
 .hero__status {
   grid-column: 1 / -1;
   margin-top: 8.6vw;
+  font-size: var(--fs-hero-text);
 }
 
 /* From tablet width up, each status line stays on one line. Phones are too narrow, so they wrap there. */
@@ -507,7 +510,6 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__thumb {
   grid-column: 1 / 3;
   overflow: hidden;
-  background: var(--color-placeholder);
   aspect-ratio: 1 / 1;
 }
 .project__thumb img {
