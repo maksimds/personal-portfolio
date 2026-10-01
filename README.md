@@ -72,6 +72,8 @@ For visitors who have turned on reduced motion, the glow still follows the curso
 
 The header has no background at the top of every page. On the home page it stays see-through over the whole hero, so the glow shows behind it. Once other content scrolls under it, it fades to white. To change that colour, edit `--header-solid-bg` in `css/styles.css`, for example to `var(--color-bg)` to match the page grey.
 
+Hovering your name or a nav link fades in a black box behind white text over about 0.9 seconds, and adds a thin ↗ after the word that pushes the next items along. Moving away snaps it back instantly. Keyboard focus shows the same effect. The current page's nav link has a thin underline. The arrow's shape is the `--nav-arrow` image in `css/styles.css`.
+
 ## Deploy
 
 Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build.

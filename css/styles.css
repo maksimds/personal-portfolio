@@ -26,6 +26,8 @@
   --header-pad-y: 1vw;
   --header-height: 65px;        /* updated by JS */
   --header-solid-bg: #ffffff;   /* header background once content scrolls under it */
+  /* thin ↗ used by the header hover effect (a 12-unit square, 1.35-unit stroke) */
+  --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
 
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --dur: 0.9s;
@@ -200,7 +202,8 @@ main > section + nav,
   font-size: var(--fs-title);
   font-weight: 500;
   letter-spacing: -0.01em;
-  line-height: 1;
+  line-height: 1.22;           /* with the padding, a 22px box for the hover background */
+  padding-top: 0.16em;
   white-space: nowrap;
 }
 
@@ -213,13 +216,67 @@ main > section + nav,
 }
 
 .site-nav a {
+  display: flex;               /* keeps the hover arrow right after the word */
   font-size: var(--fs-nav);
   font-weight: 500;
-  line-height: 1;
-  padding: 0.25em 0;
+  line-height: 1.8rem;         /* with the padding, a 32px box for the hover background */
+  padding: 0.1rem 0;
 }
 
-.site-nav a[aria-current="page"] { background-size: 100% 1px; }
+/* Current page: a thin underline along the bottom of the link's box */
+.site-nav a[aria-current="page"] {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 calc(100% - 0.1rem);
+}
+
+/* Hover (and keyboard focus) on the site name and nav links: a black box fades in
+   behind white text and a ↗ is added after the word, pushing what follows along.
+   It fades in over 0.9s and snaps back instantly when the pointer leaves. */
+.site-title:hover,
+.site-title:focus-visible,
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  background-color: #000;
+  color: #fff;
+  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
+}
+
+/* The ↗ is drawn as a thin vector arrow (filled with the text colour, so it fades in
+   with it), sized and placed to match the original. */
+.site-title:hover::after,
+.site-title:focus-visible::after,
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after {
+  content: "";
+  background-color: currentColor;
+  -webkit-mask: var(--nav-arrow) no-repeat;
+  mask: var(--nav-arrow) no-repeat;
+}
+
+/* Nav links: a 1rem-wide slot after the word, holding a 12px arrow */
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after {
+  width: 1rem;
+  -webkit-mask-size: 0.75rem;
+  mask-size: 0.75rem;
+  -webkit-mask-position: 0.08rem 0.46rem;
+  mask-position: 0.08rem 0.46rem;
+}
+
+/* Site name: a slot after the name, holding a 15px arrow level with the text */
+.site-title:hover::after,
+.site-title:focus-visible::after {
+  display: inline-block;
+  vertical-align: top;
+  width: 1.14em;
+  height: 1.22em;
+  -webkit-mask-size: 0.9375em;
+  mask-size: 0.9375em;
+  -webkit-mask-position: 0.09em 0.03em;
+  mask-position: 0.09em 0.03em;
+}
 
 .site-icons {
   display: flex;
