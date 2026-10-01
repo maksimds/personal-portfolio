@@ -161,7 +161,7 @@
       '#1f4c6b'                // petrol blue
     ],
     change: 8,                 // average seconds to drift from one colour to the next
-    outer: '#dedfda',          // edge colour (page background)
+    outer: '#e3ded3',          // edge colour (page background)
     x: 0.61, y: 0.60,          // resting position (fraction of the section)
     radius: 0.8,               // relative to the section's size
     followSpeed: 3.2,          // higher = catches up with the cursor faster

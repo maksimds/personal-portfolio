@@ -6,7 +6,7 @@
 
 /* ---------- Design tokens ---------- */
 :root {
-  --color-bg: #dedfda;          /* warm light grey page background */
+  --color-bg: #e3ded3;          /* light beige page background */
   --color-text: #0b0b0b;
   --color-muted: #55564f;
   --color-rule: #111111;
