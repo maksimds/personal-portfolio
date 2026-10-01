@@ -205,6 +205,7 @@ main > section + nav,
 }
 
 .site-title {
+  font-family: var(--font-display);
   font-size: var(--fs-title);
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -223,6 +224,7 @@ main > section + nav,
 
 .site-nav a {
   display: flex;               /* keeps the hover arrow right after the word */
+  font-family: var(--font-display);
   font-size: var(--fs-nav);
   font-weight: 500;
   line-height: 1.8rem;         /* with the padding, a 32px box for the hover background */

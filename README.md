@@ -1,6 +1,6 @@
 # Personal portfolio
 
-A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the fonts from Google Fonts: Syne for headings (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
+A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the fonts from Google Fonts: Syne for headings and the navbar (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
 
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
