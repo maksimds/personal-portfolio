@@ -529,7 +529,8 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* Hovering a row (or focusing it with the keyboard): the thumbnail zooms; the title gets
    the header's hover (a black box fading in behind white text over 0.9s, plus a ↗ after
-   it); and the → on the right turns to ↗ over the same 0.9s. All snap back instantly. */
+   it, snapping back instantly); and the → on the right nudges a little to the left and
+   glides smoothly back. */
 .project__link:hover .project__thumb img,
 .project__link:focus-visible .project__thumb img { transform: scale(1.06); }
 
@@ -554,8 +555,19 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 .project__link:hover .project__cta .arrow,
 .project__link:focus-visible .project__cta .arrow {
-  transform: rotate(-45deg);
-  transition: transform 0.9s ease 0.04s;
+  animation: project-arrow-nudge 0.9s 0.04s both;
+}
+
+@keyframes project-arrow-nudge {
+  0% {
+    transform: translateX(0);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);    /* quick out to the left… */
+  }
+  35% {
+    transform: translateX(-0.3em);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);  /* …then a smooth glide back */
+  }
+  100% { transform: translateX(0); }
 }
 
 /* Side projects use tall (phone-screen) thumbnails */
