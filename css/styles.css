@@ -528,9 +528,8 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__cta .arrow { transition: none; }
 
 /* Hovering a row (or focusing it with the keyboard): the thumbnail zooms; the title gets
-   the header's hover (a black box fading in behind white text over 0.9s, plus a ↗ after
-   it, snapping back instantly); and the → on the right nudges a little to the left and
-   glides smoothly back. */
+   the header's black box, fading in behind white text over 0.9s and snapping back
+   instantly; and the → on the right nudges a little to the left and glides smoothly back. */
 .project__link:hover .project__thumb img,
 .project__link:focus-visible .project__thumb img { transform: scale(1.06); }
 
@@ -539,18 +538,6 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   background-color: #000;
   color: #fff;
   transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-
-.project__link:hover .project__name::after,
-.project__link:focus-visible .project__name::after {
-  content: "";
-  display: inline-block;
-  width: 1.14em;
-  height: 0.9375em;
-  vertical-align: -0.055em;    /* the arrow sits level with the capitals, as in the header */
-  background-color: currentColor;
-  -webkit-mask: var(--nav-arrow) no-repeat 0.09em 0 / 0.9375em;
-  mask: var(--nav-arrow) no-repeat 0.09em 0 / 0.9375em;
 }
 
 .project__link:hover .project__cta .arrow,
