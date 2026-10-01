@@ -550,7 +550,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* Logo thumbnails (a logo on a transparent background) grow a bit more and tilt to the right */
 .project__link:hover .project__thumb--logo img,
-.project__link:focus-visible .project__thumb--logo img { transform: scale(1.12) rotate(25deg); }
+.project__link:focus-visible .project__thumb--logo img { transform: scale(1.12) rotate(15deg); }
 
 .project__link:hover .project__name,
 .project__link:focus-visible .project__name {
