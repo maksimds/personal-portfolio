@@ -38,7 +38,7 @@
   --fs-nav: 0.875rem;
   --fs-title: 1rem;
   --fs-h1: clamp(2.6rem, 4.6vw + 1rem, 8rem);
-  --fs-hero-text: max(1rem, calc(var(--fs-text) - 4px));   /* hero's small text: 4px under body text, never below 16px */
+  --fs-text-sm: max(1rem, calc(var(--fs-text) - 4px));   /* hero and My works text: 4px under body text, never below 16px */
   --fs-h2: clamp(2rem, 3.3vw + 1rem, 6rem);
   --fs-h3: clamp(1.5rem, 1.6vw + 1rem, 3.25rem);
   --fs-h4: clamp(1.25rem, 0.9vw + 1rem, 2.25rem);
@@ -442,7 +442,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .hero__location {
   grid-column: 1 / -1;
   margin: 0 0 1.6vw;
-  font-size: var(--fs-hero-text);
+  font-size: var(--fs-text-sm);
   line-height: 1.6;
 }
 .hero__clock { font-variant-numeric: tabular-nums; }
@@ -467,7 +467,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .hero__status {
   grid-column: 1 / -1;
   margin-top: 8.6vw;
-  font-size: var(--fs-hero-text);
+  font-size: var(--fs-text-sm);
 }
 
 /* From tablet width up, each status line stays on one line. Phones are too narrow, so they wrap there. */
@@ -488,10 +488,12 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   align-items: end;
   padding-bottom: calc(var(--row) * 1);
 }
-.list-head h2 { grid-column: 1 / 12; }
+/* "My works" is 8px under the h3 size, never below 20px */
+.list-head h2 { grid-column: 1 / 12; font-size: max(1.25rem, calc(var(--fs-h3) - 8px)); }
 .list-head__meta {
   grid-column: 12 / -1;
   justify-self: end;
+  font-size: var(--fs-text-sm);
 }
 
 .project-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule-weight) solid var(--color-rule); }
@@ -504,7 +506,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   column-gap: var(--gap);
   align-items: center;
   padding: calc(var(--row) * 0.75) 0;
-  font-size: var(--fs-text);
+  font-size: var(--fs-text-sm);
 }
 
 .project__thumb {
@@ -545,6 +547,10 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
    instantly; and the → on the right nudges a little to the left and glides smoothly back. */
 .project__link:hover .project__thumb img,
 .project__link:focus-visible .project__thumb img { transform: scale(1.06); }
+
+/* Logo thumbnails (a logo on a transparent background) grow a bit more and tilt to the right */
+.project__link:hover .project__thumb--logo img,
+.project__link:focus-visible .project__thumb--logo img { transform: scale(1.12) rotate(25deg); }
 
 .project__link:hover .project__name,
 .project__link:focus-visible .project__name {
