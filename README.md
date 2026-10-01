@@ -1,6 +1,6 @@
 # Personal portfolio
 
-A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the Inter and Inter Tight fonts from Google Fonts, and the pages fall back to system fonts without them.
+A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the Lato font from Google Fonts, and the pages fall back to system fonts without it.
 
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
