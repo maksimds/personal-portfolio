@@ -440,7 +440,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .hero__content { position: relative; }
 
 .hero__location {
-  grid-column: 1 / 13;
+  grid-column: 1 / -1;
   margin: 0 0 1.6vw;
   font-size: var(--fs-text);
   line-height: 1.6;
@@ -463,15 +463,18 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 .hero__status {
-  grid-column: 1 / 14;
+  grid-column: 1 / -1;
   margin-top: 8.6vw;
+}
+
+/* From tablet width up, each status line stays on one line. Phones are too narrow, so they wrap there. */
+@media (min-width: 768px) {
+  .hero__status p { white-space: nowrap; }
 }
 
 
 @media (max-width: 767px) {
   .hero { min-height: 88svh; }
-  .hero__location,
-  .hero__status { grid-column: 1 / -1; }
   .hero__location { margin-bottom: 1rem; }
   .hero__title { padding-top: 1.5rem; }
   .hero__status { margin-top: 3rem; }
