@@ -554,10 +554,11 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__thumb:not(.project__thumb--logo):hover img,
 .project__link:focus-visible .project__thumb:not(.project__thumb--logo) img { transform: scale(1.06); }
 
-/* Logo thumbnails (a logo on a transparent background) ignore hovering the row. Only pointing
-   at the logo itself makes it grow and tilt to the right. The hit area is an invisible box
-   over the logo's own bounds (set for the dōTERRA mark; adjust the inset for other logos).
-   The rest of the square lets the pointer through to the row's link. */
+/* Logo thumbnails (a logo or mockup on a transparent background) ignore hovering the row. Only
+   pointing at the logo itself makes it grow and tilt to the right. The hit area is an invisible
+   box over the logo's own bounds: --logo-inset, set on the thumbnail when its logo has a
+   different shape (the default fits the dōTERRA mark). The rest of the square lets the pointer
+   through to the row's link. */
 .project__thumb--logo {
   position: relative;
   pointer-events: none;
@@ -565,7 +566,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__thumb--logo::after {
   content: "";
   position: absolute;
-  inset: 22% 30%;
+  inset: var(--logo-inset, 22% 30%);
   pointer-events: auto;
 }
 .project__thumb--logo:hover img { transform: scale(1.12) rotate(15deg); }

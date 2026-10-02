@@ -43,7 +43,7 @@ grep -rn "YOUR" --include=*.html .
    - Add `case-row--flip` to a row to put the image on the right.
    - Point the "next project" link at the bottom to another case study.
 3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
-   - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is set by the `inset` on `.project__thumb--logo::after` in `css/styles.css`.
+   - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is a box over the logo, inset from the square's edges by `--logo-inset` (top/bottom, then left/right). The default fits the dōTERRA mark; for another shape, set it on the thumbnail, e.g. `style="--logo-inset: 22.6% 37.3%"` for the Kalorie phone.
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
 ## Glow (hero and footers)
