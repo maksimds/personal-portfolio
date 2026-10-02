@@ -32,7 +32,7 @@ Every placeholder contains the word `YOUR`, so you can list them all with:
 grep -rn "YOUR" --include=*.html .
 ```
 
-- **Intro, bio, links:** replace the `[YOUR …]` text. The email link (`YOUR_EMAIL@example.com`) appears in the footer and mobile menu of every page, plus the About page and the case study, so use find-and-replace.
+- **Intro, bio, links:** replace the `[YOUR …]` text. The Email links (footer and mobile menu of every page, plus the About page) go to `dnmvatm@gmail.com`; to change it, find-and-replace the address across the pages.
 - **Resume and LinkedIn:** the CV icon and every "Resume" link open the resume on Google Docs, and the LinkedIn links go to `linkedin.com/in/denismaksimov1`. To change either, find-and-replace the URL across the three pages.
 - **Clock:** in `index.html`, set `data-timezone` on the clock to your IANA time zone, such as `America/New_York`. If you leave it empty, the clock shows the visitor's own time.
 - **Photos:** put your images in `images/` and change the `src` (and `width`/`height`, `alt`) on the matching `<img>`. The placeholder file names show the intended aspect ratio.
