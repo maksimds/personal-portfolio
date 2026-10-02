@@ -567,6 +567,37 @@
   initCursor();
   */
 
+  /* ---------- Embedded prototypes ----------
+     A link with data-embed="<id>" opens and closes the panel with that id (just below it). The
+     iframe, whose URL is the panel's data-src, is only created the first time it opens, so the page
+     doesn't load the embed until someone asks for it. Without JavaScript the link simply opens the
+     prototype in a new tab. */
+  document.querySelectorAll('[data-embed]').forEach(function (link) {
+    var panel = document.getElementById(link.getAttribute('data-embed'));
+    if (!panel) return;
+    var label = link.querySelector('[data-embed-label]');
+    var closedText = label ? label.textContent : '';
+    var openText = link.getAttribute('data-embed-open-label') || closedText;
+    link.setAttribute('role', 'button');
+    link.setAttribute('aria-expanded', 'false');
+    link.setAttribute('aria-controls', panel.id);
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var open = link.getAttribute('aria-expanded') !== 'true';
+      if (open && !panel.querySelector('iframe')) {
+        var frame = document.createElement('iframe');
+        frame.src = panel.getAttribute('data-src');
+        frame.title = panel.getAttribute('data-title') || '';
+        frame.allowFullscreen = true;
+        (panel.querySelector('.case-embed__frame') || panel).appendChild(frame);
+      }
+      link.setAttribute('aria-expanded', String(open));
+      panel.classList.toggle('is-open', open);
+      panel.inert = !open;
+      if (label) label.textContent = open ? openText : closedText;
+    });
+  });
+
   /* ---------- Back links ----------
      A link with data-back returns to the previous page when the visitor came from this site;
      otherwise it follows its href (the home page). */

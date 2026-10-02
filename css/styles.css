@@ -864,6 +864,44 @@ a.project__link .project__name:hover,
 /* Links out ("→ Live site"): the footer links' hover, the → turning to ↗ */
 .arrow-link { font-weight: 500; }
 
+/* Embedded prototype: a panel that slides open under its "View prototype" link. While open,
+   the link reads "Hide prototype" and its arrow points down. */
+.arrow-link[aria-expanded="true"] .arrow,
+.arrow-link[aria-expanded="true"]:hover .arrow,
+.arrow-link[aria-expanded="true"]:focus-visible .arrow { transform: rotate(90deg); }
+
+.case-embed {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease), margin-bottom 0.6s var(--ease);
+}
+.case-embed.is-open { grid-template-rows: 1fr; margin-bottom: 1.5em; }
+.case-embed__inner { min-height: 0; overflow: hidden; }
+.case-embed__frame {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: rgba(11, 11, 11, 0.05);
+}
+.case-embed__frame::before {
+  content: "Loading prototype…";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-small);
+  color: var(--color-muted);
+}
+.case-embed__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+@media (max-width: 767px) {
+  .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
+}
+
 /* Project details: label above value, between two thin rules. Skills (the fourth) gets the
    widest column, as it's usually the longest. */
 .case-facts {
