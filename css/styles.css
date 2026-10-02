@@ -24,7 +24,7 @@
 
   --header-pad-y: 1vw;
   --header-height: 65px;        /* updated by JS */
-  --header-solid-bg: #f5f5f5;   /* header background once content scrolls under it */
+  --header-solid-bg: var(--color-bg);   /* header background once content scrolls under it (the page beige) */
   /* thin ↗ used by the header hover effect (a 12-unit square, 1.35-unit stroke) */
   --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
 
