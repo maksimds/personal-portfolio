@@ -545,10 +545,11 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 .project__cta .arrow { transition: none; }
 
-/* Hovering a row (or focusing it with the keyboard): the thumbnail zooms; the title gets
-   the header's black box, fading in behind white text over 0.9s and snapping back
-   instantly; and the → on the right nudges a little to the left and glides smoothly back. */
-.project__link:hover .project__thumb:not(.project__thumb--logo) img,
+/* Each part of a row reacts only when the pointer is on that part (keyboard focus on the row
+   shows them all): the thumbnail zooms; the title gets the header's black box, fading in behind
+   white text over 0.9s and snapping back instantly; and the → on the right nudges a little to
+   the left and glides smoothly back. */
+.project__thumb:not(.project__thumb--logo):hover img,
 .project__link:focus-visible .project__thumb:not(.project__thumb--logo) img { transform: scale(1.06); }
 
 /* Logo thumbnails (a logo on a transparent background) ignore hovering the row. Only pointing
@@ -567,14 +568,14 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 .project__thumb--logo:hover img { transform: scale(1.12) rotate(15deg); }
 
-.project__link:hover .project__name,
+.project__name:hover,
 .project__link:focus-visible .project__name {
   background-color: #000;
   color: #fff;
   transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
 }
 
-.project__link:hover .project__cta .arrow,
+.project__cta:hover .arrow,
 .project__link:focus-visible .project__cta .arrow {
   animation: project-arrow-nudge 0.9s 0.04s both;
 }
@@ -760,10 +761,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 /* ---------- Cursor (js/main.js) ----------
-   With a mouse, the arrow is hidden and this disc follows the pointer instead. */
-.has-custom-cursor,
-.has-custom-cursor * { cursor: none !important; }
-
+   With a mouse, this disc trails the normal pointer. */
 .cursor {
   position: fixed;
   top: 0;
@@ -774,7 +772,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   margin: -12px 0 0 -12px;     /* centred on its position */
   border-radius: 50%;
   /* The page colour plus the text colour. Blended with "difference", it shows as #0B0B0B
-     over the page background and as #E3DED3 over text, and inverts whatever else is under it. */
+     over the page background and as #E3DED3 over text, and inverts the black hover boxes. */
   background-color: #eee9de;
   mix-blend-mode: difference;
   pointer-events: none;
@@ -783,6 +781,24 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   transition: opacity 0.2s ease;
 }
 .cursor.is-visible { opacity: 1; }
+
+/* Inside each glow section, just above the glow and below the content: a page-coloured copy
+   of the disc, so the disc shows #0B0B0B over the glow instead of inverting its colours. */
+.cursor-backing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border-radius: 50%;
+  background-color: var(--color-bg);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 0.2s ease;
+}
+.cursor-backing.is-visible { opacity: 1; }
 
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {

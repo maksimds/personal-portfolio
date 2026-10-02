@@ -444,12 +444,12 @@
   });
 
   /* ---------- Cursor ----------
-     Modelled on graffio.co's cursor. With a mouse, the arrow is replaced by a 24px disc that
-     trails the pointer (each frame it covers 10% of the remaining distance), stretches along its
-     direction of travel and settles back into a circle when the pointer stops. Over a link it is
-     drawn toward the link's centre and doubles in size, while the link itself is pulled a little
-     toward the pointer on a springy wobble. The disc is blended with "difference" (see .cursor in
-     css/styles.css), so it inverts whatever is under it. Touch screens keep their normal behaviour. */
+     Modelled on graffio.co's cursor. With a mouse, a 24px disc trails the normal pointer (each
+     frame it covers 10% of the remaining distance), stretches along its direction of travel and
+     settles back into a circle when the pointer stops. Over a link it grows to twice its size.
+     The disc is blended with "difference" (see .cursor in css/styles.css), so it shows as the text
+     colour on the page and as the page colour on text and the black hover boxes. Touch screens
+     are unaffected. */
   var CURSOR_LINKS = '.site-title, .site-nav a, .icon-link, .footer-link, .about__links .link, .case-back, .case-next a';
 
   function initCursor() {
@@ -466,103 +466,65 @@
     var prev = { x: 0, y: 0 };
     var size = 1;                      // 1 normally, 2 over a link
     var scaleX = 1, scaleY = 1, rotation = 0;
-    var hoverEl = null;
-    var springs = [];                  // links being pulled toward the pointer, or settling back
+    var overLink = false;
     var frame = 0, last = 0, shown = false;
 
     function lerp(a, b, t) { return a + (b - a) * t; }
     // The per-frame factors are tuned for 60fps; this keeps the same feel at any refresh rate.
     function ease(perFrame, frames) { return 1 - Math.pow(1 - perFrame, frames); }
 
-    // Links: a spring (stiffness 160, damping 9, mass 1) pulls each one 12% of the way toward
-    // the pointer, and back to rest when the pointer leaves. Relative positioning is used rather
-    // than a transform so it also works on inline links.
-    function springFor(el) {
-      for (var i = 0; i < springs.length; i++) if (springs[i].el === el) return springs[i];
-      var s = { el: el, x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0 };
-      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
-      springs.push(s);
-      return s;
-    }
-    function pull(el, px, py) {
-      var s = springFor(el), r = el.getBoundingClientRect();
-      s.tx = (px - (r.left + r.width / 2)) * 0.12;
-      s.ty = (py - (r.top + r.height / 2)) * 0.12;
-    }
-    function release(el) {
-      var s = springFor(el);
-      s.tx = 0;
-      s.ty = 0;
-    }
-    function stepSprings(seconds) {
-      for (var i = springs.length - 1; i >= 0; i--) {
-        var s = springs[i];
-        for (var left = seconds; left > 0; left -= 1 / 240) {
-          var h = Math.min(left, 1 / 240);
-          s.vx += (-160 * (s.x - s.tx) - 9 * s.vx) * h;
-          s.vy += (-160 * (s.y - s.ty) - 9 * s.vy) * h;
-          s.x += s.vx * h;
-          s.y += s.vy * h;
-        }
-        if (!s.tx && !s.ty && Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.vx) + Math.abs(s.vy) < 0.02) {
-          s.el.style.left = s.el.style.top = s.el.style.position = '';
-          springs.splice(i, 1);
-        } else {
-          s.el.style.left = s.x + 'px';
-          s.el.style.top = s.y + 'px';
-        }
-      }
+    // Glow sections: a page-coloured copy of the disc sits just above the glow and below the
+    // content, so under the disc the glow is hidden and the disc shows the text colour there
+    // instead of the glow's inverted colours. (It's positioned inside the section rather than
+    // fixed, because a fixed one would be drawn over the section's text.)
+    var backings = [].map.call(document.querySelectorAll('.glow__bg'), function (bg) {
+      var el = document.createElement('div');
+      el.className = 'cursor-backing';
+      bg.appendChild(el);
+      return el;
+    });
+    function setVisible(on) {
+      disc.classList.toggle('is-visible', on);
+      backings.forEach(function (el) { el.classList.toggle('is-visible', on); });
     }
 
     function render() {
-      disc.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0) rotate(' + rotation + 'deg) scale(' + scaleX + ',' + scaleY + ')';
+      var t = ' rotate(' + rotation + 'deg) scale(' + scaleX + ',' + scaleY + ')';
+      disc.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0)' + t;
+      backings.forEach(function (el) {
+        var r = el.parentNode.getBoundingClientRect();
+        el.style.transform = 'translate3d(' + (pos.x - r.left) + 'px,' + (pos.y - r.top) + 'px,0)' + t;
+      });
     }
 
     function loop(now) {
       var frames = last ? Math.min((now - last) / (1000 / 60), 4) : 1;   // time since the last frame, in 60fps frames
       last = now;
-
-      var target = pointer, targetSize = 1, dx = 0, dy = 0;
-      if (hoverEl) {
-        var r = hoverEl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        dx = pointer.x - cx;
-        dy = pointer.y - cy;
-        target = { x: cx + dx * 0.15, y: cy + dy * 0.15 };
-        targetSize = 2;
-      }
+      var targetSize = overLink ? 2 : 1;
 
       if (still) {
-        pos.x = target.x; pos.y = target.y;
+        pos.x = pointer.x; pos.y = pointer.y;
         size = scaleX = scaleY = targetSize;
         rotation = 0;
       } else {
-        pos.x = lerp(pos.x, target.x, ease(0.1, frames));
-        pos.y = lerp(pos.y, target.y, ease(0.1, frames));
+        pos.x = lerp(pos.x, pointer.x, ease(0.1, frames));
+        pos.y = lerp(pos.y, pointer.y, ease(0.1, frames));
         size = lerp(size, targetSize, ease(0.1, frames));
+        // Stretch along the direction of travel, more the faster it moves
         var vx = (pos.x - prev.x) / frames, vy = (pos.y - prev.y) / frames;   // px per 60fps frame
-        if (hoverEl) {
-          // Stretch toward the pointer, more the further it is from the link's centre
-          var d = Math.sqrt(dx * dx + dy * dy) * 0.01;
-          rotation = Math.atan2(dy, dx) * 180 / Math.PI;
-          scaleX = lerp(scaleX, 2 + Math.pow(Math.min(d, 0.6), 3) * 3, ease(0.18, frames));
-          scaleY = lerp(scaleY, 2 - Math.pow(Math.min(d, 0.3), 3) * 3, ease(0.18, frames));
-        } else {
-          // Stretch along the direction of travel, more the faster it moves
-          var speed = Math.sqrt(vx * vx + vy * vy) * 0.04;
-          rotation = Math.atan2(vy, vx) * 180 / Math.PI;
-          scaleX = size + Math.min(speed, 1);
-          scaleY = size - Math.min(speed, 0.3);
-        }
+        var speed = Math.sqrt(vx * vx + vy * vy) * 0.04;
+        rotation = Math.atan2(vy, vx) * 180 / Math.PI;
+        scaleX = size + Math.min(speed, 1);
+        scaleY = size - Math.min(speed, 0.3);
       }
       prev.x = pos.x;
       prev.y = pos.y;
-      stepSprings(frames / 60);
 
-      var settled = !hoverEl && !springs.length && Math.abs(size - 1) < 0.001 &&
+      var settled = Math.abs(size - targetSize) < 0.001 &&
         Math.abs(pos.x - pointer.x) < 0.05 && Math.abs(pos.y - pointer.y) < 0.05;
       if (settled) {
         pos.x = prev.x = pointer.x; pos.y = prev.y = pointer.y;
-        size = scaleX = scaleY = 1;
+        size = scaleX = scaleY = targetSize;
         rotation = 0;
       }
       render();
@@ -571,26 +533,17 @@
     }
     function wake() { if (!frame) frame = requestAnimationFrame(loop); }
 
-    function setHover(el) {
-      if (el === hoverEl) return;
-      if (hoverEl && !still) release(hoverEl);
-      hoverEl = el;
-    }
-
     document.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') { disc.classList.remove('is-visible'); return; }
+      if (e.pointerType === 'touch') { setVisible(false); return; }
       pointer.x = e.clientX;
       pointer.y = e.clientY;
       if (!shown) {
-        // Start where the pointer is, then hide the arrow only once the disc is showing
-        pos.x = prev.x = pointer.x; pos.y = prev.y = pointer.y;
+        pos.x = prev.x = pointer.x; pos.y = prev.y = pointer.y;   // start where the pointer is
         render();
         shown = true;
-        root.classList.add('has-custom-cursor');
       }
-      disc.classList.add('is-visible');
-      setHover(e.target.closest ? e.target.closest(CURSOR_LINKS) : null);
-      if (hoverEl && !still) pull(hoverEl, pointer.x, pointer.y);
+      setVisible(true);
+      overLink = !!(e.target.closest && e.target.closest(CURSOR_LINKS));
       wake();
     }, { passive: true });
 
@@ -598,15 +551,14 @@
     window.addEventListener('scroll', function () {
       if (!shown) return;
       var el = document.elementFromPoint(pointer.x, pointer.y);
-      setHover(el && el.closest(CURSOR_LINKS));
+      overLink = !!(el && el.closest(CURSOR_LINKS));
       wake();
     }, { passive: true });
 
     document.addEventListener('mouseout', function (e) {
       if (e.relatedTarget) return;      // the pointer left the window
-      disc.classList.remove('is-visible');
-      setHover(null);
-      wake();
+      setVisible(false);
+      overLink = false;
     });
   }
   initCursor();
