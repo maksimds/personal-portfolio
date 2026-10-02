@@ -43,7 +43,7 @@ grep -rn "YOUR" --include=*.html .
    - Add `case-row--flip` to a row to put the image on the right.
    - Point the "next project" link at the bottom to another case study.
 3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
-   - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it tilts on hover instead of only zooming.
+   - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is set by the `inset` on `.project__thumb--logo::after` in `css/styles.css`.
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
 ## Glow (hero and footers)
@@ -72,7 +72,7 @@ For visitors who have turned on reduced motion, the glow still follows the curso
 
 The header has no background only while the page is scrolled all the way to the top. On the home page, the hero's glow shows behind it there. As soon as the page scrolls, it fades to a very light grey (`#f5f5f5`), so text never shows through it. To change that colour, edit `--header-solid-bg` in `css/styles.css`, for example to `var(--color-bg)` to match the page background.
 
-Hovering your name or a nav link fades in a black box behind white text over about 0.9 seconds, and adds a thin ↗ after the word that pushes the next items along. Moving away snaps it back instantly. Keyboard focus shows the same effect. The current page's nav link has a thin underline. The arrow's shape is the `--nav-arrow` image in `css/styles.css`. The footer's Email, Resume and LinkedIn links fade in the same black box over the same 0.9 seconds. Instead of adding an arrow, the → in front of each one turns to point up-right. In the "My works" list, hovering a row zooms its thumbnail slightly (logo thumbnails zoom a little more and tilt 15° to the right), gives its title the same black box (without the ↗), and nudges the → on the right a little to the left before it glides back.
+Hovering your name or a nav link fades in a black box behind white text over about 0.9 seconds, and adds a thin ↗ after the word that pushes the next items along. Moving away snaps it back instantly. Keyboard focus shows the same effect. The current page's nav link has a thin underline. The arrow's shape is the `--nav-arrow` image in `css/styles.css`. The footer's Email, Resume and LinkedIn links fade in the same black box over the same 0.9 seconds. Instead of adding an arrow, the → in front of each one turns to point up-right. In the "My works" list, hovering a row zooms its thumbnail slightly (a logo thumbnail instead grows and tilts 15° to the right, but only when the pointer is on the logo itself), gives its title the same black box (without the ↗), and nudges the → on the right a little to the left before it glides back.
 
 ## Deploy
 
