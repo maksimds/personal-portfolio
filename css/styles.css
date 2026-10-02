@@ -20,6 +20,8 @@
   --gap: 11px;                  /* grid column/row gap */
   --row: calc(76vw * 0.0215);   /* one "grid row" of vertical rhythm */
   --rule-weight: 2px;
+  /* A 1.275px line drawn as a background in a 2px-tall space (see .hero .rule) */
+  --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
   --divider-weight: 4px;        /* full-width line between page sections */
 
   --header-pad-y: 1vw;
@@ -458,7 +460,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   grid-column: 1 / -1;
   height: var(--rule-weight);
   border-top: 0;
-  background: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
+  background: var(--thin-rule);
 }
 
 /* 94px from a 1470px-wide window up, scaling down on smaller screens (phones keep 2.6rem) */
@@ -554,9 +556,20 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   font-size: var(--fs-text-sm);
 }
 
-.project-list { list-style: none; margin: 0; padding: 0; border-top: var(--rule-weight) solid var(--color-rule); }
+/* The lines in the list are as thin as the hero's line (1.275px) and drawn the same way: the 2px
+   borders are transparent and the line is a background painted over them, so nothing moves. */
+.project-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: var(--rule-weight) solid transparent;
+  background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
+}
 
-.project { border-bottom: var(--rule-weight) solid var(--color-rule); }
+.project {
+  border-bottom: var(--rule-weight) solid transparent;
+  background: var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
+}
 
 .project__link {
   display: grid;
