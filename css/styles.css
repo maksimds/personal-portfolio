@@ -499,6 +499,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 .notfound {
+  --notfound-title: clamp(2.75rem, 8.2vw, 120px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -507,7 +508,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* Syne ExtraBold, 120px from a ~1460px-wide window up, scaling down on smaller screens */
 .notfound__title {
-  font-size: clamp(2.75rem, 8.2vw, 120px);
+  font-size: var(--notfound-title);
   font-weight: 800;
   line-height: 1;
   text-wrap: balance;
@@ -519,7 +520,9 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   display: inline-flex;
   align-items: center;
   gap: 0.6em;
-  margin-top: calc(var(--row) * 1.5);
+  /* The visible gap below the letters is this margin plus the bit of the heading's line box
+     under them (about 0.16em); this makes it 1.5x the original 1.5-row margin's gap. */
+  margin-top: calc(var(--row) * 2.25 + var(--notfound-title) * 0.08);
   padding: 0.9em 1.6em;
   border: var(--rule-weight) solid var(--color-rule);
   font-size: var(--fs-text-sm);
