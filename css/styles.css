@@ -784,18 +784,19 @@ a.project__link .project__name:hover,
 .case-head,
 .case-body { grid-column: 4 / 22; }
 
-/* "← All work": the header's black box on hover, and the arrow nudges left and back */
+/* "← All work": on hover the words get the header's black box (the arrow stays outside it)
+   and the arrow nudges left and back */
 .back-link {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  padding: 0.1em 0;
   font-size: var(--fs-small);
   font-weight: 500;
 }
 .back-link .arrow { transition: none; }
-.back-link:hover,
-.back-link:focus-visible {
+.back-link__label { padding: 0.1em 0; }
+.back-link:hover .back-link__label,
+.back-link:focus-visible .back-link__label {
   background-color: #000;
   color: #fff;
   transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
@@ -954,7 +955,7 @@ a.project__link .project__name:hover,
   background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
 }
 .case-nav__link { display: flex; flex-direction: column; gap: 0.4em; }
-.case-nav__link--next { align-items: flex-end; text-align: right; }
+.case-nav__link--next { align-items: flex-end; margin-left: auto; text-align: right; }   /* stays right when there's no previous project */
 .case-nav__label { font-size: var(--fs-small); color: var(--color-muted); }
 .case-nav__name {
   font-family: var(--font-display);
