@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>About — Denis Maksimov</title>
-  <meta name="description" content="[YOUR ONE-LINE INTRO / TITLE]">
+  <meta name="description" content="Denis Maksimov, Product Designer at dōTERRA based in Cincinnati, OH, designing mobile apps, websites, platforms and design systems.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap">
@@ -12,6 +12,10 @@
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- The glow behind the whole About page: fixed to the screen, so it follows the cursor wherever
+       you scroll (see js/main.js). The footer keeps its own glow on top of it. -->
+  <div class="page-glow glow" aria-hidden="true"><div class="glow__bg"><canvas class="glow__canvas"></canvas></div></div>
 
   <header class="site-header">
     <div class="site-header__inner">
@@ -44,32 +48,46 @@
     </div>
   </div>
 
-  <main id="main">
+  <main id="main" class="has-hero">
 
-    <section class="section container">
-      <div class="grid">
-        <h1 class="about__title h2 reveal">Hi there, I'm Denis Maksimov.</h1>
-        <div class="about__bio reveal">
-          <p>[YOUR BIO HERE — a short intro: what you do and what you care about.]</p>
-          <p>[YOUR BIO HERE — where you've worked or studied, and what you're doing now.]</p>
-          <p>[YOUR BIO HERE — something personal: interests outside work.]</p>
+    <!-- ===== Hero: name, short bio and photo, in the middle of the screen ===== -->
+    <section class="about-hero container" aria-labelledby="about-title">
+      <div class="grid about-hero__grid">
+        <div class="about-hero__text reveal">
+          <h1 id="about-title" class="about-hero__name">Denis Maksimov</h1>
+          <p class="about-hero__bio">Product Designer at dōTERRA, based in Cincinnati, OH. I design mobile apps, websites, platforms and design systems, and I’m looking for design roles after graduating in May ’27.</p>
         </div>
-      </div>
-
-      <div class="grid about__lower">
-        <div class="about__links kv reveal">
-          <p><span class="arrow">→</span> <a class="link" href="mailto:dnmvatm@gmail.com" target="_blank" rel="noopener">Email</a></p>
-          <p><span class="arrow">→</span> <a class="link" href="https://docs.google.com/document/d/1OQ2Sl8tJIwK6oQRlIq-Wvrp-UstiPLbf/edit?usp=sharing&amp;ouid=111526572037808045609&amp;rtpof=true&amp;sd=true" target="_blank" rel="noopener">Resume</a></p>
-          <p><span class="arrow">→</span> <a class="link" href="https://www.linkedin.com/in/denismaksimov1" target="_blank" rel="noopener">LinkedIn</a></p>
-        </div>
-        <div class="about__photo-small reveal">
-          <img src="images/placeholder-4x5.svg" alt="[YOUR PHOTO DESCRIPTION]" width="1000" height="1250" loading="lazy">
-        </div>
-        <div class="about__photo-large reveal">
-          <img src="images/placeholder-4x5.svg" alt="[YOUR PORTRAIT DESCRIPTION]" width="1000" height="1250">
-        </div>
+        <!-- Thin lines run down both sides of the photo; on hover the photo grows toward them -->
+        <figure class="about-hero__photo reveal">
+          <img src="images/denis-portrait.jpg" alt="Portrait of Denis Maksimov" width="1000" height="1250">
+        </figure>
       </div>
     </section>
+
+    <!-- ===== Who I am / What I do / What I believe in, separated by short lines ===== -->
+    <div class="about-sections container">
+      <div class="grid">
+        <div class="about-sections__col">
+          <hr class="about-divider">
+          <section class="about-section reveal" aria-labelledby="who-i-am">
+            <h2 id="who-i-am">Who I am</h2>
+            <p>[YOUR WHO I AM — where you’re from, what you study, and what drew you to design.]</p>
+          </section>
+
+          <hr class="about-divider">
+          <section class="about-section reveal" aria-labelledby="what-i-do">
+            <h2 id="what-i-do">What I do</h2>
+            <p>[YOUR WHAT I DO — the kind of products you design and how you approach the work.]</p>
+          </section>
+
+          <hr class="about-divider">
+          <section class="about-section reveal" aria-labelledby="what-i-believe-in">
+            <h2 id="what-i-believe-in">What I believe in</h2>
+            <p>[YOUR WHAT I BELIEVE IN — the principles behind your work.]</p>
+          </section>
+        </div>
+      </div>
+    </div>
 
   </main>
 

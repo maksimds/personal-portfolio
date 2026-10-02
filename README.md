@@ -4,7 +4,7 @@ A static portfolio site in plain HTML, CSS and a little JavaScript. There's no f
 
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
-about.html                     About page
+about.html                     About: full-screen hero (name, bio, photo), then Who I am / What I do / What I believe in
 projects/*-case-study.html     One case study per project (dōTERRA, Kalorie, Turblend, Lynea)
 projects/project-template.html Blank case study to copy for a new project
 404.html                       Page-not-found page
@@ -50,6 +50,8 @@ grep -rn "YOUR" --include=*.html .
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
 ## Glow (hero and footers)
+
+On the About page the glow covers the whole page: a `page-glow` layer fixed behind the content follows the cursor wherever you scroll, instead of a glow in one section.
 
 The glow behind the home-page hero and behind the footer on every page is drawn with WebGL in `js/main.js`. Each one always follows the cursor, wherever it is on the page, staying inside its own section. Its colour drifts slowly and steadily through a palette, never pausing or jumping. All glows share one clock, so they always show the same colour.
 
