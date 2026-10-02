@@ -234,14 +234,6 @@ main > section + nav,
   padding: 0.1rem 0;
 }
 
-/* Current page: a thin underline along the bottom of the link's box */
-.site-nav a[aria-current="page"] {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-repeat: no-repeat;
-  background-size: 100% 1px;
-  background-position: 0 calc(100% - 0.1rem);
-}
-
 /* Hover (and keyboard focus) on the site name and nav links: a black box fades in
    behind white text and a ↗ is added after the word, pushing what follows along.
    It fades in over 0.9s and snaps back instantly when the pointer leaves. */
