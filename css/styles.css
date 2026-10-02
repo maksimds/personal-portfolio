@@ -35,8 +35,8 @@
   --fs-text: clamp(1.0625rem, 0.55vw + 1rem, 1.9rem);      /* hero lines, lists, footer */
   --fs-body: clamp(1rem, 0.3vw + 1rem, 1.5rem);             /* long-form paragraphs */
   --fs-small: 0.875rem;
-  --fs-nav: 0.875rem;
-  --fs-title: 1rem;
+  --fs-nav: 1rem;           /* 16px */
+  --fs-title: 1.25rem;      /* 20px */
   --fs-h1: clamp(2.6rem, 4.6vw + 1rem, 8rem);
   --fs-text-sm: max(1rem, calc(var(--fs-text) - 4px));   /* hero and My works text: 4px under body text, never below 16px */
   --fs-h2: clamp(2rem, 3.3vw + 1rem, 6rem);
@@ -206,7 +206,7 @@ main > section + nav,
 
 .site-title {
   font-family: var(--font-display);
-  font-size: var(--fs-title);
+  font-size: min(var(--fs-title), 5.4vw);   /* 20px; a little smaller on phones under ~370px wide so the header fits */
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.22;           /* with the padding, a 22px box for the hover background */
@@ -263,14 +263,14 @@ main > section + nav,
   mask: var(--nav-arrow) no-repeat;
 }
 
-/* Nav links: a 1rem-wide slot after the word, holding a 12px arrow */
+/* Nav links: a slot after the word holding the arrow, sized to the text */
 .site-nav a:hover::after,
 .site-nav a:focus-visible::after {
-  width: 1rem;
-  -webkit-mask-size: 0.75rem;
-  mask-size: 0.75rem;
-  -webkit-mask-position: 0.08rem 0.46rem;
-  mask-position: 0.08rem 0.46rem;
+  width: 1.143em;
+  -webkit-mask-size: 0.857em;
+  mask-size: 0.857em;
+  -webkit-mask-position: 0.09em 0.4em;
+  mask-position: 0.09em 0.4em;
 }
 
 /* Site name: a slot after the name, holding a 15px arrow level with the text */
@@ -288,6 +288,7 @@ main > section + nav,
 
 .site-icons {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 1.5rem;
   margin-left: auto;
@@ -306,6 +307,7 @@ main > section + nav,
 /* Burger button (mobile only) */
 .menu-toggle {
   display: none;
+  flex-shrink: 0;
   position: relative;
   width: 36px;
   height: 36px;
