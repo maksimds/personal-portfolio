@@ -609,8 +609,8 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* Logo thumbnails (a logo or mockup on a transparent background) ignore hovering the row. Only
    pointing at the logo itself makes it grow and tilt to the right. The hit area is an invisible
-   box over the logo's own bounds: --logo-inset, set on the thumbnail when its logo has a
-   different shape (the default fits the dōTERRA mark). The rest of the square lets the pointer
+   box over the logo's own bounds: --logo-inset (and --logo-radius for a round logo), set on the
+   thumbnail when its logo has a different shape (the default fits the dōTERRA mark). The rest of the square lets the pointer
    through to the row's link. */
 .project__thumb--logo {
   position: relative;
@@ -620,6 +620,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   content: "";
   position: absolute;
   inset: var(--logo-inset, 21.4% 30.1%);
+  border-radius: var(--logo-radius, 0);   /* 50% for a round logo, so its corners don't count */
   pointer-events: auto;
 }
 .project__thumb--logo:hover img { transform: scale(1.12) rotate(15deg); }
