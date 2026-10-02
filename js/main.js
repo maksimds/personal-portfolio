@@ -453,7 +453,7 @@
      Commented out for now, along with the .cursor styles in css/styles.css. To bring it back,
      remove the comment markers around the code below and around those styles. */
   /*
-  var CURSOR_LINKS = '.site-title, .site-nav a, .icon-link, .footer-link, .about__links .link, .case-back, .case-next a';
+  var CURSOR_LINKS = '.site-title, .site-nav a, .icon-link, .footer-link, .about__links .link, .back-link, .arrow-link, .case-nav__link';
 
   function initCursor() {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;

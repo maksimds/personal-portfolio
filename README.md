@@ -5,7 +5,8 @@ A static portfolio site in plain HTML, CSS and a little JavaScript. There's no f
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
 about.html                     About page
-projects/project-template.html Reusable case-study page
+projects/*-case-study.html     One case study per project (dōTERRA, Kalorie, Turblend, Lynea)
+projects/project-template.html Blank case study to copy for a new project
 404.html                       Page-not-found page
 css/styles.css                 All styles
 js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in
@@ -38,12 +39,12 @@ grep -rn "YOUR" --include=*.html .
 
 ## Add a new project
 
-1. Copy `projects/project-template.html` to a new file, for example `projects/my-project.html`.
-2. Fill in its `[YOUR …]` fields: title, role, timeline, tagline, intro, sections and outcomes.
-   - To add an image/text section, copy one `<div class="grid case-row">` block.
-   - Add `case-row--flip` to a row to put the image on the right.
-   - Point the "next project" link at the bottom to another case study.
-3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project.html`, then add its thumbnail, name and one-line description.
+1. Copy `projects/project-template.html` to a new file named like the others, for example `projects/my-project-case-study.html`.
+2. Fill in its `[YOUR …]` fields and swap the grey placeholder images for your own. Each case study follows the same structure: title, one-liner and status; a wide hero image; an intro with a link out; the project details (product, role, timeline, skills, team); then Problem, Research (with key findings), a quote over an image, Solution (with a large visual and four feature highlights), feature deep dives with captioned visuals, and Impact.
+   - To add a deep dive, copy one `<section class="case-detail">` block and, if it has a visual, the `<figure class="case-media">` after it.
+   - For an app, use `placeholder-phone.svg` (or your phone screens) in the visual panels and add `case-media--phone` to the `<figure>` so the phone isn't stretched.
+   - At the bottom, point the previous/next links at the neighbouring case studies (the four existing ones loop dōTERRA → Kalorie → Turblend → Lynea → dōTERRA).
+3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project-case-study.html`, then add its thumbnail, name and one-line description.
    - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is a box over the logo, inset from the square's edges by `--logo-inset` (top/bottom, then left/right). The default fits the dōTERRA mark; for another shape, set it on the thumbnail, e.g. `style="--logo-inset: 21.4% 36.8%"` for the Kalorie phone. For a round logo, also add `--logo-radius: 50%` so the hit area is a circle (as on Turblend).
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
 
