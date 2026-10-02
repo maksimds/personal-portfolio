@@ -207,7 +207,7 @@ main > section + nav,
 .site-title {
   font-family: var(--font-display);
   font-size: var(--fs-title);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.22;           /* with the padding, a 22px box for the hover background */
   padding-top: 0.16em;
@@ -226,7 +226,7 @@ main > section + nav,
   display: flex;               /* keeps the hover arrow right after the word */
   font-family: var(--font-display);
   font-size: var(--fs-nav);
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.8rem;         /* with the padding, a 32px box for the hover background */
   padding: 0.1rem 0;
 }
@@ -368,7 +368,7 @@ main > section + nav,
   display: inline-block;
   font-family: var(--font-display);
   font-size: 2.75rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.3;
 }
@@ -464,6 +464,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   grid-column: 1 / -1;
   padding-top: 3vw;
   font-size: clamp(2.6rem, 6.4vw, 94px);
+  font-weight: 600;
 }
 
 .hero__status {
@@ -490,8 +491,8 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   align-items: end;
   padding-bottom: calc(var(--row) * 1);
 }
-/* "My works" is 8px under the h3 size, never below 20px */
-.list-head h2 { grid-column: 1 / 12; font-size: max(1.25rem, calc(var(--fs-h3) - 8px)); }
+/* "My works" is 10px under the h3 size, never below 18px */
+.list-head h2 { grid-column: 1 / 12; font-size: max(1.125rem, calc(var(--fs-h3) - 10px)); }
 .list-head__meta {
   grid-column: 12 / -1;
   justify-self: end;
