@@ -449,7 +449,10 @@
      settles back into a circle when the pointer stops. Over a link it grows to twice its size.
      The disc is blended with "difference" (see .cursor in css/styles.css), so it shows as the text
      colour on the page and as the page colour on text and the black hover boxes. Touch screens
-     are unaffected. */
+     are unaffected.
+     Commented out for now, along with the .cursor styles in css/styles.css. To bring it back,
+     remove the comment markers around the code below and around those styles. */
+  /*
   var CURSOR_LINKS = '.site-title, .site-nav a, .icon-link, .footer-link, .about__links .link, .case-back, .case-next a';
 
   function initCursor() {
@@ -562,6 +565,7 @@
     });
   }
   initCursor();
+  */
 
   /* ---------- Footer year ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {

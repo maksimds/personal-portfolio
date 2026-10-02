@@ -761,7 +761,16 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 
 /* ---------- Cursor (js/main.js) ----------
-   With a mouse, this disc trails the normal pointer. */
+   Commented out for now, along with the "Cursor" section of js/main.js. To bring it back,
+   remove the comment markers around the rules below and around that code.
+   .cursor: with a mouse, this disc trails the normal pointer (the negative margins centre it on
+   its position). Its colour is the page colour plus the text colour: blended with "difference",
+   it shows as #0B0B0B over the page background and as #E3DED3 over text, and inverts the black
+   hover boxes.
+   .cursor-backing: inside each glow section, just above the glow and below the content, a
+   page-coloured copy of the disc, so the disc shows #0B0B0B over the glow instead of inverting
+   its colours. */
+/*
 .cursor {
   position: fixed;
   top: 0;
@@ -769,10 +778,8 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   z-index: 10000;
   width: 24px;
   height: 24px;
-  margin: -12px 0 0 -12px;     /* centred on its position */
+  margin: -12px 0 0 -12px;
   border-radius: 50%;
-  /* The page colour plus the text colour. Blended with "difference", it shows as #0B0B0B
-     over the page background and as #E3DED3 over text, and inverts the black hover boxes. */
   background-color: #eee9de;
   mix-blend-mode: difference;
   pointer-events: none;
@@ -782,8 +789,6 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 }
 .cursor.is-visible { opacity: 1; }
 
-/* Inside each glow section, just above the glow and below the content: a page-coloured copy
-   of the disc, so the disc shows #0B0B0B over the glow instead of inverting its colours. */
 .cursor-backing {
   position: absolute;
   top: 0;
@@ -799,6 +804,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   transition: opacity 0.2s ease;
 }
 .cursor-backing.is-visible { opacity: 1; }
+*/
 
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {
