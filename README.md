@@ -70,7 +70,7 @@ For visitors who have turned on reduced motion, the glow still follows the curso
 
 ## Cursor
 
-With a mouse, the normal arrow is replaced by a 12px dot in the text colour (`#0B0B0B`). Over dark text, or over a dark background such as the black hover boxes, it turns the page colour (`#E3DED3`) so it stays visible. It only counts as "over text" when the pointer is on the letters themselves, not the empty space beside them. Phones and tablets are unaffected. The code is the "Dot cursor" section of `js/main.js`, and the styles are `.cursor-dot` in `css/styles.css`.
+With a mouse, the normal arrow is replaced by a 24px disc modelled on graffio.co's cursor. It trails the pointer smoothly (each frame it covers 10% of the remaining distance), stretches along its direction of travel and settles back into a circle when the pointer stops. Over the name, nav links, CV/LinkedIn icons, footer links and the About page links, it is drawn toward the link's centre and doubles in size, and the link is pulled a little toward the pointer with a springy wobble. The disc is blended with `difference`, so it inverts what's under it: `#0B0B0B` over the page background, `#E3DED3` over text, and the opposite colour over the glow. Phones and tablets are unaffected, and visitors who prefer reduced motion get a disc that follows without trailing, stretching or pulling links. The code is the "Cursor" section of `js/main.js` (the list of links is `CURSOR_LINKS`), and the styles are `.cursor` in `css/styles.css`.
 
 ## Header
 

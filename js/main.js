@@ -443,112 +443,173 @@
     if (surface.querySelector('.glow__bg')) initGlow(surface);
   });
 
-  /* ---------- Dot cursor ----------
-     With a mouse, the arrow is replaced by a 12px dot in the text colour. Over dark text, or
-     over a dark background such as the black hover boxes, it turns the page colour so it stays
-     visible. Touch screens keep their normal behaviour. */
-  function initDotCursor() {
+  /* ---------- Cursor ----------
+     Modelled on graffio.co's cursor. With a mouse, the arrow is replaced by a 24px disc that
+     trails the pointer (each frame it covers 10% of the remaining distance), stretches along its
+     direction of travel and settles back into a circle when the pointer stops. Over a link it is
+     drawn toward the link's centre and doubles in size, while the link itself is pulled a little
+     toward the pointer on a springy wobble. The disc is blended with "difference" (see .cursor in
+     css/styles.css), so it inverts whatever is under it. Touch screens keep their normal behaviour. */
+  var CURSOR_LINKS = '.site-title, .site-nav a, .icon-link, .footer-link, .about__links .link, .case-back, .case-next a';
+
+  function initCursor() {
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    var dot = document.createElement('div');
-    dot.className = 'cursor-dot';
-    dot.setAttribute('aria-hidden', 'true');
-    body.appendChild(dot);
+    var disc = document.createElement('div');
+    disc.className = 'cursor';
+    disc.setAttribute('aria-hidden', 'true');
+    body.appendChild(disc);
 
-    var x = 0, y = 0, frame = 0, checkUntil = 0;
+    var pointer = { x: 0, y: 0 };      // where the mouse is
+    var pos = { x: 0, y: 0 };          // where the disc is drawn
+    var prev = { x: 0, y: 0 };
+    var size = 1;                      // 1 normally, 2 over a link
+    var scaleX = 1, scaleY = 1, rotation = 0;
+    var hoverEl = null;
+    var springs = [];                  // links being pulled toward the pointer, or settling back
+    var frame = 0, last = 0, shown = false;
 
-    function parseColor(str) {
-      var m = str && str.match(/[\d.]+/g);
-      return m && m.length >= 3 ? { r: +m[0], g: +m[1], b: +m[2], a: m[3] === undefined ? 1 : +m[3] } : null;
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    // The per-frame factors are tuned for 60fps; this keeps the same feel at any refresh rate.
+    function ease(perFrame, frames) { return 1 - Math.pow(1 - perFrame, frames); }
+
+    // Links: a spring (stiffness 160, damping 9, mass 1) pulls each one 12% of the way toward
+    // the pointer, and back to rest when the pointer leaves. Relative positioning is used rather
+    // than a transform so it also works on inline links.
+    function springFor(el) {
+      for (var i = 0; i < springs.length; i++) if (springs[i].el === el) return springs[i];
+      var s = { el: el, x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0 };
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      springs.push(s);
+      return s;
     }
-    function isDark(c) {
-      var l = 0.2126 * toLinear(c.r / 255) + 0.7152 * toLinear(c.g / 255) + 0.0722 * toLinear(c.b / 255);
-      return l < 0.1;
+    function pull(el, px, py) {
+      var s = springFor(el), r = el.getBoundingClientRect();
+      s.tx = (px - (r.left + r.width / 2)) * 0.12;
+      s.ty = (py - (r.top + r.height / 2)) * 0.12;
+    }
+    function release(el) {
+      var s = springFor(el);
+      s.tx = 0;
+      s.ty = 0;
+    }
+    function stepSprings(seconds) {
+      for (var i = springs.length - 1; i >= 0; i--) {
+        var s = springs[i];
+        for (var left = seconds; left > 0; left -= 1 / 240) {
+          var h = Math.min(left, 1 / 240);
+          s.vx += (-160 * (s.x - s.tx) - 9 * s.vx) * h;
+          s.vy += (-160 * (s.y - s.ty) - 9 * s.vy) * h;
+          s.x += s.vx * h;
+          s.y += s.vy * h;
+        }
+        if (!s.tx && !s.ty && Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.vx) + Math.abs(s.vy) < 0.02) {
+          s.el.style.left = s.el.style.top = s.el.style.position = '';
+          springs.splice(i, 1);
+        } else {
+          s.el.style.left = s.x + 'px';
+          s.el.style.top = s.y + 'px';
+        }
+      }
     }
 
-    // The colour of the text directly under the point, or null when the point isn't on a letter
-    // (empty space at the end of a line or beside a heading doesn't count).
-    function textColorAt(px, py) {
-      var node, offset;
-      if (document.caretPositionFromPoint) {
-        var pos = document.caretPositionFromPoint(px, py);
-        if (!pos) return null;
-        node = pos.offsetNode; offset = pos.offset;
-      } else if (document.caretRangeFromPoint) {
-        var r = document.caretRangeFromPoint(px, py);
-        if (!r) return null;
-        node = r.startContainer; offset = r.startOffset;
+    function render() {
+      disc.style.transform = 'translate3d(' + pos.x + 'px,' + pos.y + 'px,0) rotate(' + rotation + 'deg) scale(' + scaleX + ',' + scaleY + ')';
+    }
+
+    function loop(now) {
+      var frames = last ? Math.min((now - last) / (1000 / 60), 4) : 1;   // time since the last frame, in 60fps frames
+      last = now;
+
+      var target = pointer, targetSize = 1, dx = 0, dy = 0;
+      if (hoverEl) {
+        var r = hoverEl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        dx = pointer.x - cx;
+        dy = pointer.y - cy;
+        target = { x: cx + dx * 0.15, y: cy + dy * 0.15 };
+        targetSize = 2;
+      }
+
+      if (still) {
+        pos.x = target.x; pos.y = target.y;
+        size = scaleX = scaleY = targetSize;
+        rotation = 0;
       } else {
-        return null;
-      }
-      if (!node || node.nodeType !== 3) return null;
-      var range = document.createRange();
-      for (var i = Math.max(0, offset - 1); i <= Math.min(node.length - 1, offset); i++) {
-        if (/\s/.test(node.data[i])) continue;
-        range.setStart(node, i);
-        range.setEnd(node, i + 1);
-        var rects = range.getClientRects();
-        for (var j = 0; j < rects.length; j++) {
-          var b = rects[j];
-          if (px >= b.left && px <= b.right && py >= b.top && py <= b.bottom) {
-            return parseColor(getComputedStyle(node.parentElement).color);
-          }
+        pos.x = lerp(pos.x, target.x, ease(0.1, frames));
+        pos.y = lerp(pos.y, target.y, ease(0.1, frames));
+        size = lerp(size, targetSize, ease(0.1, frames));
+        var vx = (pos.x - prev.x) / frames, vy = (pos.y - prev.y) / frames;   // px per 60fps frame
+        if (hoverEl) {
+          // Stretch toward the pointer, more the further it is from the link's centre
+          var d = Math.sqrt(dx * dx + dy * dy) * 0.01;
+          rotation = Math.atan2(dy, dx) * 180 / Math.PI;
+          scaleX = lerp(scaleX, 2 + Math.pow(Math.min(d, 0.6), 3) * 3, ease(0.18, frames));
+          scaleY = lerp(scaleY, 2 - Math.pow(Math.min(d, 0.3), 3) * 3, ease(0.18, frames));
+        } else {
+          // Stretch along the direction of travel, more the faster it moves
+          var speed = Math.sqrt(vx * vx + vy * vy) * 0.04;
+          rotation = Math.atan2(vy, vx) * 180 / Math.PI;
+          scaleX = size + Math.min(speed, 1);
+          scaleY = size - Math.min(speed, 0.3);
         }
       }
-      return null;
-    }
+      prev.x = pos.x;
+      prev.y = pos.y;
+      stepSprings(frames / 60);
 
-    // The background colour showing at an element, blending any see-through layers
-    // (such as a hover box that is still fading in) over the first solid one beneath.
-    function backgroundAt(el) {
-      var layers = [];
-      for (; el; el = el.parentElement) {
-        var c = parseColor(getComputedStyle(el).backgroundColor);
-        if (c && c.a > 0) {
-          layers.push(c);
-          if (c.a >= 1) break;
-        }
+      var settled = !hoverEl && !springs.length && Math.abs(size - 1) < 0.001 &&
+        Math.abs(pos.x - pointer.x) < 0.05 && Math.abs(pos.y - pointer.y) < 0.05;
+      if (settled) {
+        pos.x = prev.x = pointer.x; pos.y = prev.y = pointer.y;
+        size = scaleX = scaleY = 1;
+        rotation = 0;
       }
-      var out = { r: 255, g: 255, b: 255 };
-      for (var i = layers.length - 1; i >= 0; i--) {
-        var l = layers[i];
-        out = { r: l.r * l.a + out.r * (1 - l.a), g: l.g * l.a + out.g * (1 - l.a), b: l.b * l.a + out.b * (1 - l.a) };
-      }
-      return out;
+      render();
+      frame = settled ? 0 : requestAnimationFrame(loop);
+      if (settled) last = 0;
     }
+    function wake() { if (!frame) frame = requestAnimationFrame(loop); }
 
-    function update() {
-      frame = 0;
-      var el = document.elementFromPoint(x, y);
-      var text = el && textColorAt(x, y);
-      var invert = !!el && ((text && text.a > 0.5 && isDark(text)) || isDark(backgroundAt(el)));
-      dot.classList.toggle('is-inverted', invert);
-      // Keep checking briefly after the last movement, so colour fades (hover boxes) are caught.
-      if (performance.now() < checkUntil) frame = requestAnimationFrame(update);
-    }
-    function schedule() {
-      checkUntil = performance.now() + 1000;
-      if (!frame) frame = requestAnimationFrame(update);
+    function setHover(el) {
+      if (el === hoverEl) return;
+      if (hoverEl && !still) release(hoverEl);
+      hoverEl = el;
     }
 
     document.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') { dot.classList.remove('is-visible'); return; }
-      x = e.clientX;
-      y = e.clientY;
-      dot.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
-      if (!dot.classList.contains('is-visible')) {
-        root.classList.add('has-dot-cursor');   // hide the arrow only once the dot is showing
-        dot.classList.add('is-visible');
+      if (e.pointerType === 'touch') { disc.classList.remove('is-visible'); return; }
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      if (!shown) {
+        // Start where the pointer is, then hide the arrow only once the disc is showing
+        pos.x = prev.x = pointer.x; pos.y = prev.y = pointer.y;
+        render();
+        shown = true;
+        root.classList.add('has-custom-cursor');
       }
-      schedule();
+      disc.classList.add('is-visible');
+      setHover(e.target.closest ? e.target.closest(CURSOR_LINKS) : null);
+      if (hoverEl && !still) pull(hoverEl, pointer.x, pointer.y);
+      wake();
     }, { passive: true });
-    document.addEventListener('pointerdown', schedule, { passive: true });
-    window.addEventListener('scroll', schedule, { passive: true });
+
+    // Content can scroll under a still pointer, so check what it's over again.
+    window.addEventListener('scroll', function () {
+      if (!shown) return;
+      var el = document.elementFromPoint(pointer.x, pointer.y);
+      setHover(el && el.closest(CURSOR_LINKS));
+      wake();
+    }, { passive: true });
+
     document.addEventListener('mouseout', function (e) {
-      if (!e.relatedTarget) dot.classList.remove('is-visible');   // the pointer left the window
+      if (e.relatedTarget) return;      // the pointer left the window
+      disc.classList.remove('is-visible');
+      setHover(null);
+      wake();
     });
   }
-  initDotCursor();
+  initCursor();
 
   /* ---------- Footer year ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {

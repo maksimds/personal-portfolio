@@ -297,7 +297,7 @@ main > section + nav,
   display: inline-flex;
   width: 21px;
   height: 21px;
-  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  transition: opacity 0.25s var(--ease);
 }
 .icon-link svg { width: 100%; height: 100%; }
 .icon-link:hover,
@@ -759,29 +759,30 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   .case-next__next { grid-column: 5 / -1; }
 }
 
-/* ---------- Dot cursor (js/main.js) ----------
-   With a mouse, the arrow is hidden and a dot follows the pointer instead. It's the text colour,
-   and turns the page colour over dark text or dark backgrounds. */
-.has-dot-cursor,
-.has-dot-cursor * { cursor: none !important; }
+/* ---------- Cursor (js/main.js) ----------
+   With a mouse, the arrow is hidden and this disc follows the pointer instead. */
+.has-custom-cursor,
+.has-custom-cursor * { cursor: none !important; }
 
-.cursor-dot {
+.cursor {
   position: fixed;
   top: 0;
   left: 0;
   z-index: 10000;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;       /* centred on the pointer */
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;     /* centred on its position */
   border-radius: 50%;
-  background-color: var(--color-text);
+  /* The page colour plus the text colour. Blended with "difference", it shows as #0B0B0B
+     over the page background and as #E3DED3 over text, and inverts whatever else is under it. */
+  background-color: #eee9de;
+  mix-blend-mode: difference;
   pointer-events: none;
   opacity: 0;
   will-change: transform;
-  transition: background-color 0.15s ease, opacity 0.2s ease;
+  transition: opacity 0.2s ease;
 }
-.cursor-dot.is-visible { opacity: 1; }
-.cursor-dot.is-inverted { background-color: var(--color-bg); }
+.cursor.is-visible { opacity: 1; }
 
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {
