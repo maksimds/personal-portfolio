@@ -6,6 +6,7 @@ A static portfolio site in plain HTML, CSS and a little JavaScript. There's no f
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
 about.html                     About page
 projects/project-template.html Reusable case-study page
+404.html                       Page-not-found page
 css/styles.css                 All styles
 js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in
 images/                        Grey placeholder images (swap for your own)
@@ -81,3 +82,5 @@ Hovering your name or a nav link fades in a black box behind white text over abo
 ## Deploy
 
 Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build.
+
+GitHub Pages, Netlify and Cloudflare Pages all show `404.html` automatically for addresses that don't exist. A small script at the top of `404.html` makes its links work even at nested addresses (like `/projects/typo`): on a GitHub Pages project site it treats the first folder (`/personal-portfolio/`) as the site's root, and elsewhere the domain root. If the site ends up in a different subfolder, change that path in the script.

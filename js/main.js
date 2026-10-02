@@ -567,6 +567,20 @@
   initCursor();
   */
 
+  /* ---------- Back links ----------
+     A link with data-back returns to the previous page when the visitor came from this site;
+     otherwise it follows its href (the home page). */
+  document.querySelectorAll('[data-back]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var fromHere = false;
+      try { fromHere = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (err) {}
+      if (fromHere && history.length > 1) {
+        e.preventDefault();
+        history.back();
+      }
+    });
+  });
+
   /* ---------- Footer year ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();

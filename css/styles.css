@@ -488,6 +488,56 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   .hero__status { margin-top: 3rem; }
 }
 
+/* ---------- 404 page ---------- */
+/* Same full-screen hero as the home page, with equal space above and below so the content
+   sits in the middle of the screen. */
+.hero--notfound {
+  min-height: 100vh;
+  min-height: 100svh;          /* the full screen on phones too (the home hero is shorter there) */
+  padding-top: calc(var(--header-height) + var(--row));
+  padding-bottom: calc(var(--header-height) + var(--row));
+}
+
+.notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Syne ExtraBold, 120px from a ~1460px-wide window up, scaling down on smaller screens */
+.notfound__title {
+  font-size: clamp(2.75rem, 8.2vw, 120px);
+  font-weight: 800;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+/* Outlined button; on hover it gets the header's black box (fading in over 0.9s and snapping
+   back instantly) and the ← nudges left and glides back, like the arrows in My works. */
+.notfound__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: calc(var(--row) * 1.5);
+  padding: 0.9em 1.6em;
+  border: var(--rule-weight) solid var(--color-rule);
+  font-size: var(--fs-text-sm);
+  font-weight: 500;
+  line-height: 1;
+}
+.notfound__back .arrow { transition: none; }
+.notfound__back:hover,
+.notfound__back:focus-visible {
+  background-color: #000;
+  color: #fff;
+  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
+}
+.notfound__back:hover .arrow,
+.notfound__back:focus-visible .arrow {
+  animation: project-arrow-nudge 0.9s 0.04s both;
+}
+
 /* ---------- Home: project list ---------- */
 .list-head {
   align-items: end;
