@@ -443,6 +443,113 @@
     if (surface.querySelector('.glow__bg')) initGlow(surface);
   });
 
+  /* ---------- Dot cursor ----------
+     With a mouse, the arrow is replaced by a 12px dot in the text colour. Over dark text, or
+     over a dark background such as the black hover boxes, it turns the page colour so it stays
+     visible. Touch screens keep their normal behaviour. */
+  function initDotCursor() {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    var dot = document.createElement('div');
+    dot.className = 'cursor-dot';
+    dot.setAttribute('aria-hidden', 'true');
+    body.appendChild(dot);
+
+    var x = 0, y = 0, frame = 0, checkUntil = 0;
+
+    function parseColor(str) {
+      var m = str && str.match(/[\d.]+/g);
+      return m && m.length >= 3 ? { r: +m[0], g: +m[1], b: +m[2], a: m[3] === undefined ? 1 : +m[3] } : null;
+    }
+    function isDark(c) {
+      var l = 0.2126 * toLinear(c.r / 255) + 0.7152 * toLinear(c.g / 255) + 0.0722 * toLinear(c.b / 255);
+      return l < 0.1;
+    }
+
+    // The colour of the text directly under the point, or null when the point isn't on a letter
+    // (empty space at the end of a line or beside a heading doesn't count).
+    function textColorAt(px, py) {
+      var node, offset;
+      if (document.caretPositionFromPoint) {
+        var pos = document.caretPositionFromPoint(px, py);
+        if (!pos) return null;
+        node = pos.offsetNode; offset = pos.offset;
+      } else if (document.caretRangeFromPoint) {
+        var r = document.caretRangeFromPoint(px, py);
+        if (!r) return null;
+        node = r.startContainer; offset = r.startOffset;
+      } else {
+        return null;
+      }
+      if (!node || node.nodeType !== 3) return null;
+      var range = document.createRange();
+      for (var i = Math.max(0, offset - 1); i <= Math.min(node.length - 1, offset); i++) {
+        if (/\s/.test(node.data[i])) continue;
+        range.setStart(node, i);
+        range.setEnd(node, i + 1);
+        var rects = range.getClientRects();
+        for (var j = 0; j < rects.length; j++) {
+          var b = rects[j];
+          if (px >= b.left && px <= b.right && py >= b.top && py <= b.bottom) {
+            return parseColor(getComputedStyle(node.parentElement).color);
+          }
+        }
+      }
+      return null;
+    }
+
+    // The background colour showing at an element, blending any see-through layers
+    // (such as a hover box that is still fading in) over the first solid one beneath.
+    function backgroundAt(el) {
+      var layers = [];
+      for (; el; el = el.parentElement) {
+        var c = parseColor(getComputedStyle(el).backgroundColor);
+        if (c && c.a > 0) {
+          layers.push(c);
+          if (c.a >= 1) break;
+        }
+      }
+      var out = { r: 255, g: 255, b: 255 };
+      for (var i = layers.length - 1; i >= 0; i--) {
+        var l = layers[i];
+        out = { r: l.r * l.a + out.r * (1 - l.a), g: l.g * l.a + out.g * (1 - l.a), b: l.b * l.a + out.b * (1 - l.a) };
+      }
+      return out;
+    }
+
+    function update() {
+      frame = 0;
+      var el = document.elementFromPoint(x, y);
+      var text = el && textColorAt(x, y);
+      var invert = !!el && ((text && text.a > 0.5 && isDark(text)) || isDark(backgroundAt(el)));
+      dot.classList.toggle('is-inverted', invert);
+      // Keep checking briefly after the last movement, so colour fades (hover boxes) are caught.
+      if (performance.now() < checkUntil) frame = requestAnimationFrame(update);
+    }
+    function schedule() {
+      checkUntil = performance.now() + 1000;
+      if (!frame) frame = requestAnimationFrame(update);
+    }
+
+    document.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'touch') { dot.classList.remove('is-visible'); return; }
+      x = e.clientX;
+      y = e.clientY;
+      dot.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+      if (!dot.classList.contains('is-visible')) {
+        root.classList.add('has-dot-cursor');   // hide the arrow only once the dot is showing
+        dot.classList.add('is-visible');
+      }
+      schedule();
+    }, { passive: true });
+    document.addEventListener('pointerdown', schedule, { passive: true });
+    window.addEventListener('scroll', schedule, { passive: true });
+    document.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) dot.classList.remove('is-visible');   // the pointer left the window
+    });
+  }
+  initDotCursor();
+
   /* ---------- Footer year ---------- */
   document.querySelectorAll('[data-year]').forEach(function (el) {
     el.textContent = new Date().getFullYear();

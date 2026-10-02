@@ -759,6 +759,30 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   .case-next__next { grid-column: 5 / -1; }
 }
 
+/* ---------- Dot cursor (js/main.js) ----------
+   With a mouse, the arrow is hidden and a dot follows the pointer instead. It's the text colour,
+   and turns the page colour over dark text or dark backgrounds. */
+.has-dot-cursor,
+.has-dot-cursor * { cursor: none !important; }
+
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;       /* centred on the pointer */
+  border-radius: 50%;
+  background-color: var(--color-text);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition: background-color 0.15s ease, opacity 0.2s ease;
+}
+.cursor-dot.is-visible { opacity: 1; }
+.cursor-dot.is-inverted { background-color: var(--color-bg); }
+
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {
   opacity: 0;

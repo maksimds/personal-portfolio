@@ -68,6 +68,10 @@ The settings are in the `GLOW` object near the middle of `js/main.js`:
 
 For visitors who have turned on reduced motion, the glow still follows the cursor but keeps one colour and a still edge. On phones there's no cursor, so the glow stays in its resting spot and keeps changing colour. Browsers without WebGL get a plain CSS gradient that follows the cursor and changes colour, without the grain or the moving edge.
 
+## Cursor
+
+With a mouse, the normal arrow is replaced by a 12px dot in the text colour (`#0B0B0B`). Over dark text, or over a dark background such as the black hover boxes, it turns the page colour (`#E3DED3`) so it stays visible. It only counts as "over text" when the pointer is on the letters themselves, not the empty space beside them. Phones and tablets are unaffected. The code is the "Dot cursor" section of `js/main.js`, and the styles are `.cursor-dot` in `css/styles.css`.
+
 ## Header
 
 The header has no background only while the page is scrolled all the way to the top. On the home page, the hero's glow shows behind it there. As soon as the page scrolls, it fades to a very light grey (`#f5f5f5`), so text never shows through it. To change that colour, edit `--header-solid-bg` in `css/styles.css`, for example to `var(--color-bg)` to match the page background.
