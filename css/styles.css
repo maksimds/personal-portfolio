@@ -566,7 +566,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__thumb--logo::after {
   content: "";
   position: absolute;
-  inset: var(--logo-inset, 22% 30%);
+  inset: var(--logo-inset, 21.4% 30.1%);
   pointer-events: auto;
 }
 .project__thumb--logo:hover img { transform: scale(1.12) rotate(15deg); }
