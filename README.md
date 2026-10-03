@@ -53,7 +53,7 @@ grep -rn "YOUR" --include=*.html .
 
 On the About page the glow covers the whole page: a `page-glow` layer fixed behind the content follows the cursor wherever you scroll, instead of a glow in one section.
 
-The glow behind the home-page hero and behind the footer on every page is drawn with WebGL in `js/main.js`. Each one always follows the cursor, wherever it is on the page, staying inside its own section. Its colour drifts slowly and steadily through a palette, never pausing or jumping. All glows share one clock, so they always show the same colour.
+The glow behind the home-page hero and behind the footer on every page is drawn with WebGL in `js/main.js`. The hero's glow follows the cursor wherever it is on the page, staying inside the hero. The footer's glow only follows the cursor while it's over the footer, and otherwise glides back to its resting position. Its colour drifts slowly and steadily through a palette, never pausing or jumping. All glows share one clock, so they always show the same colour.
 
 To add the glow to another section, give the section the class `glow` and put this as its first child:
 

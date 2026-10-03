@@ -247,15 +247,20 @@
     var pos = { x: 0, y: 0 };
     var target = { x: 0, y: 0 };
     var pointer = null;   // last cursor position in viewport coordinates
+    // The footer's glow only follows the cursor while it's over the footer; elsewhere the glow
+    // tracks the cursor anywhere on the page.
+    var onlyWhenInside = surface.matches('.site-footer');
 
     function updateTarget() {
-      if (!pointer) {
+      var r = surface.getBoundingClientRect();
+      var inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
+      if (!pointer || (onlyWhenInside && !inside)) {
+        // Resting position (the glow glides back here when the cursor leaves the footer)
         target.x = w * GLOW.x;
         target.y = h * GLOW.y;
         return;
       }
-      // Track the cursor anywhere on the page, kept inside this section so the glow stays visible.
-      var r = surface.getBoundingClientRect();
+      // Track the cursor, kept inside this section so the glow stays visible.
       target.x = Math.min(Math.max(pointer.x - r.left, 0), w);
       target.y = Math.min(Math.max(pointer.y - r.top, 0), h);
     }
