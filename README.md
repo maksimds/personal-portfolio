@@ -5,7 +5,7 @@ A static portfolio site in plain HTML, CSS and a little JavaScript. There's no f
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
 about.html                     About: full-screen hero (name, bio, photo), then Who I am / What I do / What I believe in
-projects/*-case-study.html     One case study per project (dōTERRA, Kalorie, Turblend, Lynea)
+projects/*-case-study.html     One case study per project (dōTERRA, tap., Kalorie, Lynea, Turblend)
 projects/project-template.html Blank case study to copy for a new project
 404.html                       Page-not-found page
 css/styles.css                 All styles
@@ -44,7 +44,7 @@ grep -rn "YOUR" --include=*.html .
    - To add a deep dive, copy one `<section class="case-detail">` block and, if it has a visual, the `<figure class="case-media">` after it.
    - For an app, use `placeholder-phone.svg` (or your phone screens) in the visual panels and add `case-media--phone` to the `<figure>` so the phone isn't stretched.
    - To show a Figma prototype on the page (as on Kalorie), give the "View prototype" link `data-embed="<id>"` and put a `<div class="case-embed" id="<id>" data-src="<Figma embed URL>" inert>` right after it; copy the pair from `kalorie-case-study.html`. Clicking the link slides the embed open below it and loads it only then; the link's own `href` (the Figma file) is the fallback without JavaScript.
-   - At the bottom, point the previous/next links at the neighbouring case studies, in the same order as "My works" (dōTERRA → Kalorie → Turblend → Lynea). The first project has no "Previous project" link and the last has no "Next project" link, so delete whichever doesn't apply.
+   - At the bottom, point the previous/next links at the neighbouring case studies, in the same order as "My works" (dōTERRA → tap. → Kalorie → Lynea → Turblend). The first project has no "Previous project" link and the last has no "Next project" link, so delete whichever doesn't apply.
 3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project-case-study.html`, then add its thumbnail, name and one-line description.
    - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is a box over the logo, inset from the square's edges by `--logo-inset` (top/bottom, then left/right). The default fits the dōTERRA mark; for another shape, set it on the thumbnail, e.g. `style="--logo-inset: 21.4% 36.8%"` for the Kalorie phone. For a round logo, also add `--logo-radius: 50%` so the hit area is a circle (as on Turblend).
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
