@@ -892,6 +892,9 @@ a.project__link .project__name:hover,
 /* Wide hero image */
 .case-hero { grid-column: 1 / -1; margin: calc(var(--row) * 2.5) 0 0; }
 .case-hero img { width: 100%; }
+/* A logo instead of a picture: centered on the page background, in the same 11:5 footprint */
+.case-hero--logo { display: grid; place-items: center; aspect-ratio: 11 / 5; }
+.case-hero--logo img { width: min(36%, 24rem); }
 
 /* Body text */
 .case-body { font-size: var(--fs-text-sm); line-height: 1.6; }
