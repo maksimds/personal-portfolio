@@ -999,6 +999,7 @@ a.project__link .project__name:hover,
   letter-spacing: -0.02em;
 }
 .case-quote figcaption { position: relative; margin-top: 1.25em; font-size: var(--fs-small); opacity: 0.7; }
+.case-quote--sans blockquote { font-family: var(--font-sans); }   /* Inter instead of Syne */
 
 /* Media: an image or device mockup on a slightly darker panel, with an optional caption */
 .case-media { margin: 1.5em 0 0; }
