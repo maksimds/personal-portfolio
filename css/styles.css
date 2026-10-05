@@ -892,9 +892,15 @@ a.project__link .project__name:hover,
 /* Wide hero image */
 .case-hero { grid-column: 1 / -1; margin: calc(var(--row) * 2.5) 0 0; }
 .case-hero img { width: 100%; }
-/* A logo instead of a picture: centered on the page background, in a shorter box than a picture hero */
+/* A logo instead of a picture: centered on the page background, in a shorter box than a picture hero.
+   --logo-width, set on the figure, overrides the width (the default fits the dōTERRA wordmark).
+   For a logo image with empty space around the mark, --logo-trim is the share of the image's height
+   that's empty above the mark (and the same again below), so that space doesn't stretch the box. */
 .case-hero--logo { display: grid; place-items: center; aspect-ratio: 45 / 13; }
-.case-hero--logo img { width: min(36%, 24rem); }
+.case-hero--logo img {
+  width: var(--logo-width, min(36%, 24rem));
+  margin-block: calc(var(--logo-width, min(36%, 24rem)) * var(--logo-trim, 0) * -1);
+}
 
 /* Body text */
 .case-body { font-size: var(--fs-text-sm); line-height: 1.6; }
