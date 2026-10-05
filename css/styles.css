@@ -1013,6 +1013,7 @@ a.project__link .project__name:hover,
 }
 .case-media__panel img { width: 100%; }
 .case-media--phone .case-media__panel img { width: min(100%, 15rem); }
+.case-media--card .case-media__panel img { width: min(100%, 25.5rem); }   /* a small UI piece at its real size */
 .case-media figcaption { margin-top: 0.75em; font-size: var(--fs-small); color: var(--color-muted); }
 /* A link under a media panel that opens another panel below it ("See how it was before") */
 .case-body .case-media__toggle { margin-top: 0.9em; }
