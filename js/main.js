@@ -575,8 +575,9 @@
   /* ---------- Embedded prototypes ----------
      A link with data-embed="<id>" opens and closes the panel with that id (just below it). The
      iframe, whose URL is the panel's data-src, is only created the first time it opens, so the page
-     doesn't load the embed until someone asks for it. Without JavaScript the link simply opens the
-     prototype in a new tab. */
+     doesn't load the embed until someone asks for it. A panel without data-src just reveals what's
+     already in it (e.g. a "before" screenshot). Without JavaScript the link simply opens the
+     prototype or image in a new tab. */
   document.querySelectorAll('[data-embed]').forEach(function (link) {
     var panel = document.getElementById(link.getAttribute('data-embed'));
     if (!panel) return;
@@ -589,7 +590,7 @@
     link.addEventListener('click', function (e) {
       e.preventDefault();
       var open = link.getAttribute('aria-expanded') !== 'true';
-      if (open && !panel.querySelector('iframe')) {
+      if (open && panel.hasAttribute('data-src') && !panel.querySelector('iframe')) {
         var frame = document.createElement('iframe');
         frame.src = panel.getAttribute('data-src');
         frame.title = panel.getAttribute('data-title') || '';
