@@ -957,6 +957,12 @@ a.project__link .project__name:hover,
   .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
 }
 
+/* A store link under the logo that drops the full link down below it, set in under its label */
+.case-store { margin-bottom: 1.5em; }
+.case-body .case-store p { margin: 0; }
+.case-store .case-embed.is-open { margin-bottom: 0; }
+.case-body .case-store .case-embed__inner p { padding: 0.5em 0 0 1.3em; }
+
 /* Project details: label above value, between two thin rules. Skills (the fourth) gets the
    widest column, as it's usually the longest. */
 .case-facts {

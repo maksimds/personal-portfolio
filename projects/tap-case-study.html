@@ -57,7 +57,7 @@
         <header class="case-head reveal">
           <div>
             <h1>tap.</h1>
-            <p class="case-head__subtitle">Building the path to tap.’s first 10,000 downloads</p>
+            <p class="case-head__subtitle">Case study: building the path to tap.’s first 10,000 downloads</p>
           </div>
           <span class="case-status">Completed</span>
         </header>
@@ -70,8 +70,18 @@
 
         <div class="case-body">
 
-          <!-- Intro -->
+          <!-- Intro. "App Store link", right under the logo, drops the link down below it, like "See how
+               it was before" on the dōTERRA page (see "Embedded prototypes" in js/main.js). The App
+               Store page itself can't be embedded. -->
           <section class="case-intro reveal">
+            <div class="case-store">
+              <p><a class="arrow-link" href="https://apps.apple.com/us/app/tap-ec/id1612065417" target="_blank" rel="noopener" data-embed="store-link"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>App Store link</span></a></p>
+              <div class="case-embed" id="store-link" inert>
+                <div class="case-embed__inner">
+                  <p><a class="arrow-link" href="https://apps.apple.com/us/app/tap-ec/id1612065417" target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> apps.apple.com/us/app/tap-ec/id1612065417</a></p>
+                </div>
+              </div>
+            </div>
             <p>tap. is an AI-powered app that connects people in the entertainment industry. I spent summer 2024 there as a product manager intern, before full launch. My job: figure out what a new user goes through from install to their first real action, find where they get stuck, and help the team fix it.</p>
           </section>
 
@@ -80,7 +90,7 @@
             <div><dt>Company</dt><dd>tap., Los Angeles (remote)</dd></div>
             <div><dt>Role</dt><dd>Mobile App Product Manager Intern</dd></div>
             <div><dt>Timeline</dt><dd>May – Aug 2024</dd></div>
-            <div><dt>Skills</dt><dd>User flows, Behavioral analytics, Growth roadmap, Cross-functional delivery</dd></div>
+            <div><dt>Skills</dt><dd>User research, User flows, Behavioral analytics, Growth roadmap</dd></div>
             <div class="case-facts__wide"><dt>Team</dt><dd>20+ across product, design and engineering</dd></div>
           </dl>
 
@@ -95,7 +105,7 @@
           <section class="case-section reveal">
             <h2>Problem and goal</h2>
             <p>The founder’s target was clear: 10,000 downloads by Q2 2025.</p>
-            <p>The beta showed why downloads alone wouldn’t get us there. People were quitting at sign-up. The ones who made it through often left their profiles empty. And on a matching app, an empty profile is a dead end. The AI has nothing to match, so nobody gets a reason to stay.</p>
+            <p>The beta showed the main problem, which was people quitting at sign-up. The ones who made it through often left their profiles empty. And on a matching app, an empty profile is a huge issue. The AI has nothing to match, so nobody gets a reason to stay.</p>
             <p>So the real goal sat one step past the download: get every new user to a finished profile.</p>
             <p><strong>Goal:</strong> 10,000 downloads by Q2 2025, with as many new users as possible reaching a completed profile.</p>
             <p><strong>Constraints:</strong> beta-stage product, requirements shifting weekly, a 20+ person team moving fast toward launch.</p>
@@ -107,7 +117,7 @@
           </section>
 
           <section class="case-detail reveal">
-            <h3>Step 1: Mapping the path from install to profile (Customer Journey Mapping)</h3>
+            <h3>Step 1: Customer Journey Mapping</h3>
             <p>First I needed to see the whole thing the way a new user does. I mapped every screen between install and a finished profile: sign-up, picking your role (actor, crew, casting), filling in profile details like a photo, bio and credits, and the permission prompts along the way.</p>
             <p>Four stages sounds short. On a phone, each one was its own chance to quit.</p>
             <!-- Image: the onboarding flow map -->
