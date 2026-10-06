@@ -1029,6 +1029,13 @@ a.project__link .project__name:hover,
 }
 .case-media__panel img { width: 100%; }
 .case-media--phone .case-media__panel img { width: min(100%, 15rem); }
+/* App screens exported with their drop shadow: the phone is about 62% of the image's width and the
+   rest is clear space for the shadow, which stands in for the panel's top and bottom padding */
+.case-media--screen .case-media__panel { padding-block: 0; }
+.case-media--screen .case-media__panel img { width: min(100%, 26rem); }
+/* Two screens side by side, overlapping where their shadows' clear space meets (stacked on phones) */
+.case-media--pair .case-media__panel img { --screen-width: min(55%, 26rem); width: var(--screen-width); }
+.case-media--pair .case-media__panel img + img { margin-left: calc(var(--screen-width) * -0.2); }
 /* A small UI piece at its real size: mark the 2x screenshot with srcset="… 2x" so it shows at half its pixel size */
 .case-media--card .case-media__panel img { width: auto; }
 .case-media figcaption { margin-top: 0.75em; font-size: var(--fs-small); color: var(--color-muted); }
@@ -1102,6 +1109,9 @@ a.project__link .project__name:hover,
   .case-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .case-facts > div:nth-child(4) { grid-column: 1 / -1; }   /* skills: full width */
   .case-features { grid-template-columns: 1fr; }
+  .case-media--pair .case-media__panel { flex-direction: column; align-items: center; }
+  .case-media--pair .case-media__panel img { --screen-width: min(100%, 26rem); }
+  .case-media--pair .case-media__panel img + img { margin: -12% 0 0; }
 }
 
 /* ---------- Cursor (js/main.js) ----------

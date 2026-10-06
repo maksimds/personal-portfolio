@@ -51,8 +51,6 @@
          - Align the demo numbers: Home shows 2,100 of 2,000 kcal with "0 left", while the Food Log
            shows 1,250 eaten on the same day
          - Fix the Home macro cards, where labels and numbers run together (PROTEIN82/150g)
-         - Add the screens to the image placeholders: Home, Add Food + Food Log, food detail,
-           History, Profile
          - Optional: one line of real feedback from your instructor, a classmate or a friend who
            tested it -->
     <article class="case container">
@@ -62,7 +60,7 @@
         <header class="case-head reveal">
           <div>
             <h1>Kalorie</h1>
-            <p class="case-head__subtitle">A case study: Calorie and macro tracking app prototype</p>
+            <p class="case-head__subtitle">Case study: Calorie and macro tracking app prototype</p>
           </div>
           <span class="case-status">Complete</span>
         </header>
@@ -77,7 +75,7 @@
 
           <!-- Intro -->
           <section class="case-intro reveal">
-            <p>Kalorie is an iOS app for tracking calories and macros. I designed it as a course project at the University of Cincinnati. I track what I eat myself, so I know the problem first-hand: logging every meal gets old fast. The whole design comes down to two things. Logging should take seconds, and your day should make sense at a glance.</p>
+            <p>Kalorie is an iOS app prototype for tracking calories and macros that I designed as a course project at the University of Cincinnati. I track what I eat myself and I tried multiple apps, but most of them have the same issues. Logging your meals takes too much time and effort, UI isn't really user-oriented, and most of them ask you to pay before you can use all the features, which was a big deal for me.</p>
             <p><a class="arrow-link" href="https://www.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1" target="_blank" rel="noopener" data-embed="prototype-1" data-embed-open-label="Hide prototype"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>View prototype</span></a></p>
             <!-- Opens below the link above (see "Embedded prototypes" in js/main.js); the Figma embed loads on first open -->
             <div class="case-embed" id="prototype-1" data-src="https://embed.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1&amp;embed-host=share" data-title="Kalorie prototype in Figma" inert>
@@ -117,9 +115,9 @@
             <h2>Solution: Less steps with more output</h2>
             <p>Kalorie is built on two ideas, which are: 1. Logging a meal should take as few steps as possible. 2. The numbers should tell you how your day is going without you having to dig. Six screens cover the whole daily loop: Home, Food Log, Add Food, the food detail screen, History and Profile.</p>
           </section>
-          <!-- Image: Home screen -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
+          <!-- Home -->
+          <figure class="case-media case-media--screen reveal">
+            <div class="case-media__panel"><img src="../images/kalorie-home.png" alt="The Home screen: a calorie ring against the daily goal, color-coded protein, carbs and fat bars, and quick stats for calories burned, water, net calories and the streak." width="630" height="1084" loading="lazy"></div>
           </figure>
           <ul class="case-features reveal">
             <li>Category chips for better UX</li>
@@ -134,18 +132,18 @@
             <p>Too many steps was the biggest complaint, so Add Food is built to shortcut the search. Category chips (Protein, Grains, Veggies, Fruits, Dairy, Snacks) narrow the list in one tap, which helps most when you don’t know the exact name of what you ate. Your recent foods sit right there too, and search and barcode scan cover everything else.</p>
             <p>In the Food Log, every meal has its own add button, and a floating <strong>Add Food</strong> button stays within thumb reach.</p>
           </section>
-          <!-- Image: Add Food and Food Log side by side -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
+          <!-- Add Food and the Food Log, side by side -->
+          <figure class="case-media case-media--screen case-media--pair reveal">
+            <div class="case-media__panel"><img src="../images/kalorie-add-food.png" alt="The Add Food screen: a search bar with barcode scan, six category chips and recent foods, each with a one-tap add button." width="630" height="1084" loading="lazy"><img src="../images/kalorie-food-log.png" alt="The Food Log: calories eaten against the goal, each meal with its own add button, and a floating Add Food button." width="630" height="1084" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
             <h3>Easy-to-measure portions</h3>
             <p>Tap a food and you get its detail screen. Serving sizes are pills (½ cup to 3 cups) with a stepper for anything in between, and every nutrition value updates as you change them. The button says exactly what’s about to happen: <strong>Add to Log · 120 kcal</strong>, logged under Lunch, without an extra confirm screen.</p>
           </section>
-          <!-- Image: food detail screen (Greek Yogurt) -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
+          <!-- Food detail (Greek Yogurt) -->
+          <figure class="case-media case-media--screen reveal">
+            <div class="case-media__panel"><img src="../images/kalorie-food-detail.png" alt="The Greek Yogurt detail screen: serving size pills from ½ cup to 3 cups with a stepper, nutrition facts, and an Add to Log · 120 kcal button." width="630" height="1084" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
@@ -157,18 +155,18 @@
             <h3>Progress that keeps you going</h3>
             <p>History turns a week of logging into something you can actually read. A streak card rewards showing up, with a personal record. A bar chart puts each day against a goal line: today in lime, days over goal in orange. Weekly average, days on goal and best day sit underneath, then a day-by-day breakdown.</p>
           </section>
-          <!-- Image: History screen -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
+          <!-- History -->
+          <figure class="case-media case-media--screen reveal">
+            <div class="case-media__panel"><img src="../images/kalorie-history.png" alt="The History screen: a 5-day streak card, a weekly bar chart against the 2,000 kcal goal, weekly stats and a day-by-day breakdown." width="630" height="1084" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
             <h3>Personalized goals</h3>
             <p>Profile is where the numbers on every other screen come from. You set your calorie and macro targets and your activity level here, and Home, the Food Log and History all measure against them.</p>
           </section>
-          <!-- Image: Profile screen -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
+          <!-- Profile -->
+          <figure class="case-media case-media--screen reveal">
+            <div class="case-media__panel"><img src="../images/kalorie-profile.png" alt="The Profile screen: streak and logging stats, a daily calorie goal picker and activity levels." width="630" height="1084" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
