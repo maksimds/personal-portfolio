@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kalorie — Denis Maksimov</title>
-  <meta name="description" content="Kalorie: a calorie tracking app prototype for iOS that keeps logging effort to a minimum and makes daily progress readable at a glance.">
+  <meta name="description" content="Kalorie: an iOS calorie and macro tracking app prototype where logging takes seconds and your day makes sense at a glance.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap">
@@ -48,13 +48,13 @@
 
     <!-- ===== Case study: Kalorie =====
          To do before publishing:
-         - Confirm whether this was an independent or course project, and say so in the Team line
-         - What research you did (apps reviewed, people asked) and a real quote for the pull quote
-         - A sourced statistic on tracking app drop-off, if you want a number in the Problem
          - Align the demo numbers: Home shows 2,100 of 2,000 kcal with "0 left", while the Food Log
            shows 1,250 eaten on the same day
          - Fix the Home macro cards, where labels and numbers run together (PROTEIN82/150g)
-         - Add screens for every image placeholder -->
+         - Add the screens to the image placeholders: Home, Add Food + Food Log, food detail,
+           History, Profile
+         - Optional: one line of real feedback from your instructor, a classmate or a friend who
+           tested it -->
     <article class="case container">
       <div class="grid">
         <a class="back-link case-back" href="../index.html#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
@@ -76,7 +76,7 @@
 
           <!-- Intro -->
           <section class="case-intro reveal">
-            <p>I designed Kalorie, an iOS app for tracking calories and macros, built around the main reason people give up on tracking apps: logging food becomes a chore. Kalorie keeps input effort to a minimum and makes daily progress readable at a glance.</p>
+            <p>Kalorie is an iOS app for tracking calories and macros. I designed it as a course project at the University of Cincinnati. I track what I eat myself, so I know the problem first-hand: logging every meal gets old fast. The whole design comes down to two things. Logging should take seconds, and your day should make sense at a glance.</p>
             <p><a class="arrow-link" href="https://www.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1" target="_blank" rel="noopener" data-embed="prototype-1" data-embed-open-label="Hide prototype"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>View prototype</span></a></p>
             <!-- Opens below the link above (see "Embedded prototypes" in js/main.js); the Figma embed loads on first open -->
             <div class="case-embed" id="prototype-1" data-src="https://embed.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1&amp;embed-host=share" data-title="Kalorie prototype in Figma" inert>
@@ -89,108 +89,100 @@
             <div><dt>Product</dt><dd>Kalorie (iOS)</dd></div>
             <div><dt>My role</dt><dd>Product Designer</dd></div>
             <div><dt>Timeline</dt><dd>March 2026 (1&nbsp;month)</dd></div>
-            <div><dt>Skills</dt><dd>Product design, Interaction design, Interactive prototyping, Design systems, Data visualization</dd></div>
-            <div class="case-facts__wide"><dt>Team</dt><dd>Solo project [Confirm, and add the course name if it was a class project]</dd></div>
+            <div><dt>Skills</dt><dd>UI/UX design, User research, Figma, Interactive prototyping, Design systems, Data visualization</dd></div>
+            <div class="case-facts__wide"><dt>Team</dt><dd>Solo; it was a course project for my Digital Media class at the University of Cincinnati</dd></div>
           </dl>
 
           <!-- Problem -->
           <section class="case-section reveal">
-            <h2>Problem: Death by a thousand entries</h2>
-            <p>Plenty of people start tracking what they eat, and many quit soon after. The reason is rarely motivation alone: every meal means searching, guessing portions and doing math, three or more times a day. [Add a sourced statistic on tracking app drop-off, with a link.]</p>
-            <p>That friction is a design problem. If logging a meal took seconds and the payoff was instantly visible, people would keep going.</p>
+            <h2>Problem: Most calorie-tracking apps are too complex</h2>
+            <p>Tracking food works. Sticking with it is the hard part. In a <a class="link" href="https://mhealth.jmir.org/2023/1/e39515" target="_blank" rel="noopener">2023 study in JMIR mHealth and uHealth</a>, the most common reason people gave for quitting a nutrition app was the time it took (14 of 38 former users). One participant put it simply: “I had to type in the same food products over and over again.”</p>
+            <p>I’ve felt it myself as well. MyFitnessPal and Cal AI both do the job, but the screens are crowded, the ads (or paywalls) get in the way, and simple things take too many steps. None of that is a motivation problem, but rather a design problem.</p>
           </section>
 
           <!-- Research -->
           <section class="case-section reveal">
             <h2>Research</h2>
-            <p>Before designing, I looked at how people use existing calorie trackers and where they drop off. [Add what you actually did: apps you reviewed, people you talked to, reviews you read.]</p>
+            <p>I started with my own habits. I used MyFitnessPal and Cal AI side by side, then asked about 10 friends and classmates who track calories (or used to) what bugs them, and read through App Store reviews of both apps. Three complaints came up again and again.</p>
             <ul class="case-findings">
-              <li><strong>Logging takes too long</strong><span>Searching a database and entering portions for every food turns a meal into a data-entry task.</span></li>
-              <li><strong>Portions are guesswork</strong><span>People think in cups and pieces, not grams, so they either guess or give up on accuracy.</span></li>
-              <li><strong>Numbers without meaning</strong><span>Dense screens full of figures tell people what they ate, but not how their day is going or whether they are on track.</span></li>
+              <li><strong>Too many steps to log</strong><span>Search, pick the right entry, set the portion, confirm. That many steps can be irritating for most users.</span></li>
+              <li><strong>Ads and paywalls</strong><span>MyFitnessPal breaks up the flow with ads. Cal AI, on the other hand, asks you to subscribe early, before you’ve really seen what it can do.</span></li>
+              <li><strong>Cluttered user interfaces and poor UX</strong><span>Both apps pack a lot onto every screen. Cal AI’s photo logging is a nice idea, but the screens around it are cluttered and finding out how your day is going takes too much time and effort.</span></li>
             </ul>
           </section>
 
-          <!-- Pull quote over an image. To set it over a photo, add the image as the figure's first
-               child, e.g. <img src="../images/my-photo.jpg" alt="" loading="lazy"> -->
-          <figure class="case-quote reveal">
-            <blockquote>&ldquo;[A real line from someone about why they stopped tracking]&rdquo;</blockquote>
-          </figure>
-
           <!-- Solution -->
           <section class="case-section reveal">
-            <h2>Solution: Less typing, more knowing</h2>
-            <p>Kalorie is built on two ideas: make every log as close to one tap as possible, and turn the numbers into something you can read in a second. Five core screens (Home, Food Log, Add Food, History and Profile) cover the full daily loop, from logging a meal to seeing the week’s progress.</p>
+            <h2>Solution: Less steps with more output</h2>
+            <p>Kalorie is built on two ideas, which are: 1. Logging a meal should take as few steps as possible. 2. The numbers should tell you how your day is going without you having to dig. Six screens cover the whole daily loop: Home, Food Log, Add Food, the food detail screen, History and Profile.</p>
           </section>
-          <!-- Image: Home, Food Log and Add Food side by side -->
+          <!-- Image: Home screen -->
           <figure class="case-media case-media--phone reveal">
             <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
           </figure>
           <ul class="case-features reveal">
-            <li>One-tap logging from Recent foods</li>
-            <li>Serving sizes that do the math for you</li>
-            <li>Calories left, visible at a glance</li>
+            <li>Category chips for better UX</li>
+            <li>Understandable data</li>
+            <li>More accent on calories left</li>
             <li>Streaks and weekly progress</li>
           </ul>
 
           <!-- Feature deep dives -->
           <section class="case-detail reveal">
             <h3>Logging in a few taps</h3>
-            <p>Most meals are repeats, so the Add Food screen puts <strong>Recent</strong> foods up front, each with its calories and a one-tap add button. New foods are a search or a barcode scan away, and category chips (Protein, Grains, Veggies, Fruits, Dairy, Snacks) help when you don’t know the exact name. In the Food Log, every meal has its own add button and a floating <strong>Add Food</strong> button is always within thumb reach.</p>
+            <p>Too many steps was the biggest complaint, so Add Food is built to shortcut the search. Category chips (Protein, Grains, Veggies, Fruits, Dairy, Snacks) narrow the list in one tap, which helps most when you don’t know the exact name of what you ate. Your recent foods sit right there too, and search and barcode scan cover everything else.</p>
+            <p>In the Food Log, every meal has its own add button, and a floating <strong>Add Food</strong> button stays within thumb reach.</p>
           </section>
-          <!-- Image: Add Food screen and Food Log side by side -->
+          <!-- Image: Add Food and Food Log side by side -->
           <figure class="case-media case-media--phone reveal">
             <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
-            <h3>Portions without the math</h3>
-            <p>People think in cups, not grams. On a food’s detail screen, serving sizes are pills (½ cup to 3 cups) plus a stepper, and every nutrition value recalculates instantly. Calories are marked as the primary metric, and the main button says exactly what will happen: <strong>Add to Log · 120 kcal</strong>, logged under Lunch.</p>
+            <h3>Easy-to-measure portions</h3>
+            <p>Tap a food and you get its detail screen. Serving sizes are pills (½ cup to 3 cups) with a stepper for anything in between, and every nutrition value updates as you change them. The button says exactly what’s about to happen: <strong>Add to Log · 120 kcal</strong>, logged under Lunch, without an extra confirm screen.</p>
           </section>
-          <!-- Image: Greek Yogurt detail screen with the serving pills highlighted -->
+          <!-- Image: food detail screen (Greek Yogurt) -->
           <figure class="case-media case-media--phone reveal">
             <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
-            <h3>Your day in one glance</h3>
-            <p>The Home screen answers one question first: how am I doing today? A large ring shows calories against the daily goal, with the amount left underneath. Below it, protein, carbs and fat each get a color-coded progress bar, followed by quick stats for calories burned, water, net calories and streak.</p>
+            <h3>Your day is easily visible</h3>
+            <p>Home screen answers the main question that all users have: “how am I doing today?” A big ring shows calories against your goal, with what’s left right below it. Protein, carbs and fat each get a color-coded bar. Then quick stats for calories burned, water, net calories and your streak.</p>
           </section>
-          <!-- Image: Home screen with the ring and macro bars called out -->
-          <figure class="case-media case-media--phone reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
-          </figure>
 
           <section class="case-detail reveal">
             <h3>Progress that keeps you going</h3>
-            <p>The History screen turns a week of logging into a story. A streak card rewards consistency (with a personal best to beat), and a bar chart compares each day to a goal line: today in lime, days over goal in orange. Weekly average, days on goal and best day sit underneath, followed by a day-by-day breakdown.</p>
+            <p>History turns a week of logging into something you can actually read. A streak card rewards showing up, with a personal record. A bar chart puts each day against a goal line: today in lime, days over goal in orange. Weekly average, days on goal and best day sit underneath, then a day-by-day breakdown.</p>
           </section>
-          <!-- Image: History screen with streak card and weekly chart -->
+          <!-- Image: History screen -->
           <figure class="case-media case-media--phone reveal">
             <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
           </figure>
 
           <section class="case-detail reveal">
-            <h3>Built on a system</h3>
-            <p>The whole file runs on Figma variables, components with variants and auto layout. Color and typography are token-driven, so every screen reflows correctly across content lengths and iOS device sizes. The dark, high-contrast interface uses one lime accent for progress and actions, and keeps calorie, macro and progress figures as the main job of every screen.</p>
+            <h3>Personalized goals</h3>
+            <p>Profile is where the numbers on every other screen come from. You set your calorie and macro targets and your activity level here, and Home, the Food Log and History all measure against them.</p>
           </section>
-          <!-- Image: color and type tokens plus key components -->
-          <figure class="case-media reveal">
-            <div class="case-media__panel"><img src="../images/placeholder-16x10.svg" alt="" width="1600" height="1000" loading="lazy"></div>
+          <!-- Image: Profile screen -->
+          <figure class="case-media case-media--phone reveal">
+            <div class="case-media__panel"><img src="../images/placeholder-phone.svg" alt="" width="600" height="1200" loading="lazy"></div>
           </figure>
+
+          <section class="case-detail reveal">
+            <h3>Design system</h3>
+            <p>I went dark with a single lime accent not without a reason. MyFitnessPal and Cal AI felt busy to me, and I wanted the opposite: something calm and closer to a fitness app than a spreadsheet. On a dark background the numbers pop, so progress reads at a glance. And honestly, it’s the look I like.</p>
+            <p>Lime only shows up for progress and actions, so it always means something. Under the hood, the file runs on Figma variables, components with variants and auto layout, so every screen holds up across content lengths and iOS device sizes.</p>
+          </section>
 
           <hr class="case-rule">
 
           <!-- Impact -->
           <section class="case-section case-section--after-rule reveal">
-            <h2>Impact: From idea to a clickable product in a month</h2>
-            <p>In one month I took Kalorie from a problem statement to a complete iOS product: every core screen designed and wired into a fully navigable prototype, not a set of static mockups. The design-system foundation means new screens, a light mode or a rebrand can be added without redrawing anything.</p>
-            <p>Next, I would test the prototype with people who have quit tracking apps before, measuring how long it takes to log a typical meal and whether they understand their day from the Home screen in under five seconds. [Add any feedback you received, for example reactions to your LinkedIn post.]</p>
-            <p><a class="arrow-link" href="https://www.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1" target="_blank" rel="noopener" data-embed="prototype-2" data-embed-open-label="Hide prototype"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>View prototype</span></a></p>
-            <!-- Opens below the link above (see "Embedded prototypes" in js/main.js); the Figma embed loads on first open -->
-            <div class="case-embed" id="prototype-2" data-src="https://embed.figma.com/proto/XlFSSkSm30uf69U4utymtF/Kalorie-prototype?node-id=3-166&amp;p=f&amp;viewport=228%2C191%2C0.11&amp;scaling=scale-down&amp;content-scaling=fixed&amp;starting-point-node-id=3%3A166&amp;page-id=0%3A1&amp;embed-host=share" data-title="Kalorie prototype in Figma" inert>
-              <div class="case-embed__inner"><div class="case-embed__frame"></div></div>
-            </div>
+            <h2>Impact: Idea to a clickable prototype in a month</h2>
+            <p>In one month I took Kalorie from a problem I had myself to a Figma prototype (it’s at the top of this page). I received the maximum grade in my Digital Media class for it. My instructor and classmates gave good feedback after testing it, and people reacted a lot to it when I posted it on LinkedIn.</p>
+            <p>If I keep going, the first step is a real usability test: time how long it takes to log a typical meal, and check whether people get their day from Home in a few seconds. After that, photo logging (the part Cal AI gets right), a light mode, and building it as a real app.</p>
           </section>
 
           <!-- Previous / next project -->

@@ -905,6 +905,10 @@ a.project__link .project__name:hover,
 /* Body text */
 .case-body { font-size: var(--fs-text-sm); line-height: 1.6; }
 .case-body p { margin: 0 0 0.9em; }
+/* A link inside a paragraph (a cited source): underlined from the start so it reads as a link */
+.case-body p .link { background-size: 100% 1px; transition: color 0.3s var(--ease); }
+.case-body p .link:hover,
+.case-body p .link:focus-visible { color: var(--color-muted); }
 .case-intro { margin-top: calc(var(--row) * 2.5); }
 .case-section { margin-top: calc(var(--row) * 3); }
 .case-section--after-rule { margin-top: calc(var(--row) * 2); }
