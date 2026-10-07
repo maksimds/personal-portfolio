@@ -27,9 +27,12 @@
   /* ---------- Mobile menu ---------- */
   var toggle = document.querySelector('.menu-toggle');
   var menu = document.getElementById('mobile-menu');
+  // The page under the full-screen menu, made inert while it's open so Tab stays in the menu
+  var behindMenu = document.querySelectorAll('main, .site-footer');
 
   function setMenu(open) {
     body.classList.toggle('menu-open', open);
+    behindMenu.forEach(function (el) { el.inert = open; });
     if (toggle) {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
