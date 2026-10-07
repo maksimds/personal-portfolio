@@ -602,6 +602,13 @@
       panel.inert = !open;
       if (label) label.textContent = open ? openText : closedText;
     });
+    // As a role="button", the link should also toggle on Space (a plain link only reacts to Enter).
+    link.addEventListener('keydown', function (e) {
+      if (e.key === ' ') {
+        e.preventDefault();
+        link.click();
+      }
+    });
   });
 
   /* ---------- Back links ----------
