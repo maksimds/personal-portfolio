@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 150 150">
+  <clipPath id="avatar"><circle cx="75" cy="75" r="75"/></clipPath>
+  <g clip-path="url(#avatar)">
+    <rect width="150" height="150" fill="#c7c7c7"/>
+    <circle cx="75" cy="58" r="28" fill="#fff"/>
+    <ellipse cx="75" cy="150" rx="55" ry="52" fill="#fff"/>
+  </g>
+</svg>
