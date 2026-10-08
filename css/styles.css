@@ -858,11 +858,14 @@ a.project__link .project__name:hover,
   justify-content: space-between;
   gap: 1.5rem;
 }
-.case-head h1 {
+.case-head h1,
+.case-continued {
   font-size: clamp(2.5rem, 3.4vw + 1rem, 4.5rem);
   font-weight: 600;
   line-height: 1.05;
 }
+/* "To be continued" closing a case study that's still in progress, the size of the title */
+.case-continued { margin-top: calc(var(--row) * 3); }
 .case-head__subtitle {
   margin: 0.6em 0 0;
   font-size: var(--fs-text-sm);
@@ -914,11 +917,12 @@ a.project__link .project__name:hover,
 .case-section--after-rule { margin-top: calc(var(--row) * 2); }
 .case-section h2 { font-size: max(1.375rem, var(--fs-works-title)); margin-bottom: 0.7em; }   /* never below 22px */
 .case-detail { margin-top: calc(var(--row) * 2.25); }
-.case-detail h3 {
+.case-detail h3,
+.case-persona h3 {
   font-size: clamp(1.125rem, 0.5vw + 1rem, 1.5rem);
   letter-spacing: -0.01em;
-  margin-bottom: 0.6em;
 }
+.case-detail h3 { margin-bottom: 0.6em; }
 
 /* Links out ("→ Live site"): the footer links' hover, the → turning to ↗ */
 .arrow-link { font-weight: 500; }
@@ -980,8 +984,10 @@ a.project__link .project__name:hover,
     var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box,
     var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
 }
-.case-facts dt { margin-bottom: 0.3em; font-size: var(--fs-small); color: var(--color-muted); }
-.case-facts dd { margin: 0; }
+.case-facts dt,
+.case-persona dt { margin-bottom: 0.3em; font-size: var(--fs-small); color: var(--color-muted); }
+.case-facts dd,
+.case-persona dd { margin: 0; }
 .case-facts__wide { grid-column: 1 / -1; }
 
 /* Research findings: a bold point with a muted line under it */
@@ -1053,6 +1059,47 @@ a.project__link .project__name:hover,
   list-style: none;
 }
 .case-features li { padding: 1.1em 1.25em; background: rgba(11, 11, 11, 0.05); font-weight: 500; }
+.case-section .case-features { margin-top: 1.25em; }   /* right under a paragraph, spaced like the findings */
+
+/* User personas: a card per persona, side by side (stacked on phones). A photo, the name and type,
+   then the details, a label over each value between thin lines. The cards share their rows
+   (subgrid), so each detail lines up with the same one in the other card, like a table. */
+.case-personas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: calc(var(--gap) * 3);
+  margin-top: 1.5em;
+}
+.case-persona {
+  display: grid;
+  grid-row: span 8;            /* the head and the seven details */
+  grid-template-rows: subgrid;
+}
+.case-persona__head { padding-bottom: calc(var(--row) * 1); }
+.case-persona__head img {
+  width: clamp(5rem, 8vw, 9rem);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  margin-bottom: 0.9em;
+}
+.case-body .case-persona__type { margin: 0.25em 0 0; color: var(--color-muted); }
+.case-persona dl {
+  display: grid;
+  grid-row: span 7;
+  grid-template-rows: subgrid;
+  margin: 0;
+}
+.case-persona dl > div {
+  padding: calc(var(--row) * 0.6) 0;
+  border-top: var(--rule-weight) solid transparent;
+  background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
+}
+.case-persona dl > div:last-child {
+  border-bottom: var(--rule-weight) solid transparent;
+  background:
+    var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box,
+    var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
+}
 
 .case-rule {
   height: var(--rule-weight);
@@ -1109,6 +1156,9 @@ a.project__link .project__name:hover,
   .case-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .case-facts > div:nth-child(4) { grid-column: 1 / -1; }   /* skills: full width */
   .case-features { grid-template-columns: 1fr; }
+  .case-personas { grid-template-columns: 1fr; row-gap: calc(var(--row) * 2); }
+  .case-persona,
+  .case-persona dl { display: block; grid-row: auto; }
   .case-media--pair .case-media__panel { flex-direction: column; align-items: center; }
   .case-media--pair .case-media__panel img { --screen-width: min(100%, 26rem); }
   .case-media--pair .case-media__panel img + img { margin: -12% 0 0; }
