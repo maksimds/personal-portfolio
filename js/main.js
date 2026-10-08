@@ -165,6 +165,7 @@
     ],
     change: 8,                 // average seconds to drift from one colour to the next
     outer: '#e3ded3',          // edge colour (page background)
+    pale: 0.10,                // how much paler the centre is than `colors` (share mixed toward `outer`)
     x: 0.61, y: 0.60,          // resting position (fraction of the section)
     radius: 0.8,               // relative to the section's size
     followSpeed: 3.2,          // higher = catches up with the cursor faster
@@ -214,7 +215,11 @@
   // never pausing: a bigger step between two colours simply takes proportionally longer.
   // With reduced motion the colour, grain and edge stay still (the glow still follows the cursor).
   var glowAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var glowPalette = GLOW.colors.map(function (hex) { return rgbToOklab(hexToRgb(hex)); });
+  var glowOuter = rgbToOklab(hexToRgb(GLOW.outer));
+  var glowPalette = GLOW.colors.map(function (hex) {
+    var c = rgbToOklab(hexToRgb(hex));
+    return c.map(function (v, i) { return v + (glowOuter[i] - v) * GLOW.pale; });
+  });
   var glowSteps = glowPalette.map(function (c, i) { return labDistance(c, glowPalette[(i + 1) % glowPalette.length]); });
   var glowAvgStep = glowSteps.reduce(function (a, b) { return a + b; }, 0) / glowSteps.length || 1;
   var glowDurations = glowSteps.map(function (d) { return Math.max(0.001, GLOW.change * d / glowAvgStep); });

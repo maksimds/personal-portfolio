@@ -10,7 +10,7 @@
   --color-text: #0b0b0b;
   --color-muted: #55564f;
   --color-rule: #111111;
-  --color-accent: #2f4881;      /* hero glow blue */
+  --color-accent: #3f578a;      /* hero glow blue (#2f4881 made 10% paler, like the glow in js/main.js) */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-display: "Syne", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
