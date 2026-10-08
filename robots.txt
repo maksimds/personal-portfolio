@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://dmaksimoff.com/sitemap.xml

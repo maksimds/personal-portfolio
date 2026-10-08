@@ -665,9 +665,11 @@ a.project__link .project__name:hover,
   100% { transform: translateX(0); }
 }
 
-/* "Coming soon" rows aren't links: no thumbnail (an empty space keeps their text in line with
-   the other rows), no arrow, and the title doesn't react to hovering. */
+/* Rows that aren't links ("Coming soon", or a project whose case study isn't written yet): no
+   arrow, and neither the title nor a logo reacts to hovering. A row without a logo keeps an empty
+   thumbnail space, so its text lines up with the other rows. */
 .project--soon .project__link { cursor: default; }
+.project--soon .project__thumb--logo::after { pointer-events: none; }
 
 /* Side projects use tall (phone-screen) thumbnails */
 .project--tall .project__thumb { aspect-ratio: 2 / 3; }
@@ -684,8 +686,8 @@ a.project__link .project__name:hover,
   .project__thumb,
   .project--tall .project__thumb { grid-column: 1 / 3; }
   .project__text { grid-column: 1 / 7; grid-row: 2; }
-  .project--soon .project__thumb { display: none; }   /* on phones the thumbnail has its own line, so drop the empty one */
-  .project--soon .project__text { grid-row: auto; }
+  .project--soon .project__thumb:empty { display: none; }   /* on phones the thumbnail has its own line, so drop an empty one */
+  .project--soon .project__thumb:empty + .project__text { grid-row: auto; }
   .project__cta { grid-column: 7 / -1; grid-row: 2; }
 }
 

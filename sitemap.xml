@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Every page that should show in search results, at the same address as its canonical tag.
+     When a case study goes live (Turblend included), add it here too. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://dmaksimoff.com/</loc></url>
+  <url><loc>https://dmaksimoff.com/about.html</loc></url>
+  <url><loc>https://dmaksimoff.com/projects/doterra-case-study.html</loc></url>
+  <url><loc>https://dmaksimoff.com/projects/tap-case-study.html</loc></url>
+  <url><loc>https://dmaksimoff.com/projects/kalorie-case-study.html</loc></url>
+  <url><loc>https://dmaksimoff.com/projects/lynea-case-study.html</loc></url>
+</urlset>

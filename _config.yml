@@ -1,0 +1,4 @@
+# GitHub Pages runs every push through Jekyll, which publishes each file as it is.
+# The files listed here stay in the repository but are left off the site.
+exclude:
+  - README.md
