@@ -177,8 +177,10 @@ hr,
 
 /* Edge-to-edge divider between page sections (heavier than the 2px rules inside them) */
 main > section + section,
-main > section + nav,
-.site-footer { border-top: var(--divider-weight) solid var(--color-rule); }
+main > section + nav { border-top: var(--divider-weight) solid var(--color-rule); }
+
+/* The line above the footer matches the one under the header */
+.site-footer { border-top: var(--rule-weight) solid var(--color-rule); }
 
 /* ---------- Header ---------- */
 /* See-through only when the page is at the very top (on the home page the hero's glow
