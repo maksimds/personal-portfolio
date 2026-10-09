@@ -22,7 +22,6 @@
   --rule-weight: 2px;
   /* A 1.275px line drawn as a background in a 2px-tall space (see .hero .rule) */
   --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
-  --divider-weight: 4px;        /* full-width line between page sections */
 
   --header-pad-y: 1vw;
   --header-height: 65px;        /* updated by JS */
@@ -175,11 +174,9 @@ hr,
 
 .section { padding-top: calc(var(--row) * 3); padding-bottom: calc(var(--row) * 2); }
 
-/* Edge-to-edge divider between page sections (heavier than the 2px rules inside them) */
+/* Edge-to-edge divider between page sections and above the footer, matching the line under the header */
 main > section + section,
-main > section + nav { border-top: var(--divider-weight) solid var(--color-rule); }
-
-/* The line above the footer matches the one under the header */
+main > section + nav,
 .site-footer { border-top: var(--rule-weight) solid var(--color-rule); }
 
 /* ---------- Header ---------- */
