@@ -778,17 +778,20 @@ a.project__link .project__name:hover,
 }
 
 /* Photo: a thin-lined rectangle around it, spaced like the mat in a picture frame. The photo is
-   cropped to the golden ratio (1:1.618). The side margins are 1/3 of the photo's width, the top
-   margin is 1/5 of its height, and the bottom one is 20% wider than the top, so the photo doesn't
-   look like it's sinking. Padding percentages are of the frame's width, so the photo takes 60% of
-   it (a third on each side: 1 + 1/3 + 1/3 = 5/3). On hover the rectangle and the photo grow together. */
+   cropped to the golden ratio (1:1.618). A classic mat has side margins 1/3 of the photo's width,
+   a top margin 1/5 of its height, and a bottom one 20% wider than the top, so the photo doesn't
+   look like it's sinking. --mat scales all three together (1 = classic; at 0.5 they're half that,
+   so the photo fills more of the frame). Padding percentages are of the frame's width, so the
+   photo's share of it is 1 / (1 + 2 × --mat / 3). On hover the rectangle and the photo grow together. */
 .about-hero__media { flex: 0 0 clamp(15rem, 24.8vw, 26rem); }   /* fades in on load; the figure inside scales */
 .about-hero__photo {
-  --photo-ratio: 1.618;                                  /* the photo's height / width */
-  --mat-top: calc(60% * var(--photo-ratio) / 5);         /* 1/5 of the photo's height */
+  --photo-ratio: 1.618;                                        /* the photo's height / width */
+  --mat: 0.5;                                                  /* margin size; 1 = classic proportions */
+  --photo-width: calc(300% / (3 + 2 * var(--mat)));            /* the photo's share of the frame's width */
+  --mat-top: calc(var(--photo-width) * var(--photo-ratio) / 5 * var(--mat));
   position: relative;
   margin: 0;
-  padding: var(--mat-top) 20% calc(var(--mat-top) * 1.2);
+  padding: var(--mat-top) calc((100% - var(--photo-width)) / 2) calc(var(--mat-top) * 1.2);
   transition: transform 0.6s var(--ease);
 }
 .about-hero__photo::before {
