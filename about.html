@@ -18,7 +18,7 @@
   <a class="skip-link" href="#main">Skip to content</a>
 
   <!-- The glow behind the whole About page: fixed to the screen, so it follows the cursor wherever
-       you scroll (see js/main.js). The footer keeps its own glow on top of it. -->
+       you scroll (see js/main.js). It's the page's only glow; it shows through behind the footer too. -->
   <div class="page-glow glow" aria-hidden="true"><div class="glow__bg"><canvas class="glow__canvas"></canvas></div></div>
 
   <header class="site-header">
@@ -98,9 +98,8 @@
   </main>
 
 
-  <!-- The glow behind the footer works like the hero's (see js/main.js). -->
-  <footer class="site-footer glow">
-    <div class="glow__bg" aria-hidden="true"><canvas class="glow__canvas"></canvas></div>
+  <!-- No glow of its own here: the page glow above shows through behind the footer. -->
+  <footer class="site-footer">
     <div class="container">
       <div class="grid">
         <div class="footer-col footer-col--a">
