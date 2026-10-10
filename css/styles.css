@@ -947,6 +947,15 @@ a.project__link .project__name:hover,
 .arrow-link[aria-expanded="true"]:hover .arrow,
 .arrow-link[aria-expanded="true"]:focus-visible .arrow { transform: rotate(90deg); }
 
+/* Kalorie's "View prototype": always highlighted in lime with beige text, in place of the black
+   hover box; the arrow still turns on hover */
+.arrow-link--lime,
+.arrow-link--lime:hover,
+.arrow-link--lime:focus-visible {
+  background-color: #6a8807;
+  color: var(--color-bg);
+}
+
 .case-embed {
   display: grid;
   grid-template-rows: 0fr;
