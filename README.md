@@ -1,6 +1,6 @@
 # Personal portfolio
 
-A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and the site has no dependencies. (The [automatic checks](#automatic-checks) use two tools, but those only run on GitHub and your computer and aren't part of the site.) The only external request is the fonts from Google Fonts: Syne for headings and the navbar (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
+A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and the site has no dependencies. (The [automatic checks](#automatic-checks) use two tools, but those only run on GitHub and your computer and aren't part of the site.) The only external requests are [Google Analytics](#google-analytics), on the live site only, and the fonts from Google Fonts: Syne for headings and the navbar (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
 
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
@@ -12,6 +12,7 @@ sitemap.xml, robots.txt        For search engines: the pages to index, and where
 _config.yml                    Keeps this README and the check files off the published site (GitHub Pages)
 css/styles.css                 All styles
 js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in, blur-in
+js/analytics.js                Google Analytics (your Measurement ID goes here)
 images/                        Grey placeholder images (swap for your own)
 
 Automatic checks (not part of the site):
@@ -44,6 +45,7 @@ grep -rn "YOUR" --include=*.html .
 - **Intro, bio, links:** replace the `[YOUR …]` text. The Email links (footer and mobile menu of every page, plus the About page) go to `dnmvatm@gmail.com`; to change it, find-and-replace the address across the pages.
 - **Resume and LinkedIn:** the CV icon and every "Resume" link open the resume on Google Docs, and the LinkedIn links go to `linkedin.com/in/denismaksimov1`. To change either, find-and-replace the URL across the three pages.
 - **Clock:** in `index.html`, set `data-timezone` on the clock to your IANA time zone, such as `America/New_York`. If you leave it empty, the clock shows the visitor's own time.
+- **Google Analytics:** paste your Measurement ID into `js/analytics.js` (see [Google Analytics](#google-analytics)).
 - **Photos:** put your images in `images/` and change the `src` (and `width`/`height`, `alt`) on the matching `<img>`. The placeholder file names show the intended aspect ratio.
 
 ## Add a new project
@@ -95,6 +97,14 @@ The header has no background only while the page is scrolled all the way to the 
 
 Hovering your name or a nav link fades in a black box behind white text over about 0.9 seconds, and adds a thin ↗ after the word that pushes the next items along. Moving away snaps it back instantly. Keyboard focus shows the same effect. The arrow's shape is the `--nav-arrow` image in `css/styles.css`. The footer's Email, Resume and LinkedIn links fade in the same black box over the same 0.9 seconds. Instead of adding an arrow, the → in front of each one turns to point up-right. In the "My works" list, each part of a row reacts only when the pointer is on that part: a thumbnail zooms slightly (a logo thumbnail instead grows and tilts 15° to the right when the pointer is on the logo itself), the title gets the same black box (without the ↗), and the → on the right nudges a little to the left before it glides back. The whole row is still one link, and keyboard focus on a row shows the title box and arrow nudge.
 
+## Google Analytics
+
+`js/analytics.js` loads Google Analytics on every page. It only runs on the live site (`dmaksimoff.com`), so your own previews and the automatic checks are never counted. To connect it, paste your Measurement ID into `MEASUREMENT_ID` at the top of that file. It looks like `G-XXXXXXXXXX`, and in Google Analytics it's under Admin → Data streams → your web stream. While it's empty, nothing is loaded or sent.
+
+With Google's default settings ("Enhanced measurement"), it counts page views and how far people scroll. It also counts clicks on links to other websites, such as Resume, LinkedIn and the Figma links. The 404 page is counted too, so the reports show broken links that lead to the site. The Realtime report in Google Analytics shows a visit within a few seconds; the other reports can take up to a day.
+
+Every page loads the file with `<script src="js/analytics.js" async></script>` at the end of its `<head>` (`../js/analytics.js` in `projects/`). The project template already has it, and the [checks](#automatic-checks) fail if a page doesn't.
+
 ## Automatic checks
 
 After every push, GitHub runs a set of checks on the site (the "Site checks" workflow in `.github/workflows/checks.yml`) and shows the result next to the commit: a green ✓ when everything passed, a red ✗ when something broke. The checks don't hold back a deploy: GitHub Pages publishes the push either way, so a ✗ means "fix this soon", not "the push didn't go out". A run takes about 5 minutes.
@@ -108,6 +118,7 @@ What they check, on every page (new pages are picked up automatically):
 - **Reduced motion:** with reduced motion turned on, everything shows straight away, with no animation.
 - **Without JavaScript:** everything still shows.
 - **No placeholders left:** no `[YOUR …]` text and no `YOUR_LINK_URL` link on any page, except the case studies listed as `drafts` in `tests/helpers.js` (Turblend for now).
+- **Google Analytics:** every page loads `js/analytics.js`. On the live address, the Analytics tag starts with your Measurement ID. While the ID is empty, Analytics is off and this part is skipped. Anywhere else, nothing goes to Google. The live address is faked inside the test browser, and Google's script is blocked before it loads, so the checks never add visits to your reports.
 
 When a run fails, open the **Actions** tab on GitHub, click the failed run, and open the red step to see which check failed and why. For the browser checks, the run also keeps a report (under **Artifacts**, "playwright-report") with a screenshot and a step-by-step replay of each failed check. Unzip it and open `index.html` inside to see the screenshots; for the replays, run `npx playwright show-report <the unzipped folder>` from this repo instead. A check that failed once and passed when it was retried is marked "flaky": the site is fine, but if the same check keeps doing it, it's worth a look. You can rerun the checks by hand with **Run workflow** on the "Site checks" page of the Actions tab.
 
@@ -124,6 +135,6 @@ npm test
 
 Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build. On GitHub Pages, `_config.yml` keeps this README and the check files off the site; on another host, leave them out of the upload.
 
-The canonical links, `sitemap.xml` and `robots.txt` all use `https://dmaksimoff.com`. If the domain changes, find-and-replace it across those files.
+The canonical links, `sitemap.xml`, `robots.txt`, `js/analytics.js` and its check (`tests/analytics.spec.js`) all use `dmaksimoff.com`. If the domain changes, find-and-replace it across those files.
 
 GitHub Pages, Netlify and Cloudflare Pages all show `404.html` automatically for addresses that don't exist. A small script at the top of `404.html` makes its links work even at nested addresses (like `/projects/typo`): on a GitHub Pages project site it treats the first folder (`/personal-portfolio/`) as the site's root, and elsewhere the domain root. If the site ends up in a different subfolder, change that path in the script.
