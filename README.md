@@ -97,7 +97,7 @@ Hovering your name or a nav link fades in a black box behind white text over abo
 
 ## Automatic checks
 
-After every push, GitHub runs a set of checks on the site (the "Site checks" workflow in `.github/workflows/checks.yml`) and shows the result next to the commit: a green ✓ when everything passed, a red ✗ when something broke. The checks don't hold back a deploy: GitHub Pages publishes the push either way, so a ✗ means "fix this soon", not "the push didn't go out". A run takes about 3 minutes.
+After every push, GitHub runs a set of checks on the site (the "Site checks" workflow in `.github/workflows/checks.yml`) and shows the result next to the commit: a green ✓ when everything passed, a red ✗ when something broke. The checks don't hold back a deploy: GitHub Pages publishes the push either way, so a ✗ means "fix this soon", not "the push didn't go out". A run takes about 5 minutes.
 
 What they check, on every page (new pages are picked up automatically):
 
