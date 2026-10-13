@@ -1,6 +1,6 @@
 # Personal portfolio
 
-A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and no dependencies. The only external request is the fonts from Google Fonts: Syne for headings and the navbar (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
+A static portfolio site in plain HTML, CSS and a little JavaScript. There's no framework, no build step and the site has no dependencies. (The [automatic checks](#automatic-checks) use two tools, but those only run on GitHub and your computer and aren't part of the site.) The only external request is the fonts from Google Fonts: Syne for headings and the navbar (`--font-display` in `css/styles.css`) and Inter for everything else. The pages fall back to system fonts without them.
 
 ```
 index.html                     Home: hero with cursor-following glow, "My works" list, footer
@@ -9,10 +9,17 @@ projects/*-case-study.html     One case study per project (dōTERRA, tap., Kalor
 projects/project-template.html Blank case study to copy for a new project
 404.html                       Page-not-found page
 sitemap.xml, robots.txt        For search engines: the pages to index, and where the sitemap is
-_config.yml                    Keeps this README off the published site (GitHub Pages)
+_config.yml                    Keeps this README and the check files off the published site (GitHub Pages)
 css/styles.css                 All styles
-js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in
+js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in, blur-in
 images/                        Grey placeholder images (swap for your own)
+
+Automatic checks (not part of the site):
+.github/workflows/checks.yml   Runs the checks on GitHub after every push
+tests/                         The browser checks; helpers.js lists the draft case studies
+playwright.config.js           Screen sizes and settings for the browser checks
+.htmlvalidate.json             Settings for the HTML check
+package.json                   The two check tools and the commands that run them
 ```
 
 ## Run it locally
@@ -50,8 +57,9 @@ grep -rn "YOUR" --include=*.html .
 3. In `index.html`, copy one `<li class="project">` block inside the "My works" list. Set its `href` to `projects/my-project-case-study.html`, then add its thumbnail, name and one-line description.
    - For a logo on a transparent background, add `project__thumb--logo` to the thumbnail's `<div>` so it grows and tilts when the pointer is on the logo (not when hovering the rest of the row). Its hit area is a box over the logo, inset from the square's edges by `--logo-inset` (top/bottom, then left/right). The default fits the dōTERRA mark; for another shape, set it on the thumbnail, e.g. `style="--logo-inset: 21.4% 36.8%"` for the Kalorie phone. For a round logo, also add `--logo-radius: 50%` so the hit area is a circle (as on Turblend).
    - Side projects go in the same list, after the main projects. They use `class="project project--tall"` for a taller phone-screen thumbnail, and can link straight to an external site if the project has no case study.
-   - While a case study isn't ready, its row can show without a link, like Turblend's: `class="project project--soon"`, a `<div class="project__link">` instead of the `<a>`, and no arrow. Give the unfinished page `<meta name="robots" content="noindex">` so search engines skip it.
+   - While a case study isn't ready, its row can show without a link, like Turblend's: `class="project project--soon"`, a `<div class="project__link">` instead of the `<a>`, and no arrow. Give the unfinished page `<meta name="robots" content="noindex">` so search engines skip it, and add it to `drafts` in `tests/helpers.js` so the [checks](#automatic-checks) allow its placeholders for now.
 4. Add the page's address to `sitemap.xml`, so search engines find it.
+5. If the page was on the `drafts` list in `tests/helpers.js`, take it off. From then on the checks fail if any `[YOUR …]` text or `YOUR_LINK_URL` link is left on it.
 
 ## Glow (hero and footers)
 
@@ -87,9 +95,34 @@ The header has no background only while the page is scrolled all the way to the 
 
 Hovering your name or a nav link fades in a black box behind white text over about 0.9 seconds, and adds a thin ↗ after the word that pushes the next items along. Moving away snaps it back instantly. Keyboard focus shows the same effect. The arrow's shape is the `--nav-arrow` image in `css/styles.css`. The footer's Email, Resume and LinkedIn links fade in the same black box over the same 0.9 seconds. Instead of adding an arrow, the → in front of each one turns to point up-right. In the "My works" list, each part of a row reacts only when the pointer is on that part: a thumbnail zooms slightly (a logo thumbnail instead grows and tilts 15° to the right when the pointer is on the logo itself), the title gets the same black box (without the ↗), and the → on the right nudges a little to the left before it glides back. The whole row is still one link, and keyboard focus on a row shows the title box and arrow nudge.
 
+## Automatic checks
+
+After every push, GitHub runs a set of checks on the site (the "Site checks" workflow in `.github/workflows/checks.yml`) and shows the result next to the commit: a green ✓ when everything passed, a red ✗ when something broke. The checks don't hold back a deploy: GitHub Pages publishes the push either way, so a ✗ means "fix this soon", not "the push didn't go out". A run takes about 3 minutes.
+
+What they check, on every page (new pages are picked up automatically):
+
+- **The HTML is valid:** no unclosed or misplaced tags, no ID used twice, no attributes that don't exist. Run by html-validate, using only the rules from the HTML standard (not its style preferences).
+- **Links and files exist:** every link to another page, every link to a section (like `index.html#work`) and every image, stylesheet and script on the site. Links to other websites (LinkedIn, Google Drive, Figma, Google Fonts) aren't checked, because those sites often turn automated visitors away.
+- **Nothing animated stays hidden:** every line of the heroes, the blur-ins and the fade-ins ends up fully visible after scrolling down the page, at four screen sizes: desktop (1440 × 900), a tall portrait monitor (1080 × 1920), a tablet (768 × 1024) and a phone (390 × 844).
+- **No errors:** no script errors and no files that fail to load.
+- **Reduced motion:** with reduced motion turned on, everything shows straight away, with no animation.
+- **Without JavaScript:** everything still shows.
+- **No placeholders left:** no `[YOUR …]` text and no `YOUR_LINK_URL` link on any page, except the case studies listed as `drafts` in `tests/helpers.js` (Turblend for now).
+
+When a run fails, open the **Actions** tab on GitHub, click the failed run, and open the red step to see which check failed and why. For the browser checks, the run also keeps a report (under **Artifacts**, "playwright-report") with a screenshot and a step-by-step replay of each failed check. Unzip it and open `index.html` inside to see the screenshots; for the replays, run `npx playwright show-report <the unzipped folder>` from this repo instead. A check that failed once and passed when it was retried is marked "flaky": the site is fine, but if the same check keeps doing it, it's worth a look. You can rerun the checks by hand with **Run workflow** on the "Site checks" page of the Actions tab.
+
+To run the same checks on your computer (needs Node.js and Google Chrome), install the tools once, then run them:
+
+```sh
+npm install
+npm test
+```
+
+`npm run test:html` and `npm run test:browser` run the two halves separately. Locally the browser checks use your own Chrome, so there's nothing else to download.
+
 ## Deploy
 
-Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build. On GitHub Pages, `_config.yml` keeps this README off the site; on another host, leave it out of the upload.
+Upload the folder to any static host, such as GitHub Pages, Netlify or Cloudflare Pages. There's nothing to build. On GitHub Pages, `_config.yml` keeps this README and the check files off the site; on another host, leave them out of the upload.
 
 The canonical links, `sitemap.xml` and `robots.txt` all use `https://dmaksimoff.com`. If the domain changes, find-and-replace it across those files.
 

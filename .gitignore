@@ -1,3 +1,8 @@
 .DS_Store
 .claude/
 projects/project-template.html
+
+# Check tools (see package.json) and their output
+node_modules/
+test-results/
+playwright-report/

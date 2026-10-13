@@ -1,0 +1,14 @@
+{
+  "name": "personal-portfolio",
+  "private": true,
+  "description": "Automatic checks for the site. The site itself needs none of this to run.",
+  "scripts": {
+    "test": "npm run test:html && npm run test:browser",
+    "test:html": "html-validate \"*.html\" \"projects/*.html\"",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "html-validate": "10.17.0"
+  }
+}

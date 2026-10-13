@@ -1,0 +1,42 @@
+# Runs the site's checks on GitHub after every push, so a broken page shows up as a red ✗
+# next to the commit instead of on the live site. The same checks run on your Mac with `npm test`.
+name: Site checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:       # adds a "Run workflow" button on the Actions tab
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install the check tools
+        run: npm ci
+
+      - name: Check the HTML is valid
+        run: npm run test:html
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Check links, files and animations in a browser
+        run: npm run test:browser
+
+      # When something fails: a report with a screenshot and a step-by-step trace of each failed check,
+      # downloadable from the run's page on the Actions tab.
+      - name: Keep the report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
