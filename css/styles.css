@@ -1244,19 +1244,28 @@ a.project__link .project__name:hover,
 }
 .js .reveal.is-visible { opacity: 1; transform: none; }
 
-/* ---------- Home hero fade-in on load ----------
+/* ---------- Blur-in (home hero, My works, footer) ----------
    Modelled on mobbin.com's hero: each line starts see-through, blurred and a little lower,
-   then settles into place. Lines follow each other 0.1s apart, starting 0.4s after load.
-   Only the starting state is written, so each line ends on its own styles. Plain CSS,
-   so it plays without JS too. */
-@keyframes hero-in {
-  from { opacity: 0; filter: blur(8px); transform: translateY(var(--hero-in-y, 12px)); }
+   then settles into place, 0.1s after the one before it. Only the starting state is written,
+   so each line ends on its own styles. */
+@keyframes blur-in {
+  from { opacity: 0; filter: blur(8px); transform: translateY(var(--blur-in-y, 12px)); }
 }
-.hero-in { animation: hero-in 0.8s 0.4s var(--ease) backwards; }
-.hero__title.hero-in { --hero-in-y: 0.25em; animation-delay: 0.5s; }   /* moves a quarter of its own size */
+
+/* Home hero: plays on load, starting after 0.4s. Plain CSS, so it plays without JS too. */
+.hero-in { animation: blur-in 0.8s 0.4s var(--ease) backwards; }
+.hero__title.hero-in { --blur-in-y: 0.25em; animation-delay: 0.5s; }   /* moves a quarter of its own size */
 .hero__status .hero-in:nth-child(1) { animation-delay: 0.6s; }
 .hero__status .hero-in:nth-child(2) { animation-delay: 0.7s; }
 .hero__status .hero-in:nth-child(3) { animation-delay: 0.8s; }
+
+/* My works and the footer: plays as each line scrolls into view. js/main.js adds .is-visible
+   and sets --blur-in-delay, so lines that come in together still follow each other. */
+.js .blur-in { opacity: 0; }
+.js .blur-in.is-visible {
+  opacity: 1;
+  animation: blur-in 0.8s var(--blur-in-delay, 0s) var(--ease) backwards;
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -1267,5 +1276,7 @@ a.project__link .project__name:hover,
     animation-duration: 0.01ms !important;
   }
   .js .reveal { opacity: 1; transform: none; }
-  .hero-in { animation: none; }   /* the shortened duration above would still keep the delay */
+  .js .blur-in { opacity: 1; }
+  .hero-in,
+  .js .blur-in.is-visible { animation: none; }   /* the shortened duration above would still keep the delay */
 }

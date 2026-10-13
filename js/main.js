@@ -4,6 +4,7 @@
    - "scroll back" header (hides on scroll down, shows on scroll up)
    - live local clock in the hero
    - fade-in on scroll
+   - blur-in on scroll (My works, footer)
    - cursor-following glow behind the hero and footers
    - current year in the footer
    ========================================================================== */
@@ -134,6 +135,48 @@
     revealEls.forEach(function (el) { io.observe(el); });
   } else {
     revealEls.forEach(function (el) { el.classList.add('is-visible'); });
+  }
+
+  /* ---------- Blur in on scroll (My works, footer) ----------
+     Plays the home hero's blur-in (see css/styles.css) on each .blur-in line once half of it
+     is in view. Lines that come in together follow each other 0.1s apart, in page order.
+     The footer's lines start together once half the footer is in view: its columns differ in
+     height, so on their own they'd come in one at a time and out of order. It uses "half in
+     view" rather than the fade-in's trigger line (8% up from the bottom of the screen) because
+     the footer sits at the very bottom of the page, and on tall screens it can't scroll far
+     enough up to cross that line.
+     Lines already in view on load (on phones, the top of My works) wait for the home hero's
+     lines and follow on after the last one. */
+  var blurEls = [].slice.call(document.querySelectorAll('.blur-in'));
+  var footer = document.querySelector('.site-footer');
+  var heroLines = document.querySelectorAll('.hero-in');
+  var blurStart = heroLines.length
+    ? parseFloat(getComputedStyle(heroLines[heroLines.length - 1]).animationDelay) + 0.1
+    : 0;
+
+  if ('IntersectionObserver' in window) {
+    var blurIo = new IntersectionObserver(function (entries) {
+      var els = [];
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        blurIo.unobserve(entry.target);
+        els = els.concat(entry.target === footer
+          ? [].slice.call(footer.querySelectorAll('.blur-in'))
+          : [entry.target]);
+      });
+      els.forEach(function (el, i) {
+        el.style.setProperty('--blur-in-delay', (blurStart + i * 0.1) + 's');
+        el.classList.add('is-visible');
+      });
+      blurStart = 0;   // the first call reports every line, so only the lines in view on load wait
+    }, { threshold: 0.5 });
+
+    blurEls.forEach(function (el) {
+      if (!footer || !footer.contains(el)) blurIo.observe(el);
+    });
+    if (footer && footer.querySelector('.blur-in')) blurIo.observe(footer);
+  } else {
+    blurEls.forEach(function (el) { el.classList.add('is-visible'); });
   }
 
   /* ---------- Cursor-following glow (hero and footers) ----------
