@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var MEASUREMENT_ID = '';
+  var MEASUREMENT_ID = 'G-S7RZR6SKVC';
   var SITE = 'dmaksimoff.com';
 
   var host = location.hostname;

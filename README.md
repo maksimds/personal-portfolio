@@ -12,7 +12,7 @@ sitemap.xml, robots.txt        For search engines: the pages to index, and where
 _config.yml                    Keeps this README and the check files off the published site (GitHub Pages)
 css/styles.css                 All styles
 js/main.js                     Mobile menu, scroll-back header, live clock, hero glow, fade-in, blur-in
-js/analytics.js                Google Analytics (your Measurement ID goes here)
+js/analytics.js                Google Analytics (the Measurement ID is set here)
 images/                        Grey placeholder images (swap for your own)
 
 Automatic checks (not part of the site):
@@ -45,7 +45,7 @@ grep -rn "YOUR" --include=*.html .
 - **Intro, bio, links:** replace the `[YOUR …]` text. The Email links (footer and mobile menu of every page, plus the About page) go to `dnmvatm@gmail.com`; to change it, find-and-replace the address across the pages.
 - **Resume and LinkedIn:** the CV icon and every "Resume" link open the resume on Google Docs, and the LinkedIn links go to `linkedin.com/in/denismaksimov1`. To change either, find-and-replace the URL across the three pages.
 - **Clock:** in `index.html`, set `data-timezone` on the clock to your IANA time zone, such as `America/New_York`. If you leave it empty, the clock shows the visitor's own time.
-- **Google Analytics:** paste your Measurement ID into `js/analytics.js` (see [Google Analytics](#google-analytics)).
+- **Google Analytics:** the Measurement ID is in `js/analytics.js` (see [Google Analytics](#google-analytics)).
 - **Photos:** put your images in `images/` and change the `src` (and `width`/`height`, `alt`) on the matching `<img>`. The placeholder file names show the intended aspect ratio.
 
 ## Add a new project
@@ -99,7 +99,7 @@ Hovering your name or a nav link fades in a black box behind white text over abo
 
 ## Google Analytics
 
-`js/analytics.js` loads Google Analytics on every page. It only runs on the live site (`dmaksimoff.com`), so your own previews and the automatic checks are never counted. To connect it, paste your Measurement ID into `MEASUREMENT_ID` at the top of that file. It looks like `G-XXXXXXXXXX`, and in Google Analytics it's under Admin → Data streams → your web stream. While it's empty, nothing is loaded or sent.
+`js/analytics.js` loads Google Analytics on every page. It only runs on the live site (`dmaksimoff.com`), so your own previews and the automatic checks are never counted. It sends to the property with Measurement ID `G-S7RZR6SKVC`, set in `MEASUREMENT_ID` at the top of that file. To use a different property, replace it with that property's ID (in Google Analytics: Admin → Data streams → your web stream). If you empty it, nothing is loaded or sent.
 
 With Google's default settings ("Enhanced measurement"), it counts page views and how far people scroll. It also counts clicks on links to other websites, such as Resume, LinkedIn and the Figma links. The 404 page is counted too, so the reports show broken links that lead to the site. The Realtime report in Google Analytics shows a visit within a few seconds; the other reports can take up to a day.
 
