@@ -1,6 +1,6 @@
 """Daily analytics email: sends a summary of today's Google Analytics numbers for dmaksimoff.com.
 
-Run every evening by .github/workflows/daily-report.yml (setup: README.md, "Daily analytics email").
+Run every evening by .github/workflows/daily-report.yml (setup: INSTRUCTIONS.md, "Daily analytics email").
 It reads four GitHub secrets, passed in as environment variables:
   GA_PROPERTY_ID      the Google Analytics property's number (Admin → Property details), not the G-… ID
   GA_CREDENTIALS      the service account's JSON key, pasted in whole
@@ -189,10 +189,10 @@ def main():
     missing = [name for name in SETTINGS if not os.environ.get(name, "").strip()]
     if len(missing) == len(SETTINGS):
         print("::notice title=Daily analytics email::Not set up yet, so nothing was sent. "
-              'Add the four GitHub secrets listed in README.md under "Daily analytics email".')
+              'Add the four GitHub secrets listed in INSTRUCTIONS.md under "Daily analytics email".')
         return
     if missing:
-        sys.exit(f"Missing GitHub secrets: {', '.join(missing)} (see README.md, \"Daily analytics email\").")
+        sys.exit(f"Missing GitHub secrets: {', '.join(missing)} (see INSTRUCTIONS.md, \"Daily analytics email\").")
 
     data = fetch(os.environ["GA_PROPERTY_ID"], os.environ["GA_CREDENTIALS"])
     send(build_email(data, datetime.now(NEW_YORK).date()),

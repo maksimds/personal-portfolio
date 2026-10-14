@@ -1,5 +1,5 @@
 # Emails a summary of the site's Google Analytics numbers every evening at 8 pm New York time
-# (.github/scripts/daily_report.py does the work). It needs four GitHub secrets: see README.md,
+# (.github/scripts/daily_report.py does the work). It needs four GitHub secrets: see INSTRUCTIONS.md,
 # "Daily analytics email". Until they're added, each run just notes that it isn't set up yet.
 name: Daily analytics email
 

@@ -2,7 +2,7 @@
 # The files listed here stay in the repository but are left off the site.
 exclude:
   - README.md
-  # The automatic checks (see README.md)
+  # The automatic checks (see INSTRUCTIONS.md)
   - package.json
   - package-lock.json
   - playwright.config.js
