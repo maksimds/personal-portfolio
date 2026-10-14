@@ -1,3 +1,4 @@
-# Denis Maksimov — Design Portfolio
+# Denis Maksimov
+### Design Portfolio
 
 This is my design portfolio website, live at [dmaksimoff.com](https://dmaksimoff.com). I'm Denis Maksimov, a product designer at dōTERRA based in Cincinnati, OH, and a senior at the University of Cincinnati majoring in IT/Software Development, graduating in May 2027. Born and raised in Moscow, I moved to the United States at 17, but my path in design started earlier: I opened Figma for the first time at 15 and landed my first freelance project at 16. Today I design mobile apps, websites, platforms and design systems, and I like owning the whole process, from ideation to the final prototypes, so that what users need and what the business needs end up in the same product. I'm looking for full-time design roles after graduation, so feel free to explore my case studies on the site or reach out on [LinkedIn](https://www.linkedin.com/in/denismaksimov1).
