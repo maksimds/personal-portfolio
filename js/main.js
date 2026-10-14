@@ -181,8 +181,9 @@
   /* ---------- Cursor-following glow (hero and footers) ----------
      A radial gradient (grey edge → coloured centre) drawn with WebGL on every
      element with class "glow" (markup: .glow > .glow__bg > canvas.glow__canvas):
-     - the centre always eases toward the cursor, wherever it is on the page,
-       kept inside its own section so it stays visible
+     - the centre eases toward the cursor while it's over the glow's own section;
+       when the cursor leaves, the hero's glow stays where it is and the footer's
+       glides back to its resting position
      - the centre colour drifts slowly and steadily through `colors`; all glows
        share one clock, so they always show the same colour
      - the edge is slowly warped by animated noise
@@ -297,20 +298,29 @@
     var pos = { x: 0, y: 0 };
     var target = { x: 0, y: 0 };
     var pointer = null;   // last cursor position in viewport coordinates
-    // The footer's glow only follows the cursor while it's over the footer; elsewhere the glow
-    // tracks the cursor anywhere on the page.
-    var onlyWhenInside = surface.matches('.site-footer');
+    var wasInside = false;
+    // Each glow only follows the cursor while it's over its own section. When the cursor leaves,
+    // the footer's glow glides back to its resting position; the others (the hero) stay put.
+    var restWhenOutside = surface.matches('.site-footer');
 
     function updateTarget() {
       var r = surface.getBoundingClientRect();
       var inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
-      if (!pointer || (onlyWhenInside && !inside)) {
+      if (!pointer || (restWhenOutside && !inside)) {
         // Resting position (the glow glides back here when the cursor leaves the footer)
         target.x = w * GLOW.x;
         target.y = h * GLOW.y;
         return;
       }
-      // Track the cursor, kept inside this section so the glow stays visible.
+      if (!inside && !wasInside) {
+        // The cursor is elsewhere on the page: the glow stays where it is (inside the section if it resized).
+        target.x = Math.min(target.x, w);
+        target.y = Math.min(target.y, h);
+        return;
+      }
+      wasInside = inside;
+      // Track the cursor, kept inside this section so the glow stays visible. On the way out,
+      // this stops the glow at the edge the cursor left by.
       target.x = Math.min(Math.max(pointer.x - r.left, 0), w);
       target.y = Math.min(Math.max(pointer.y - r.top, 0), h);
     }
