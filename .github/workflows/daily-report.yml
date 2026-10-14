@@ -1,0 +1,38 @@
+# Emails a summary of the site's Google Analytics numbers every evening at 8 pm New York time
+# (.github/scripts/daily_report.py does the work). It needs four GitHub secrets: see README.md,
+# "Daily analytics email". Until they're added, each run just notes that it isn't set up yet.
+name: Daily analytics email
+
+on:
+  schedule:
+    # GitHub's schedule is in UTC, which has no daylight saving time: 8 pm in New York is 00:00 UTC
+    # in summer (EDT) and 01:00 UTC in winter (EST). Both run every day; only the one that's 8 pm sends.
+    - cron: '0 0 * * *'
+    - cron: '0 1 * * *'
+  workflow_dispatch:       # adds a "Run workflow" button on the Actions tab, which sends one straight away
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install the Google Analytics library
+        run: pip install google-analytics-data==0.23.2
+
+      - name: Send the email
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+          GA_CREDENTIALS: ${{ secrets.GA_CREDENTIALS }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python .github/scripts/daily_report.py

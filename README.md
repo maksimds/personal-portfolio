@@ -21,6 +21,10 @@ tests/                         The browser checks; helpers.js lists the draft ca
 playwright.config.js           Screen sizes and settings for the browser checks
 .htmlvalidate.json             Settings for the HTML check
 package.json                   The two check tools and the commands that run them
+
+Daily analytics email (not part of the site):
+.github/workflows/daily-report.yml  Sends it every evening at 8 pm New York time
+.github/scripts/daily_report.py     Gets the numbers from Google Analytics and writes the email
 ```
 
 ## Run it locally
@@ -104,6 +108,38 @@ Hovering your name or a nav link fades in a black box behind white text over abo
 With Google's default settings ("Enhanced measurement"), it counts page views and how far people scroll. It also counts clicks on links to other websites, such as Resume, LinkedIn and the Figma links. The 404 page is counted too, so the reports show broken links that lead to the site. The Realtime report in Google Analytics shows a visit within a few seconds; the other reports can take up to a day.
 
 Every page loads the file with `<script src="js/analytics.js" async></script>` at the end of its `<head>` (`../js/analytics.js` in `projects/`). The project template already has it, and the [checks](#automatic-checks) fail if a page doesn't.
+
+To get the numbers by email every evening, see [Daily analytics email](#daily-analytics-email).
+
+## Daily analytics email
+
+Every evening at 8 pm New York time, GitHub emails you a summary of the day's Google Analytics numbers. It's the "Daily analytics email" workflow in `.github/workflows/daily-report.yml`, and `.github/scripts/daily_report.py` does the work. The email shows visitors, new visitors, page views and average time per visitor for today, yesterday and the last 7 days, then today's pages, where visitors came from, where they are and which devices they used. It's sent from your Gmail account to itself.
+
+### Setup (once, about 15 minutes)
+
+Until this is done, each evening's run just notes "Not set up yet" on the Actions tab and sends nothing.
+
+1. **Make an account that can read Analytics.** In the [Google Cloud console](https://console.cloud.google.com/), create a project (any name, such as "Portfolio analytics"). In it, turn on the [Google Analytics Data API](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com). Then go to IAM & Admin → Service accounts → Create service account. Give it any name and skip the optional steps. Open it, go to Keys → Add key → Create new key → JSON, and a `.json` file downloads.
+2. **Give it access to your Analytics property.** In Google Analytics, go to Admin → Property access management → + → Add users. Enter the service account's email (it ends in `.iam.gserviceaccount.com`; it's also `client_email` in the JSON file), choose the Viewer role and add it.
+3. **Find the property ID.** In Admin → Property details, it's a number like `461234567` (not the `G-…` Measurement ID). While you're there, check that the reporting time zone is New York, so "today" ends at midnight Eastern.
+4. **Make a Gmail app password.** Your Google account needs 2-Step Verification for this. Go to [App passwords](https://myaccount.google.com/apppasswords), create one (any name) and copy the 16 letters.
+5. **Add four secrets on GitHub.** In this repository, go to Settings → Secrets and variables → Actions → New repository secret, and add each of these:
+   - `GA_PROPERTY_ID`: the number from step 3
+   - `GA_CREDENTIALS`: everything in the JSON file from step 1 (open it in TextEdit and copy it all)
+   - `GMAIL_ADDRESS`: your Gmail address
+   - `GMAIL_APP_PASSWORD`: the app password from step 4
+
+   Then delete the JSON file from your computer. Secrets stay hidden, even though the repository is public.
+6. **Send a test.** On the Actions tab, open "Daily analytics email" and click **Run workflow**. The email arrives within a minute or two.
+
+### Good to know
+
+- GitHub's schedule runs in UTC, which has no daylight saving time, so the workflow runs twice each evening (00:00 and 01:00 UTC) and only the run that's 8 pm in New York sends. It keeps to 8 pm through the clock changes on its own. The other run shows on the Actions tab as a short run that sent nothing.
+- GitHub can start scheduled runs a few minutes late, sometimes 15 minutes or more at busy times, so the email may arrive a little after 8.
+- Today's numbers can be a few hours behind, since Google takes up to a day to process them.
+- If a run fails (for example, the app password was revoked), GitHub emails you about the failed run, and the run's page on the Actions tab says what went wrong. The run's log never shows your numbers, since anyone can see it.
+- GitHub pauses scheduled workflows on public repositories after 60 days without any activity. To restart it, open "Daily analytics email" on the Actions tab and click **Enable workflow**.
+- To change what the email includes, edit `fetch` (what's asked of Google Analytics) and `build_email` in `.github/scripts/daily_report.py`.
 
 ## Automatic checks
 
