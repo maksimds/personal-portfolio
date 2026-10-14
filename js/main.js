@@ -183,7 +183,8 @@
      element with class "glow" (markup: .glow > .glow__bg > canvas.glow__canvas):
      - the centre eases toward the cursor while it's over the glow's own section;
        when the cursor leaves, the hero's glow stays where it is and the footer's
-       glides back to its resting position
+       glides back to its resting position (on a page with a hero, the spot where
+       the hero's glow is)
      - the centre colour drifts slowly and steadily through `colors`; all glows
        share one clock, so they always show the same colour
      - the edge is slowly warped by animated noise
@@ -286,6 +287,10 @@
     return oklabToRgb([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
   }
 
+  // On a page with a hero glow, returns where it is (or where it stopped) as a fraction of the
+  // hero. The footer's glow rests at the same spot, so the two match. Set by initGlow.
+  var heroGlowSpot = null;
+
   function initGlow(surface) {
     var bg = surface.querySelector('.glow__bg');
     var canvas = bg.querySelector('.glow__canvas');
@@ -302,14 +307,19 @@
     // Each glow only follows the cursor while it's over its own section. When the cursor leaves,
     // the footer's glow glides back to its resting position; the others (the hero) stay put.
     var restWhenOutside = surface.matches('.site-footer');
+    if (surface.matches('.hero')) {
+      heroGlowSpot = function () { return { x: target.x / w, y: target.y / h }; };
+    }
 
     function updateTarget() {
       var r = surface.getBoundingClientRect();
       var inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
       if (!pointer || (restWhenOutside && !inside)) {
-        // Resting position (the glow glides back here when the cursor leaves the footer)
-        target.x = w * GLOW.x;
-        target.y = h * GLOW.y;
+        // Resting position (the glow glides back here when the cursor leaves the footer). Below a
+        // hero, the footer's glow rests where the hero's is.
+        var rest = restWhenOutside && heroGlowSpot ? heroGlowSpot() : { x: GLOW.x, y: GLOW.y };
+        target.x = w * rest.x;
+        target.y = h * rest.y;
         return;
       }
       if (!inside && !wasInside) {
@@ -461,6 +471,9 @@
     }
 
     function schedule() {
+      // Off screen, the glow moves straight to where it's going, so it's already there when it's
+      // scrolled into view (the footer's starts where the hero's stopped, instead of gliding there).
+      if (!inView) { pos.x = target.x; pos.y = target.y; }
       if (rafId || !inView || document.hidden) return;
       // Without animation, stop redrawing once the glow has caught up with the cursor.
       if (!glowAnimate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
