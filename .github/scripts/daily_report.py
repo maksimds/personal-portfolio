@@ -23,7 +23,7 @@ from google.oauth2 import service_account
 
 SITE = "dmaksimoff.com"
 NEW_YORK = ZoneInfo("America/New_York")
-SEND_HOUR = 20            # 8 pm, New York time
+SEND_HOUR = 20            # 8 pm, New York time (the run is at 8:19)
 TOP = 10                  # rows in each list (pages, sources, locations, devices)
 SETTINGS = ["GA_PROPERTY_ID", "GA_CREDENTIALS", "GMAIL_ADDRESS", "GMAIL_APP_PASSWORD"]
 
@@ -33,14 +33,14 @@ TOTALS = ["activeUsers", "newUsers", "screenPageViews", "userEngagementDuration"
 
 
 def time_to_send():
-    """The workflow is scheduled at both 00:00 and 01:00 UTC: 8 pm in New York in summer and in winter.
-    Only the one that's 8 pm today sends. It goes by the time the run was scheduled for rather than the
+    """The workflow is scheduled at both 00:19 and 01:19 UTC: 8:19 pm in New York in summer and in winter.
+    Only the one that's 8:19 pm today sends. It goes by the time the run was scheduled for rather than the
     clock, since GitHub sometimes starts a run late. A run started by hand always sends."""
     schedule = os.environ.get("SCHEDULE")      # the cron line that started this run; empty when run by hand
     if not schedule:
         return True
-    hour = int(schedule.split()[1])
-    scheduled = datetime.now(timezone.utc).replace(hour=hour, minute=0, second=0, microsecond=0)
+    minute, hour = (int(field) for field in schedule.split()[:2])
+    scheduled = datetime.now(timezone.utc).replace(hour=hour, minute=minute, second=0, microsecond=0)
     return scheduled.astimezone(NEW_YORK).hour == SEND_HOUR
 
 

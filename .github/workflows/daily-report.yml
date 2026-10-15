@@ -1,14 +1,15 @@
-# Emails a summary of the site's Google Analytics numbers every evening at 8 pm New York time
+# Emails a summary of the site's Google Analytics numbers every evening at 8:19 pm New York time
 # (.github/scripts/daily_report.py does the work). It needs four GitHub secrets: see INSTRUCTIONS.md,
 # "Daily analytics email". Until they're added, each run just notes that it isn't set up yet.
 name: Daily analytics email
 
 on:
   schedule:
-    # GitHub's schedule is in UTC, which has no daylight saving time: 8 pm in New York is 00:00 UTC
-    # in summer (EDT) and 01:00 UTC in winter (EST). Both run every day; only the one that's 8 pm sends.
-    - cron: '0 0 * * *'
-    - cron: '0 1 * * *'
+    # GitHub's schedule is in UTC, which has no daylight saving time: 8:19 pm in New York is 00:19 UTC
+    # in summer (EDT) and 01:19 UTC in winter (EST). Both run every day; only the one that's 8:19 pm sends.
+    # Off the top of the hour on purpose: GitHub delays, and sometimes drops, runs scheduled on the hour.
+    - cron: '19 0 * * *'
+    - cron: '19 1 * * *'
   workflow_dispatch:       # adds a "Run workflow" button on the Actions tab, which sends one straight away
 
 permissions:
