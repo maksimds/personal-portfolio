@@ -377,11 +377,27 @@ main > section + nav,
   font-size: 1rem;
 }
 
+/* The header's CV, LinkedIn and GitHub icons, shown in the menu only on phones
+   too narrow to fit them in the header (see below) */
+.mobile-menu__icons {
+  display: none;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
 @media (max-width: 767px) {
   .site-header__inner { gap: 1rem; min-height: 0; }
   .site-nav { display: none; }
   .site-icons { gap: 1.25rem; }
   .menu-toggle { display: block; }
+}
+
+/* Under 390px the name, three icons and burger don't fit in one row, so the header
+   keeps just the name and the burger, and the icons move into the menu */
+@media (max-width: 389px) {
+  .site-icons { display: none; }
+  .menu-toggle { margin-left: auto; }
+  .mobile-menu__icons { display: flex; }
 }
 
 @media (min-width: 768px) {
