@@ -492,7 +492,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 
 @media (max-width: 767px) {
-  .hero { min-height: 88svh; }
+  .hero { min-height: calc(100svh - var(--rule-weight)); }   /* the line under the hero is the bottom edge of the screen */
   .hero__location { margin-bottom: 1rem; }
   .hero__title { padding-top: 1.5rem; }
   .hero__status { margin-top: 3rem; }
@@ -503,7 +503,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
    sits in the middle of the screen. */
 .hero--notfound {
   min-height: 100vh;
-  min-height: 100svh;          /* the full screen on phones too (the home hero is shorter there) */
+  min-height: 100svh;          /* the full screen on phones too (the home hero is 2px shorter there, to show its line) */
   padding-top: calc(var(--header-height) + var(--row));
   padding-bottom: calc(var(--header-height) + var(--row));
 }
@@ -560,7 +560,10 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   padding-bottom: calc(var(--row) * 3 + var(--fs-text-sm) * 2 - var(--fs-works-title) * 0.93);
 }
 @media (max-width: 767px) {
-  .section--works { padding-bottom: calc(var(--row) * 3 + var(--fs-works-title) * 0.17); }
+  .section--works {
+    --fs-works-title: calc(var(--fs-text-sm) * 1.47);   /* "My works" to the project titles as on a 1470px-wide desktop (29.5px to 20px) */
+    padding-bottom: calc(var(--row) * 3 + var(--fs-works-title) * 0.17);
+  }
 }
 
 .list-head {
