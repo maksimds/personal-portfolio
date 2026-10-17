@@ -29,11 +29,11 @@ module.exports = defineConfig({
     stderr: 'ignore',                    // the server logs every request; keep the output to the results
   },
 
-  // The animation checks run at four screen sizes; the link check only needs one.
+  // The animation checks and the screenshots run at four screen sizes; the link check only needs one.
   projects: [
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
-    { name: 'tall screen', testMatch: 'animations.spec.js', use: { viewport: { width: 1080, height: 1920 } } },
-    { name: 'tablet', testMatch: 'animations.spec.js', use: { viewport: { width: 768, height: 1024 } } },
-    { name: 'phone', testMatch: 'animations.spec.js', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'tall screen', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 1080, height: 1920 } } },
+    { name: 'tablet', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 768, height: 1024 } } },
+    { name: 'phone', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 });
