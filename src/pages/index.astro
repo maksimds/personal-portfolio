@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import ProjectRow from '../components/home/ProjectRow.astro';
+---
+<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" hasHero>
+
+  <Hero />
+
+  {/* ===== My works (main projects first, then side projects) ===== */}
+  <section class="section section--works container" id="work" aria-labelledby="work-title">
+    <div class="grid list-head">
+      <h2 id="work-title" class="h3 blur-in">My works</h2>
+      <p class="list-head__meta kv blur-in">Years of experience <span class="arrow">→</span> <strong>3+</strong></p>
+    </div>
+
+    {/* To add a project: add a <ProjectRow>. Without href, it's a "coming soon" row. */}
+    <ul class="project-list">
+      <ProjectRow href="/projects/doterra-case-study.html" name="dōTERRA" desc="Redesigning a web-platform" thumb="/images/doterra-logo.png" />
+      <ProjectRow href="/projects/tap-case-study.html" name="tap." desc="Managed the launch of a mobile app at a start-up" thumb="/images/tap-logo.png" logoInset="21.4% 31.6% 26.8%" />
+      <ProjectRow href="/projects/kalorie-case-study.html" name="Kalorie" desc="Created a mobile app prototype" thumb="/images/kalorie-app.png" logoInset="21.4% 36.8%" />
+      <ProjectRow href="/projects/lynea-case-study.html" name="Lynea" desc="Designing an AI-powered mobile app for traveling" thumb="/images/lynea-logo.png" logoInset="34% 8.7%" />
+      {/* Not a link until the case study is written: add href="/projects/turblend-case-study.html" to link it */}
+      <ProjectRow name="Turblend" desc="Designing a website for a local coffee producing company" thumb="/images/turblend-logo.png" logoInset="21.4%" logoRadius="50%" />
+      <ProjectRow name="Coming soon" desc="building something cool" />
+    </ul>
+  </section>
+
+</BaseLayout>

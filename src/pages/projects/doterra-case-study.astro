@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="dōTERRA Russia Platform Redesign — Denis Maksimov" description="dōTERRA Russia Platform Redesign: a full redesign of dōTERRA’s Russian web platform, using the structure members already knew." canonicalPath="/projects/doterra-case-study.html">
+
+  {/* ===== Case study: dōTERRA Russia Platform Redesign =====
+       To do before publishing:
+       - Permission from dōTERRA to show the screens publicly
+       - Real results for the Impact section after launch */}
+  <article class="case container">
+    <div class="grid">
+      <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+
+      <header class="case-head reveal">
+        <div>
+          <h1>dōTERRA</h1>
+          <p class="case-head__subtitle">A case study of a full redesign of dōTERRA’s Russian web platform, using the structure members already knew</p>
+        </div>
+        <span class="case-status">In development</span>
+      </header>
+
+      {/* The dōTERRA wordmark, on the page background */}
+      <figure class="case-hero case-hero--logo reveal">
+        <img src="/images/doterra-wordmark.png" alt="" width="863" height="157">
+      </figure>
+
+      <div class="case-body">
+
+        {/* Intro */}
+        <section class="case-intro reveal">
+          <p>I’m a part-time product designer on the project of redesigning dōTERRA’s Russian web platform. Stakeholders came to us asking for better UX. Users kept telling us the site was hard to use and looked old. Over the past year I’ve redesigned over 80% of dōTERRA’s platform in Figma, using a new design system built from dōTERRA’s latest brand guidelines, and handed the work to the engineering team one milestone at a time. This case study covers Enrollment, the onboarding flow new members go through to join. I’ve also redesigned the personal account and the shop, but they’re still in production, so I can’t show them yet.</p>
+        </section>
+
+        {/* Project details */}
+        <dl class="case-facts reveal">
+          <div><dt>Product</dt><dd>dōTERRA Russia web platform</dd></div>
+          <div><dt>My role</dt><dd>Product Designer</dd></div>
+          <div><dt>Timeline</dt><dd>May 2025 – Present</dd></div>
+          <div><dt>Skills</dt><dd>User research, Product design, Design systems, Prototyping, Developer handoff</dd></div>
+          <div class="case-facts__wide"><dt>Team</dt><dd>Product manager, content manager, marketing director, operations manager, and me. The PM and I hand off each finished milestone to the engineering team.</dd></div>
+        </dl>
+
+        {/* Problem */}
+        <section class="case-section reveal">
+          <h2>Problem: Everything worked (technically). But user experience was poor, and UI was outdated</h2>
+          <p>On paper, the Russian site did its job. You could find a product, sign up, place an order. But every one of those tasks took way more effort than it should have, and the whole platform looked years behind dōTERRA’s other markets. Help? Two small links at the top of the page: a returns policy and a PDF about the loyalty program.</p>
+          <p>The original ask was UX only. Once we started pulling the site apart with the team, it was obvious the old UI had to go too.</p>
+        </section>
+
+        {/* Research */}
+        <section class="case-section reveal">
+          <h2>Research</h2>
+          <p>I ran more than 20 structured interviews with regional stakeholders and customers, audited the old site page by page, and put it side by side with dōTERRA’s global platform. The same complaints kept coming back.</p>
+          <ul class="case-findings">
+            <li><strong>Signing up and onboarding was painful</strong><span>Too many steps, confusing forms, and no idea how far along you were.</span></li>
+            <li><strong>It looked outdated</strong><span>Members called the site old. Next to the online stores they use every day it felt behind, and that’s a bad look for a premium wellness brand.</span></li>
+            <li><strong>Friction everywhere</strong><span>Dense layouts, non-functional buttons and key information locked in PDFs, across the entire platform.</span></li>
+          </ul>
+        </section>
+
+        {/* Pull quote over an image. To set it over a photo, add the image as the figure's first
+             child, e.g. <img src="/images/my-photo.jpg" alt="" loading="lazy"> */}
+        <figure class="case-quote reveal">
+          <blockquote>&ldquo;Signing up feels more like filling out paperwork, and the site looks like it hasn’t changed since the 2000s.&rdquo;</blockquote>
+          <figcaption>– What 90% of stakeholders told us</figcaption>
+        </figure>
+
+        {/* Solution */}
+        <section class="case-section reveal">
+          <h2>Solution: Overall structure stays the same; UI fully updated; UX upgraded according to research</h2>
+          <p>Russian members shop differently. They look for supplements by what they do (digestion, metabolism, relaxation, detox), not by brand line, and advocates open the business tools every single day. So the structure stayed: labels, categories, where the tools live, every line of localized copy. Everything on the surface changed.</p>
+          <p>The deep green and cream palette comes from dōTERRA’s freshly released brand guidelines (we were first to use them for a redesign). The glassmorphism on top was my call. Frosted headers, cards, modals and dashboard panels make a dense platform feel a lot lighter than it is.</p>
+        </section>
+        <ul class="case-features reveal">
+          <li>Sign-up in five short steps</li>
+          <li>An order summary that does not clutter the screen</li>
+          <li>Familiar categories, cleaner menus</li>
+          <li>A clear understanding of what to do next</li>
+        </ul>
+
+        {/* Feature deep dives: heading, the new screen, "See how it was before", then the text.
+             Each "See how it was before" opens the old screen below it, like "View prototype" on
+             the Kalorie page (see src/scripts/embeds.ts). */}
+        <section class="case-detail reveal">
+          <h3>First impression: the login screen</h3>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/doterra-login.jpg" alt="The redesigned dōTERRA login screen: the sign-in form on a cream panel on the left, a photo of a lavender oil bottle on the right" width="1837" height="1211" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-login-before.jpg" target="_blank" rel="noopener" data-embed="login-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="login-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media">
+                <div class="case-media__panel"><img src="/images/doterra-login-before.jpg" alt="The old dōTERRA Russia login screen: a lavender field banner above a plain sign-in form with purple buttons" width="1837" height="1038" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>People told us the site looked old, and the login page is the first thing they see. So I made everything simple. The left third of the page is the CTA: email or dōTERRA ID, password, remember me, forgot password, one green button. Registering is a quiet text link under a divider. Returning members don’t trip over it, and new people still find it.</p>
+          <p>The right two thirds is a looped video that shows what dōTERRA is about. This frame shows a full-bleed photo of a dōTERRA Lavender bottle among lavender sprigs, in warm tones that sit well next to the cream form panel. No text and no form fields compete with it, so the product does the talking.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>A progress bar with words instead of numbers</h3>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/doterra-progress.png" alt="The new sign-up progress bar: five named steps in one pill-shaped bar, with the current step, Choose a kit, in solid green" width="2224" height="370" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-progress-before.png" target="_blank" rel="noopener" data-embed="progress-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="progress-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media">
+                <div class="case-media__panel"><img src="/images/doterra-progress-before.png" alt="The old sign-up progress bar: six small step labels above a thin line of circles" width="2940" height="192" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>The five steps live in one pill-shaped bar at the top: Choose a kit, Order, Registration, Delivery, Confirmation and payment. The current step is solid green. Everything else stays quiet. I used names instead of “Step 2 of 5” on purpose, because people wanted to know what was coming, not just how much was left.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 1, choose a kit: cards instead of table rows</h3>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/doterra-kits.jpg" alt="The redesigned Choose a kit step: a green Promotions panel at the top, six kit cards with photos, PV badges, prices and Choose buttons, and a Build your own cart block below" width="834" height="1308" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-kits-before.jpg" target="_blank" rel="noopener" data-embed="kits-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="kits-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media">
+                <div class="case-media__panel"><img src="/images/doterra-kits-before.jpg" alt="The old kit selection: kits as table rows with small product photos, long two-language names, price, PV and purple Choose buttons" width="1837" height="1038" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>Picking a kit is the biggest decision in sign-up, and the most expensive one (9,900 to 28,500 ₽). The old flow showed kits as lines in a list. I designed both a compact list and a card grid. In the card version each kit gets its own photo, which finally makes it look like a product instead of a database entry.</p>
+          <p>The card anatomy stays the same everywhere. PV badge in the top-left corner, because sponsors and advocates think in PV. A frosted glass panel at the bottom with the kit name, what’s included as a gift, the price and a full-width “Choose” button. The glass keeps white text readable on any photo without covering the whole image.</p>
+          <p>Not everyone wants a kit, so there are two exits. A registration-only option (1,490 ₽, 0 PV) sits in the same grid, and a “Build your own cart" block under it is for people who already know what they want.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Promotions as goals</h3>
+          <p>On the old site, promos were text you had to go looking for. Now a green “Promotions” panel sits right at the top of the first two steps, and each offer reads like a target: build a basket from 150 PV and the registration fee is free, from 200 PV and you get a gift, add rose oil during the promo dates and the second one is free. It’s the most saturated block on the page, so it gets read first. And because it repeats on the Order step, the goal stays in front of you while you add products.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 2, order: adding products without going back</h3>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/doterra-order.jpg" alt="The redesigned Order step: the chosen kit pinned at the top with a Replace kit button, a search field, product rows with price and PV pills, quantity steppers and Add buttons, and a Perfect for beginners carousel below" width="724" height="1408" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-order-before.jpg" target="_blank" rel="noopener" data-embed="order-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="order-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media">
+                <div class="case-media__panel"><img src="/images/doterra-order-before.jpg" alt="The old order screen: the chosen kit in a large box with a purple Change button, a total boxed in the top-right corner, and an Add products search with plain product rows below" width="1837" height="1036" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>On the Order step, the kit you picked stays pinned at the top with a “Replace kit” button. Changed your mind? You swap it right there, no back button. Under it: a search field, then product rows where price and PV sit in matching pills, a quantity stepper and an Add button. Same order on every row, so your eye learns it once.</p>
+          <p>Below the main list there’s a “Perfect for beginners” carousel with starter oils, built from the same card as the kits. It’s an upsell, yes. But it comes after the list, so it never blocks the main task.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>A cart that stays out of the way</h3>
+          <figure class="case-media case-media--card">
+            <div class="case-media__panel"><img src="/images/doterra-cart.png" srcset="/images/doterra-cart.png 2x" alt="The cart popover: items, registration fee, total to pay and PV, with a green Next button" width="410" height="302" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-cart-before.png" target="_blank" rel="noopener" data-embed="cart-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="cart-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media case-media--card">
+                <div class="case-media__panel"><img src="/images/doterra-cart-before.png" srcset="/images/doterra-cart-before.png 2x" alt="The old order summary: a plain white box with the total in rubles, PV, quantity and a purple Continue button" width="370" height="210" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>The cart summary (items, registration fee, total to pay, PV, Next) opens from the cart icon instead of living in a permanent sidebar. The page is for choosing, so choosing gets the full width. Totals are always one move away, never in the way.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Help is now a persistent live-chat feature</h3>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/doterra-help.png" alt="The bottom of an Enrollment step: the footer links, with a round green chat button in the bottom-right corner" width="2672" height="298" loading="lazy"></div>
+          </figure>
+          <p class="case-media__toggle"><a class="arrow-link" href="/images/doterra-help-before.png" target="_blank" rel="noopener" data-embed="help-before" data-embed-open-label="Hide how it was before"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>See how it was before</span></a></p>
+          <div class="case-embed" id="help-before" inert>
+            <div class="case-embed__inner">
+              <figure class="case-media case-media--card">
+                <div class="case-media__panel"><img src="/images/doterra-help-before.png" srcset="/images/doterra-help-before.png 2x" alt="The old help: a Help dropdown in the top header, listing an FAQ, the support center, leader resources, contact us and join dōTERRA" width="274" height="427" loading="lazy"></div>
+              </figure>
+            </div>
+          </div>
+          <p>The old help was a FAQ link at the top of the page that appeared only after a user finished the onboarding process. Now a round green chat button sits in the bottom-right corner of every step, the spot people already check on other online stores.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Color, shape and glass</h3>
+          <p>Cream background, sage green for anything you can press, both straight from the new brand guidelines. With only one action color, buttons are obvious without labels shouting. Buttons, the progress bar and the price chips are all pills, which keeps the look soft and consistent with dōTERRA’s natural, plant-based brand.</p>
+          <p>The glass is not decoration. It only shows up where content sits on top of something: text over photos on the kit cards, and panels that float above the page.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>One system behind every page</h3>
+          <p>I’m building the design system as I go. Colors, fonts and spacing live in Figma variables. Buttons, forms, cards, the progress stepper and the order summary are components with variants, and layouts run on auto layout so they hold up at any screen size. Engineers get the same building blocks every milestone, which keeps handoff clean.</p>
+        </section>
+
+        <hr class="case-rule">
+
+        {/* Impact */}
+        <section class="case-section case-section--after-rule reveal">
+          <h2>Impact: Redesigned, handed off, customers are happy (are they?)</h2>
+          <p>Enrollment (onboarding) is the first part of the platform to be finished and approved, which is why it’s the one shown here. The personal account and the shop are redesigned too, but they’re still in production. The new platform isn’t fully live yet, so I don’t have conversion numbers for you. What I do have: almost every page redesigned, a working design system, and milestone handoffs with annotated specs, interaction states and responsive layouts. I set the design direction and defend it in recurring reviews with the business team and engineering.</p>
+        </section>
+
+        {/* Previous / next project */}
+        <nav class="case-nav reveal" aria-label="More projects">
+          <a class="case-nav__link case-nav__link--next" href="/projects/tap-case-study.html">
+            <span class="case-nav__label">Next project</span>
+            <span class="case-nav__name"><span class="case-nav__title">tap.</span> <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </nav>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>

@@ -28,7 +28,7 @@ for (const url of pages) {
     });
     await expect(page.locator('.site-header')).not.toHaveClass(/\bis-(hidden|solid)\b/);
 
-    // Taking a full-page screenshot briefly resizes the window, and js/main.js measures the header
+    // Taking a full-page screenshot briefly resizes the window, and src/scripts/header.ts measures the header
     // again on every resize. On a busy computer it can measure it mid-resize, too short, which moves
     // the whole page up. So the height measured above is kept for the screenshot. The glows are
     // hidden rather than masked: a mask would also cover the hero and footer text on top of them.

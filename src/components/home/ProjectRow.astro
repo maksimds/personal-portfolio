@@ -1,0 +1,30 @@
+---
+// One row of the "My works" list. With href it links to the case study; without, it's a
+// "coming soon" row (no arrow, dimmed). Without thumb, an empty thumbnail space keeps the text in
+// line with the rows above.
+interface Props {
+  href?: string;
+  name: string;
+  desc: string;
+  thumb?: string;
+  // How far the logo sits from the thumbnail's edges (--logo-inset), and its corner radius (--logo-radius)
+  logoInset?: string;
+  logoRadius?: string;
+}
+const { href, name, desc, thumb, logoInset, logoRadius } = Astro.props;
+const Link = href ? 'a' : 'div';
+const thumbStyle = [logoInset && `--logo-inset: ${logoInset}`, logoRadius && `--logo-radius: ${logoRadius}`]
+  .filter(Boolean).join('; ') || undefined;
+---
+<li class:list={['project', { 'project--soon': !href }, 'blur-in']}>
+  <Link class="project__link" href={href}>
+    {thumb
+      ? <div class="project__thumb project__thumb--logo" style={thumbStyle}><img src={thumb} alt="" loading="lazy" width="640" height="640"></div>
+      : <div class="project__thumb" aria-hidden="true"></div>}
+    <div class="project__text">
+      <span class="project__name">{name}</span>
+      <span class="project__desc">{desc}</span>
+    </div>
+    {href && <div class="project__cta" aria-hidden="true"><span class="arrow">→</span></div>}
+  </Link>
+</li>

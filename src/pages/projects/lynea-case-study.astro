@@ -1,0 +1,155 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Lynea — Denis Maksimov" description="Lynea: an AI travel agency for groups" canonicalPath="/projects/lynea-case-study.html">
+
+  {/* ===== Case study: Lynea =====
+       Still in development; "Where it stands" gets updated every month. */}
+  <article class="case container">
+    <div class="grid">
+      <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+
+      <header class="case-head reveal">
+        <div>
+          <h1>Lynea</h1>
+          <p class="case-head__subtitle">Case study: AI travel agency for groups</p>
+        </div>
+        <span class="case-status">In development</span>
+      </header>
+
+      {/* The Lynea logo, on the page background. The mark sits in the middle third of a square
+           image, so it's set narrower than the dōTERRA wordmark; it comes out about as big. */}
+      <figure class="case-hero case-hero--logo reveal" style="--logo-width: min(29.7%, 19.8rem); --logo-trim: 0.339">
+        <img src="/images/lynea-logo.png" alt="" width="640" height="640">
+      </figure>
+
+      <div class="case-body">
+
+        {/* Intro */}
+        <section class="case-intro reveal">
+          <p>Lynea is a group travel planner for iOS and Android. Everyone in the group joins the trip from their own device and tells Lynea agent what they want. An AI agent takes all of it and works out one plan the whole group can agree on. It’s my senior capstone project at the University of Cincinnati, and I’m presenting it with my team at the UC IT Expo in April 2027.</p>
+        </section>
+
+        {/* Project details */}
+        <dl class="case-facts reveal">
+          <div><dt>Product</dt><dd>Lynea (cross-platform app)</dd></div>
+          <div><dt>My role</dt><dd>Team Lead &amp; Product Designer</dd></div>
+          <div><dt>Timeline</dt><dd>Sept 2026 – Apr 2027</dd></div>
+          <div><dt>Skills</dt><dd>Product design, Figma, User flows, Wireframing, Team leadership</dd></div>
+          <div class="case-facts__wide"><dt>Team</dt><dd>Me as team lead and product designer, 2 software engineers and a cybersecurity architect</dd></div>
+        </dl>
+
+        {/* Problem */}
+        <section class="case-section reveal">
+          <h2>Problem: Group trip planning is always a mess</h2>
+          <p>Planning a trip with friends usually starts with excitement and ends in a group chat with hundreds of messages and no decision. One person wants the beach, another one wants a city, while the third one wants to go hiking. Budgeting is also a huge issue, as well as everyone’s availability. And when all members finally agree, they realize that flights are on one site and hotel stays are on three others, so the search starts all over again.</p>
+          <p>I’ve personally experienced this issue lots of times since I travel a ton. This idea came to me pretty quickly during our team brainstorm, and we ended up sticking to it.</p>
+          <p>We’re building for friend groups in their 20s and 30s, college students, and groups planning around an event like a bachelor or bachelorette trip.</p>
+        </section>
+
+        {/* Competitive analysis */}
+        <section class="case-section reveal">
+          <h2>Competitive Analysis</h2>
+          <p>We started by looking at what’s already out there and found Wanderlog and TripIt. Both are pretty good at what they do, but neither is really built for a group that has to decide together.</p>
+          <ul class="case-findings">
+            <li><strong>Made for one planner</strong><span>Both apps assume one person organizes the trip and everyone else follows along. That’s exactly the “planner friend” problem, just moved into an app.</span></li>
+            <li><strong>None of them merges what people want</strong><span>You can share an itinerary, but nothing takes five people’s budgets, dates and must-dos and works out where they overlap.</span></li>
+            <li><strong>The AI is shallow</strong><span>Where AI shows up, it writes a generic itinerary for a destination. It doesn’t know the group, and it doesn’t negotiate between them.</span></li>
+          </ul>
+        </section>
+
+        {/* Features */}
+        <section class="case-section reveal">
+          <h2>Features (MVP)</h2>
+          <p>We decided to do things a little different here. Instead of one person collecting everyone’s wishes and doing the math, each person talks to an AI agent on their own, and the agent then finds the plan that works for the entire group.</p>
+          <ul class="case-features">
+            <li>Join with a link</li>
+            <li>Talk to the agent directly</li>
+            <li>One plan from everyone’s wishes</li>
+            <li>Flights and stays in one place</li>
+          </ul>
+        </section>
+
+        {/* User personas: a card each, the details lining up across the two */}
+        <section class="case-section reveal">
+          <h2>User Personas</h2>
+          <p>Every group trip has different kinds of people, we picked those two common ones: the person who plans everything and ends up stressed out, and the laid-back one who just wants to show up. Our app has to work for both kinds of people, so we dived down on them. They’re early drafts based on our own trips and our target groups, and we’ll be updating them after our user interviews.</p>
+          <div class="case-personas">
+            <div class="case-persona">
+              <div class="case-persona__head">
+                <img src="/images/avatar-default.svg" alt="" width="300" height="300" loading="lazy">
+                <h3>Maya</h3>
+                <p class="case-persona__type">The always stressed-out planner</p>
+              </div>
+              <dl>
+                <div><dt>Age</dt><dd>21</dd></div>
+                <div><dt>Who they are</dt><dd>College junior, organizes spring break for her 6 closest friends</dd></div>
+                <div><dt>Role in the group</dt><dd>Does the research, makes the spreadsheet, chases everyone for answers</dd></div>
+                <div><dt>Goals</dt><dd>Plan a trip everyone actually enjoys</dd></div>
+                <div><dt>Frustrations</dt><dd>Nobody answers until the last minute. 50 different Chrome tabs open to look for flights, hotels, and plan what to do</dd></div>
+                <div><dt>Budget</dt><dd>Tight, every dollar counts</dd></div>
+                <div><dt>What Lynea gives them</dt><dd>The agent collects everyone’s answers, so she stops chasing people. Flights and stays in one place</dd></div>
+              </dl>
+            </div>
+            <div class="case-persona">
+              <div class="case-persona__head">
+                <img src="/images/avatar-default.svg" alt="" width="300" height="300" loading="lazy">
+                <h3>Jordan</h3>
+                <p class="case-persona__type">The laid-back a.k.a. plan-everything-for-me friend</p>
+              </div>
+              <dl>
+                <div><dt>Age</dt><dd>28</dd></div>
+                <div><dt>Who they are</dt><dd>Works full-time, part of a friend group planning a bachelor trip</dd></div>
+                <div><dt>Role in the group</dt><dd>Wants to go, but checks the group chat every other day at most</dd></div>
+                <div><dt>Goals</dt><dd>Know when, where and how much, then get on with his day</dd></div>
+                <div><dt>Frustrations</dt><dd>300 unread messages. Finds out the plan last, and the price surprises him</dd></div>
+                <div><dt>Budget</dt><dd>Comfortable, but hates surprise costs</dd></div>
+                <div><dt>What Lynea gives them</dt><dd>A quick chat with the agent on his own time, then a vote instead of a debate</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        {/* User flow and wireframes */}
+        <section class="case-section reveal">
+          <h2>User Flow + Lo-fi Wireframes</h2>
+          <p><em>Status: done for the main flows</em></p>
+          <p>Before opening Figma, I sketched the main flows by hand. It let me work out the flow before thinking about actual design system.</p>
+        </section>
+        {/* The hand-drawn onboarding flow, two sheets one under the other */}
+        <figure class="case-media case-media--stack reveal">
+          <div class="case-media__panel">
+            <img src="/images/lynea-sketch-onboarding-1.png" alt="Hand-drawn sketch of onboarding for a new user, screens 1 to 6: a starting screen with the Lynea logo; a welcome screen, “Your pocket travel agency”, with Create a trip plan with AI, I have an invite and Log in; trip plan ideation with AI (what kind of trip, when, how many people); trip plan part 2 (budget and activity preferences); a trip overview with two options, Invite and Save for later; and inviting friends with a share link, a post or a QR code." width="2000" height="1530" loading="lazy">
+            <img src="/images/lynea-sketch-onboarding-2.png" alt="Hand-drawn sketch, screens 7 to 10: back to the trip overview, showing who has joined and who is still waiting, with Add more and Save and continue; saving the trip by creating an account (name, email, date of birth) or signing in with Google; setting alerts to know when your friends join; and the home screen with a trip card for Spain, the group’s avatars and See details, above a tab bar." width="2000" height="1477" loading="lazy">
+          </div>
+          <figcaption>Onboarding + home screen</figcaption>
+        </figure>
+
+        <hr class="case-rule">
+
+        {/* Where it stands (update monthly) */}
+        <section class="case-section case-section--after-rule reveal">
+          <h2>Where it stands</h2>
+          <p>Lynea is a work in progress, and I will update this page monthly to show where we’ve gotten so far. Here’s where we are as of now.</p>
+          <ul class="case-findings">
+            <li><strong>Completed</strong><span>Team contract, topic ideation, scope, system architecture design, brand and logo, and the first wireframes and user flows.</span></li>
+            <li><strong>This month (October)</strong><span>Finish all lo-fi wireframes, run our user research, and get about half of the high-fidelity screens done in Figma.</span></li>
+            <li><strong>By April ’27</strong><span>The fully functioning app, presented at the UC IT Expo.</span></li>
+          </ul>
+        </section>
+
+        <h1 class="case-continued reveal">To be continued</h1>
+
+        {/* Previous project. No "Next project" until Turblend's case study is written; then add a
+             case-nav__link--next link to turblend-case-study.html here (copy one from kalorie-case-study.html). */}
+        <nav class="case-nav reveal" aria-label="More projects">
+          <a class="case-nav__link case-nav__link--prev" href="/projects/kalorie-case-study.html">
+            <span class="case-nav__label">Previous project</span>
+            <span class="case-nav__name"><span class="arrow" aria-hidden="true">←</span> <span class="case-nav__title">Kalorie</span></span>
+          </a>
+        </nav>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>

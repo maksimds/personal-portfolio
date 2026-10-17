@@ -1,0 +1,18 @@
+---
+import { site } from '../data/site';
+import Cv from './icons/Cv.astro';
+import LinkedIn from './icons/LinkedIn.astro';
+import GitHub from './icons/GitHub.astro';
+---
+<div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+  <ul>
+    <li><a href="/#work">Work</a></li>
+    <li><a href="/about.html">About</a></li>
+  </ul>
+  <div class="mobile-menu__icons">
+    <a class="icon-link" href={site.resumeUrl} target="_blank" rel="noopener" aria-label="Resume"><Cv /></a>
+    <a class="icon-link" href={site.linkedinUrl} target="_blank" rel="noopener" aria-label="LinkedIn"><LinkedIn /></a>
+    <a class="icon-link" href={site.githubUrl} target="_blank" rel="noopener" aria-label="GitHub"><GitHub /></a>
+    <a class="link" href={`mailto:${site.email}`} target="_blank" rel="noopener">Email</a>
+  </div>
+</div>

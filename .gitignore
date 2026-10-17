@@ -2,6 +2,10 @@
 .claude/
 projects/project-template.html
 
+# Astro's build output and generated types
+dist/
+.astro/
+
 # Check tools (see package.json) and their output
 node_modules/
 test-results/

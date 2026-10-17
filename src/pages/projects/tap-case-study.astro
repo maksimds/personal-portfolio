@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="tap. — Denis Maksimov" description="tap.: building the path to tap.’s first 10,000 downloads, as a product manager intern before launch." canonicalPath="/projects/tap-case-study.html">
+
+  {/* ===== Case study: tap. =====
+       To do before publishing:
+       - The real numbers for Results (the [bracketed] parts) */}
+  <article class="case container">
+    <div class="grid">
+      <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+
+      <header class="case-head reveal">
+        <div>
+          <h1>tap.</h1>
+          <p class="case-head__subtitle">Case study: building the path to tap.’s first 10,000 downloads</p>
+        </div>
+        <span class="case-status">Completed</span>
+      </header>
+
+      {/* The tap. logo, on the page background. The head takes up the middle of a square image,
+           so it's set wider than the dōTERRA wordmark; the head comes out about as big. */}
+      <figure class="case-hero case-hero--logo reveal" style="--logo-width: min(33.7%, 22.45rem); --logo-trim: 0.2156">
+        <img src="/images/tap-logo.png" alt="" width="640" height="640">
+      </figure>
+
+      <div class="case-body">
+
+        {/* Intro. "App Store link", right under the logo, drops the link down below it, like "See how
+             it was before" on the dōTERRA page (see src/scripts/embeds.ts). The App
+             Store page itself can't be embedded. */}
+        <section class="case-intro reveal">
+          <div class="case-store">
+            <p><a class="arrow-link" href="https://apps.apple.com/us/app/tap-ec/id1612065417" target="_blank" rel="noopener" data-embed="store-link"><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>App Store link</span></a></p>
+            <div class="case-embed" id="store-link" inert>
+              <div class="case-embed__inner">
+                <p><a class="arrow-link" href="https://apps.apple.com/us/app/tap-ec/id1612065417" target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> apps.apple.com/us/app/tap-ec/id1612065417</a></p>
+              </div>
+            </div>
+          </div>
+          <p>tap. is an AI-powered app that connects people in the entertainment industry. I spent summer 2024 there as a product manager intern, before full launch. My job was to figure out what a new user goes through from install to their first real action, find where they get stuck, and help the team fix it.</p>
+        </section>
+
+        {/* Project details */}
+        <dl class="case-facts reveal">
+          <div><dt>Product</dt><dd>tap.</dd></div>
+          <div><dt>Role</dt><dd>Mobile App Product Manager Intern</dd></div>
+          <div><dt>Timeline</dt><dd>May – Aug 2024</dd></div>
+          <div><dt>Skills</dt><dd>User research, User flows, Behavioral analytics, Growth roadmap</dd></div>
+          <div class="case-facts__wide"><dt>Team</dt><dd>20+ across product, design and engineering</dd></div>
+        </dl>
+
+        {/* Context */}
+        <section class="case-section reveal">
+          <h2>Context</h2>
+          <p>The entertainment industry runs on who you know. Actors, crew, casting directors and producers find each other through agents, word of mouth and a lot of scrolling. tap. wanted to shortcut that: its AI matches people with the collaborators, talent or jobs they’re actually looking for.</p>
+          <p>When I joined in May 2024, the app was in beta. Real test users were in it, launch was close, and requirements changed week to week. I reported directly to the founder and worked across a team of 20+ in product, design and engineering.</p>
+        </section>
+
+        {/* Problem and goal */}
+        <section class="case-section reveal">
+          <h2>Problem and goal</h2>
+          <p>The founder’s target was clear: 10,000 downloads by Q2 2025.</p>
+          <p>The beta showed the main problem, which was people quitting at sign-up. The ones who made it through often left their profiles empty. And on a matching app, an empty profile is a huge issue. The AI has nothing to match, so nobody gets a reason to stay.</p>
+          <p>So the real goal was bigger than just getting downloads. We also had to get every new user to a finished profile.</p>
+          <p><strong>Goal:</strong> 10,000 downloads by Q2 2025, with as many new users as possible reaching a completed profile.</p>
+          <p><strong>Constraints:</strong> beta-stage product, requirements shifting weekly, a 20+ person team moving fast toward launch.</p>
+        </section>
+
+        {/* The work: one block per step, each with its image after the text */}
+        <section class="case-section reveal">
+          <h2>The work, step by step</h2>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 1: Customer journey mapping</h3>
+          <p>First I needed to see the whole thing the way a new user does. I mapped every screen between install and a finished profile: sign-up, picking your role (actor, crew, casting), filling in profile details like a photo, bio and credits, and the permission prompts along the way.</p>
+          <p>Each of those screens is a step in a funnel. Every one was a point where a new user could close the app, so the next question was which step was losing the most people.</p>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/tap-onboarding-flow.png" alt="The onboarding flow in five steps: Sign-up, Role selection, Profile details (photo, bio, credits), Permissions, Finished profile. Profile details is highlighted: 60 to 70% of beta users dropped off there." width="2215" height="310" loading="lazy"></div>
+          </figure>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 2: Finding where people quit</h3>
+          <p>Every day I went through behavioral data for about 50 beta users. I used three lenses: the analytics dashboard for where people stopped, session recordings for how they got stuck, and conversations with users for why.</p>
+          <p>One step stood out. Roughly 60 to 70% of people dropped off when the app asked for personal info: photos, credits, the details that make a profile worth matching. That was exactly the information the AI needed, and exactly where we were losing people.</p>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 3: User-Centered design</h3>
+          <p>Two recommendations came out of the data.</p>
+          <ul class="case-findings">
+            <li><strong>Make personal info skippable</strong><span>We let people get into the app with the basics and add photos and credits later. A half-finished profile is still better than a deleted app.</span></li>
+            <li><strong>Explain why it matters</strong><span>If the app says plainly that better info means better matches, a user is more likely to invest time in filling it out.</span></li>
+          </ul>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/tap-profile-before-after.png" alt="The onboarding flow before and after. Before: Sign-up, Role selection, Profile details (required), Permissions, Into the app. After: the same steps, with Profile details made skippable so people can add it later." width="1589" height="328" loading="lazy"></div>
+          </figure>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 4: Planning the road to 10,000 downloads</h3>
+          <p>Having all that information, I built a growth roadmap toward the founder’s Q2 2025 target. It had four maintracks:</p>
+          <ol class="case-findings">
+            <li><strong>Onboarding fixes first</strong><span>So every new download had a real shot at a finished profile.</span></li>
+            <li><strong>Referrals and invites</strong><span>Connections matter a lot in the entertainment industry.</span></li>
+            <li><strong>Social and content</strong><span>On the platforms where tap.'s TA already spend time.</span></li>
+            <li><strong>Startup contests and events</strong><span>To get tap. in front of early adopters and press.</span></li>
+          </ol>
+          <figure class="case-media">
+            <div class="case-media__panel"><img src="/images/tap-growth-roadmap.png" alt="Four tracks toward 10,000 downloads by Q2 2025: 1. Onboarding fixes, get new users to a finished profile (highlighted). 2. Referrals, users invite their own network. 3. Social and content, where performers and creatives already are. 4. Contests and events, early adopters and press." width="1765" height="531" loading="lazy"></div>
+          </figure>
+        </section>
+
+        <section class="case-detail reveal">
+          <h3>Step 5: Shipping in a fast-paced start-up environment</h3>
+          <p>None of this happened in a calm regular environment. Requirements shifted weekly (sometimes even daily), deadlines were tight, and I worked between product, design and engineering to keep up. Before release, I thoroughly reviewed every screen and flow in the app.</p>
+        </section>
+
+        <hr class="case-rule">
+
+        {/* Results */}
+        <section class="case-section case-section--after-rule reveal">
+          <h2>Results</h2>
+          <p>After the skippable profile step shipped, the sign-up drop-off rate went from 65% to 30%. It is still a lot, but much better than it used to be.</p>
+          <p>tap. reached about 8k downloads by Q2 2025, close to the 10,000 target.</p>
+        </section>
+
+        {/* What I learned */}
+        <section class="case-section reveal">
+          <h2>What I learned</h2>
+          <p>Reporting straight to the founder was the best part of working at a start-up. Decisions-making process was much faster, and I could bring a finding directly to the person who decided what got built.</p>
+          <p>If I did it again, I’d talk to users more. The analytics told me where people quit, while real conversations told me exactly why. Next time I’d start with interviews and use the numbers to check what I heard.</p>
+        </section>
+
+        {/* Previous / next project */}
+        <nav class="case-nav reveal" aria-label="More projects">
+          <a class="case-nav__link case-nav__link--prev" href="/projects/doterra-case-study.html">
+            <span class="case-nav__label">Previous project</span>
+            <span class="case-nav__name"><span class="arrow" aria-hidden="true">←</span> <span class="case-nav__title">dōTERRA</span></span>
+          </a>
+          <a class="case-nav__link case-nav__link--next" href="/projects/kalorie-case-study.html">
+            <span class="case-nav__label">Next project</span>
+            <span class="case-nav__name"><span class="case-nav__title">Kalorie</span> <span class="arrow" aria-hidden="true">→</span></span>
+          </a>
+        </nav>
+
+      </div>
+    </div>
+  </article>
+</BaseLayout>

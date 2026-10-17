@@ -19,8 +19,11 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install the check tools
+      - name: Install Astro and the check tools
         run: npm ci
+
+      - name: Build the site
+        run: npm run build
 
       - name: Check the HTML is valid
         run: npm run test:html

@@ -10,7 +10,7 @@
   --color-text: #0b0b0b;
   --color-muted: #55564f;
   --color-rule: #111111;
-  --color-accent: #3f578a;      /* hero glow blue (#2f4881 made 10% paler, like the glow in js/main.js) */
+  --color-accent: #3f578a;      /* hero glow blue (#2f4881 made 10% paler, like the glow in src/scripts/glow.ts) */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-display: "Syne", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -409,7 +409,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 
 /* ---------- Glow surfaces (hero and footer) ----------
    Any element with class "glow" containing .glow__bg > canvas.glow__canvas gets the
-   cursor-following glow from js/main.js. The CSS gradient is the no-WebGL fallback;
+   cursor-following glow from src/scripts/glow.ts. The CSS gradient is the no-WebGL fallback;
    the canvas paints over it. */
 .glow {
   position: relative;
@@ -1199,52 +1199,6 @@ a.project__link .project__name:hover,
   .case-media--pair .case-media__panel img + img { margin: -12% 0 0; }
 }
 
-/* ---------- Cursor (js/main.js) ----------
-   Commented out for now, along with the "Cursor" section of js/main.js. To bring it back,
-   remove the comment markers around the rules below and around that code.
-   .cursor: with a mouse, this disc trails the normal pointer (the negative margins centre it on
-   its position). Its colour is the page colour plus the text colour: blended with "difference",
-   it shows as #0B0B0B over the page background and as #E3DED3 over text, and inverts the black
-   hover boxes.
-   .cursor-backing: inside each glow section, just above the glow and below the content, a
-   page-coloured copy of the disc, so the disc shows #0B0B0B over the glow instead of inverting
-   its colours. */
-/*
-.cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
-  border-radius: 50%;
-  background-color: #eee9de;
-  mix-blend-mode: difference;
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform;
-  transition: opacity 0.2s ease;
-}
-.cursor.is-visible { opacity: 1; }
-
-.cursor-backing {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 24px;
-  height: 24px;
-  margin: -12px 0 0 -12px;
-  border-radius: 50%;
-  background-color: var(--color-bg);
-  pointer-events: none;
-  opacity: 0;
-  will-change: transform;
-  transition: opacity 0.2s ease;
-}
-.cursor-backing.is-visible { opacity: 1; }
-*/
-
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {
   opacity: 0;
@@ -1273,7 +1227,7 @@ a.project__link .project__name:hover,
 .about-hero__media.hero-in { --blur-in-y: 40px; animation-delay: 0.6s; }
 
 /* My works, the About sections and the footer: plays as each line scrolls into view.
-   js/main.js adds .is-visible and sets --blur-in-delay, so lines that come in together
+   src/scripts/reveal.ts adds .is-visible and sets --blur-in-delay, so lines that come in together
    still follow each other. */
 .js .blur-in { opacity: 0; }
 .js .blur-in.is-visible {

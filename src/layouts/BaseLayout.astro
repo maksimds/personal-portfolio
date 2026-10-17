@@ -1,0 +1,74 @@
+---
+// Every page: the <head>, the skip link, header, mobile menu, footer and scripts around the page's own content.
+import '../styles/styles.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Glow from '../components/Glow.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  // The page's own address, e.g. "/about.html". Left out on the 404 page, which has none.
+  canonicalPath?: string;
+  // Keeps search engines from listing the page (the 404 page)
+  noindex?: boolean;
+  // The page starts with a full-screen hero (adds class="has-hero" to <main>)
+  hasHero?: boolean;
+  // Where the cursor-following glow goes besides the hero: behind the footer, or behind the
+  // whole page (About). With 'page', the footer has no glow of its own; the page's shows through.
+  glow?: 'footer' | 'page';
+}
+
+const { title, description, canonicalPath, noindex = false, hasHero = false, glow = 'footer' } = Astro.props;
+const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{title}</title>
+  {description && <meta name="description" content={description}>}
+  {noindex && <meta name="robots" content="noindex">}
+  {canonical && <link rel="canonical" href={canonical}>}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&display=swap">
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
+  <script is:inline src="/js/analytics.js" async></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  {glow === 'page' && (
+    // Fixed to the screen, so it follows the cursor wherever you scroll
+    <div class="page-glow glow" aria-hidden="true"><Glow hidden={false} /></div>
+  )}
+
+  <SiteHeader />
+  <MobileMenu />
+
+  <main id="main" class={hasHero ? 'has-hero' : undefined}>
+    <slot />
+  </main>
+
+  <SiteFooter glow={glow === 'footer'} />
+
+  {/* Runs right away, where js/main.js used to, before anything is drawn: marks the page as having
+      JavaScript (the CSS then hides the lines that animate in) and sets the header height the
+      layout depends on. src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
+  <script is:inline>
+    (function () {
+      var root = document.documentElement;
+      var header = document.querySelector('.site-header');
+      root.classList.add('js');
+      if (header) root.style.setProperty('--header-height', header.getBoundingClientRect().height + 'px');
+    })();
+  </script>
+  <script src="../scripts/main.ts"></script>
+</body>
+</html>

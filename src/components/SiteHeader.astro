@@ -1,0 +1,28 @@
+---
+import { site } from '../data/site';
+import Cv from './icons/Cv.astro';
+import LinkedIn from './icons/LinkedIn.astro';
+import GitHub from './icons/GitHub.astro';
+
+// Marks the About link as the current page on the About page
+const onAbout = /^\/about(\.html)?$/.test(Astro.url.pathname);
+---
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-title" href="/">{site.name}</a>
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="/#work">Work</a></li>
+        <li><a href="/about.html" aria-current={onAbout ? 'page' : undefined}>About</a></li>
+      </ul>
+    </nav>
+    <div class="site-icons">
+      <a class="icon-link" href={site.resumeUrl} target="_blank" rel="noopener" aria-label="Resume"><Cv /></a>
+      <a class="icon-link" href={site.linkedinUrl} target="_blank" rel="noopener" aria-label="LinkedIn"><LinkedIn /></a>
+      <a class="icon-link" href={site.githubUrl} target="_blank" rel="noopener" aria-label="GitHub"><GitHub /></a>
+    </div>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>

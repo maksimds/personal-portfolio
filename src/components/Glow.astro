@@ -1,0 +1,10 @@
+---
+// The cursor-following glow (see src/scripts/glow.ts): goes inside an element with class "glow".
+// The CSS gradient on .glow__bg is the fallback when WebGL is unavailable.
+interface Props {
+  // Hidden from screen readers here, unless the element around it already is
+  hidden?: boolean;
+}
+const { hidden = true } = Astro.props;
+---
+<div class="glow__bg" aria-hidden={hidden ? 'true' : undefined}><canvas class="glow__canvas"></canvas></div>
