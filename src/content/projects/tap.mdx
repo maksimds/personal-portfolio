@@ -1,0 +1,167 @@
+---
+order: 2
+published: true
+
+title: "tap."
+subtitle: "Case study: building the path to tap.’s first 10,000 downloads"
+status: "Completed"
+description: "tap.: building the path to tap.’s first 10,000 downloads, as a product manager intern before launch."
+
+# On the home page
+listDescription: "Managed the launch of a mobile app at a start-up"
+thumb: "/images/tap-logo.png"
+thumbInset: "21.4% 31.6% 26.8%"
+
+# The tap. logo, on the page background. The head takes up the middle of a square image,
+# so it's set wider than the dōTERRA wordmark; the head comes out about as big.
+hero:
+  src: "/images/tap-logo.png"
+  width: 640
+  height: 640
+  logo: true
+  logoWidth: "min(33.7%, 22.45rem)"
+  logoTrim: 0.2156
+
+facts:
+  - label: "Product"
+    value: "tap."
+  - label: "Role"
+    value: "Mobile App Product Manager Intern"
+  - label: "Timeline"
+    value: "May – Aug 2024"
+  - label: "Skills"
+    value: "User research, User flows, Behavioral analytics, Growth roadmap"
+  - label: "Team"
+    value: "20+ across product, design and engineering"
+    wide: true
+---
+
+{/* ===== Case study: tap. =====
+   To do before publishing:
+   - The real numbers for Results (the [bracketed] parts) */}
+
+{/* Intro. "App Store link", right under the logo, drops the link down below it, like "See how
+   it was before" on the dōTERRA page (see src/scripts/embeds.ts). The App
+   Store page itself can't be embedded. */}
+
+<CaseIntro>
+
+<StoreLink id="store-link" href="https://apps.apple.com/us/app/tap-ec/id1612065417" label="App Store link" />
+
+tap. is an AI-powered app that connects people in the entertainment industry. I spent summer 2024 there as a product manager intern, before full launch. My job was to figure out what a new user goes through from install to their first real action, find where they get stuck, and help the team fix it.
+
+</CaseIntro>
+
+{/* Project details */}
+
+<CaseFacts facts={frontmatter.facts} />
+
+{/* Context */}
+
+<CaseSection title="Context">
+
+The entertainment industry runs on who you know. Actors, crew, casting directors and producers find each other through agents, word of mouth and a lot of scrolling. tap. wanted to shortcut that: its AI matches people with the collaborators, talent or jobs they’re actually looking for.
+
+When I joined in May 2024, the app was in beta. Real test users were in it, launch was close, and requirements changed week to week. I reported directly to the founder and worked across a team of 20+ in product, design and engineering.
+
+</CaseSection>
+
+{/* Problem and goal */}
+
+<CaseSection title="Problem and goal">
+
+The founder’s target was clear: 10,000 downloads by Q2 2025.
+
+The beta showed the main problem, which was people quitting at sign-up. The ones who made it through often left their profiles empty. And on a matching app, an empty profile is a huge issue. The AI has nothing to match, so nobody gets a reason to stay.
+
+So the real goal was bigger than just getting downloads. We also had to get every new user to a finished profile.
+
+**Goal:** 10,000 downloads by Q2 2025, with as many new users as possible reaching a completed profile.
+
+**Constraints:** beta-stage product, requirements shifting weekly, a 20+ person team moving fast toward launch.
+
+</CaseSection>
+
+{/* The work: one block per step, each with its image after the text */}
+
+<CaseSection title="The work, step by step"></CaseSection>
+
+<CaseDetail title="Step 1: Customer journey mapping">
+
+First I needed to see the whole thing the way a new user does. I mapped every screen between install and a finished profile: sign-up, picking your role (actor, crew, casting), filling in profile details like a photo, bio and credits, and the permission prompts along the way.
+
+Each of those screens is a step in a funnel. Every one was a point where a new user could close the app, so the next question was which step was losing the most people.
+
+<CaseMedia images={[
+  { src: "/images/tap-onboarding-flow.png", alt: "The onboarding flow in five steps: Sign-up, Role selection, Profile details (photo, bio, credits), Permissions, Finished profile. Profile details is highlighted: 60 to 70% of beta users dropped off there.", width: 2215, height: 310 },
+]} />
+
+</CaseDetail>
+
+<CaseDetail title="Step 2: Finding where people quit">
+
+Every day I went through behavioral data for about 50 beta users. I used three lenses: the analytics dashboard for where people stopped, session recordings for how they got stuck, and conversations with users for why.
+
+One step stood out. Roughly 60 to 70% of people dropped off when the app asked for personal info: photos, credits, the details that make a profile worth matching. That was exactly the information the AI needed, and exactly where we were losing people.
+
+</CaseDetail>
+
+<CaseDetail title="Step 3: User-Centered design">
+
+Two recommendations came out of the data.
+
+<CaseFindings items={[
+  { title: "Make personal info skippable", text: "We let people get into the app with the basics and add photos and credits later. A half-finished profile is still better than a deleted app." },
+  { title: "Explain why it matters", text: "If the app says plainly that better info means better matches, a user is more likely to invest time in filling it out." },
+]} />
+
+<CaseMedia images={[
+  { src: "/images/tap-profile-before-after.png", alt: "The onboarding flow before and after. Before: Sign-up, Role selection, Profile details (required), Permissions, Into the app. After: the same steps, with Profile details made skippable so people can add it later.", width: 1589, height: 328 },
+]} />
+
+</CaseDetail>
+
+<CaseDetail title="Step 4: Planning the road to 10,000 downloads">
+
+Having all that information, I built a growth roadmap toward the founder’s Q2 2025 target. It had four maintracks:
+
+<CaseFindings ordered items={[
+  { title: "Onboarding fixes first", text: "So every new download had a real shot at a finished profile." },
+  { title: "Referrals and invites", text: "Connections matter a lot in the entertainment industry." },
+  { title: "Social and content", text: "On the platforms where tap.'s TA already spend time." },
+  { title: "Startup contests and events", text: "To get tap. in front of early adopters and press." },
+]} />
+
+<CaseMedia images={[
+  { src: "/images/tap-growth-roadmap.png", alt: "Four tracks toward 10,000 downloads by Q2 2025: 1. Onboarding fixes, get new users to a finished profile (highlighted). 2. Referrals, users invite their own network. 3. Social and content, where performers and creatives already are. 4. Contests and events, early adopters and press.", width: 1765, height: 531 },
+]} />
+
+</CaseDetail>
+
+<CaseDetail title="Step 5: Shipping in a fast-paced start-up environment">
+
+None of this happened in a calm regular environment. Requirements shifted weekly (sometimes even daily), deadlines were tight, and I worked between product, design and engineering to keep up. Before release, I thoroughly reviewed every screen and flow in the app.
+
+</CaseDetail>
+
+<CaseRule />
+
+{/* Results */}
+
+<CaseSection title="Results" afterRule>
+
+After the skippable profile step shipped, the sign-up drop-off rate went from 65% to 30%. It is still a lot, but much better than it used to be.
+
+tap. reached about 8k downloads by Q2 2025, close to the 10,000 target.
+
+</CaseSection>
+
+{/* What I learned */}
+
+<CaseSection title="What I learned">
+
+Reporting straight to the founder was the best part of working at a start-up. Decisions-making process was much faster, and I could bring a finding directly to the person who decided what got built.
+
+If I did it again, I’d talk to users more. The analytics told me where people quit, while real conversations told me exactly why. Next time I’d start with interviews and use the numbers to check what I heard.
+
+</CaseSection>

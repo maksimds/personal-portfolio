@@ -1,0 +1,140 @@
+---
+order: 5
+published: false
+
+title: "Turblend"
+subtitle: "Designed a website for a new local café"
+status: "[YOUR STATUS]"
+description: "Turblend: Designed a website for a new local café"
+
+# On the home page
+listDescription: "Designing a website for a local coffee producing company"
+thumb: "/images/turblend-logo.png"
+thumbInset: "21.4%"
+thumbRadius: "50%"
+
+hero:
+  src: "/images/placeholder-wide.svg"
+  width: 2200
+  height: 1000
+
+facts:
+  - label: "Product"
+    value: "[YOUR PRODUCT]"
+  - label: "My role"
+    value: "[YOUR ROLE]"
+  - label: "Timeline"
+    value: "[YOUR TIMELINE]"
+  - label: "Skills"
+    value: "[YOUR SKILLS]"
+  - label: "Team"
+    value: "[YOUR TEAM]"
+    wide: true
+---
+
+{/* ===== Case study =====
+   Structure: title, wide hero image, intro, project details, then Problem, Research,
+   Solution (with feature highlights and deep dives) and Impact. Every [YOUR …] is a
+   placeholder; swap the grey images in public/images/ for your own. */}
+
+{/* Intro */}
+
+<CaseIntro>
+
+[YOUR INTRO — one or two sentences on what Turblend is and what you did on it.]
+
+<ArrowLink href="YOUR_LINK_URL">[YOUR LINK LABEL, e.g. Live site]</ArrowLink>
+
+</CaseIntro>
+
+{/* Project details */}
+
+<CaseFacts facts={frontmatter.facts} />
+
+{/* Problem */}
+
+<CaseSection title="Problem: [YOUR PROBLEM HEADLINE]">
+
+[YOUR PROBLEM — who it affected, what wasn't working, and why it mattered.]
+
+[YOUR OPPORTUNITY — the gap you saw and what you set out to change.]
+
+</CaseSection>
+
+{/* Research */}
+
+<CaseSection title="Research">
+
+[YOUR RESEARCH — how you learned about the problem: interviews, surveys, data, audits.]
+
+<CaseFindings items={[
+  { title: "[YOUR FINDING 1]", text: "[YOUR FINDING 1 DETAIL]" },
+  { title: "[YOUR FINDING 2]", text: "[YOUR FINDING 2 DETAIL]" },
+  { title: "[YOUR FINDING 3]", text: "[YOUR FINDING 3 DETAIL]" },
+]} />
+
+</CaseSection>
+
+{/* A quote from research on the site's black. To set it over a photo, put
+   <img src="/images/my-photo.jpg" alt="" loading="lazy"> inside <CaseQuote>. */}
+
+<CaseQuote quote="[YOUR QUOTE FROM A USER OR STAKEHOLDER]" />
+
+{/* Solution */}
+
+<CaseSection title="Solution: [YOUR SOLUTION HEADLINE]">
+
+[YOUR SOLUTION — what you designed and how it answers the problem.]
+
+</CaseSection>
+
+<CaseMedia reveal images={[
+  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+]} />
+
+<CaseFeatures items={[
+  "[YOUR KEY FEATURE 1]",
+  "[YOUR KEY FEATURE 2]",
+  "[YOUR KEY FEATURE 3]",
+  "[YOUR KEY FEATURE 4]",
+]} />
+
+{/* Feature deep dives: copy a block to add more */}
+
+<CaseDetail title="[YOUR FEATURE 1 TITLE]">
+
+[YOUR FEATURE 1 — the decision, the options you explored and why this one won.]
+
+</CaseDetail>
+
+<CaseMedia reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
+  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+]} />
+
+<CaseDetail title="[YOUR FEATURE 2 TITLE]">
+
+[YOUR FEATURE 2]
+
+</CaseDetail>
+
+<CaseDetail title="[YOUR FEATURE 3 TITLE]">
+
+[YOUR FEATURE 3]
+
+</CaseDetail>
+
+<CaseMedia reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
+  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+]} />
+
+<CaseRule />
+
+{/* Impact */}
+
+<CaseSection title="Impact: [YOUR IMPACT HEADLINE]" afterRule>
+
+[YOUR IMPACT — launch, metrics, feedback, recognition.]
+
+<ArrowLink href="YOUR_LINK_URL">[YOUR LINK LABEL]</ArrowLink>
+
+</CaseSection>

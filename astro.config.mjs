@@ -12,7 +12,8 @@ export default defineConfig({
   // elements on separate lines, which can move text that sits next to an arrow or a link.
   compressHTML: false,
   integrations: [
-    mdx(),
+    // Case study text stays exactly as written: no automatic curly quotes or dashes
+    mdx({ smartypants: false }),
     // Every built page except the 404 page. With build.format 'file' the integration leaves out
     // the .html, so it's added back: the sitemap lists the same addresses as the canonical tags.
     sitemap({

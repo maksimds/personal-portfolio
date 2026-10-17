@@ -1,0 +1,9 @@
+---
+// The panel an <EmbedLink> opens. With src (a Figma embed URL) the iframe is created the first
+// time it opens; without, it just reveals what's inside.
+interface Props { id: string; src?: string; title?: string; }
+const { id, src, title } = Astro.props;
+---
+<div class="case-embed" id={id} data-src={src} data-title={title} inert>
+  <div class="case-embed__inner"><slot /></div>
+</div>

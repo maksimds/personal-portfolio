@@ -1,0 +1,18 @@
+---
+// The big image under the heading. A logo sits on the page background, sized with --logo-width
+// and --logo-trim; anything else is a full-width image.
+interface Props {
+  src: string;
+  width: number;
+  height: number;
+  logo?: boolean;
+  logoWidth?: string;
+  logoTrim?: number;
+}
+const { src, width, height, logo = false, logoWidth, logoTrim } = Astro.props;
+const style = [logoWidth && `--logo-width: ${logoWidth}`, logoTrim !== undefined && `--logo-trim: ${logoTrim}`]
+  .filter(Boolean).join('; ') || undefined;
+---
+<figure class:list={['case-hero', { 'case-hero--logo': logo }, 'reveal']} style={style}>
+  <img src={src} alt="" width={width} height={height}>
+</figure>

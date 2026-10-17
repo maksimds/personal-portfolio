@@ -1,0 +1,36 @@
+---
+// Every case study page, from its file in src/content/projects/ (see src/content.config.ts)
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CaseHead from '../../components/case/CaseHead.astro';
+import CaseHero from '../../components/case/CaseHero.astro';
+import CaseNav from '../../components/case/CaseNav.astro';
+import { caseComponents } from '../../components/case';
+import { getBuiltProjects, getNeighbours, projectUrl, type Project } from '../../data/projects';
+
+export async function getStaticPaths() {
+  return (await getBuiltProjects()).map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: Project };
+const { data } = project;
+const { Content } = await render(project);
+const { prev, next } = await getNeighbours(project);
+---
+<BaseLayout title={`${data.pageTitle ?? data.title} — Denis Maksimov`} description={data.description} canonicalPath={projectUrl(project)}>
+
+  <article class="case container">
+    <div class="grid">
+      <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+
+      <CaseHead title={data.title} subtitle={data.subtitle} status={data.status} />
+      <CaseHero {...data.hero} />
+
+      <div class="case-body">
+        <Content components={caseComponents} />
+        <CaseNav prev={prev} next={next} />
+      </div>
+    </div>
+  </article>
+
+</BaseLayout>

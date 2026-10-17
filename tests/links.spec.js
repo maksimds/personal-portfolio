@@ -1,10 +1,9 @@
 // Checks that every link and file on the site points at something that exists: other pages, sections
 // within pages (#work and the like), images, the stylesheet and the script. Links to other websites
 // (LinkedIn, Google Drive, Figma, Google Fonts) aren't checked: those sites often turn automated
-// visitors away, which would fail the check when nothing is wrong. On draft pages (see helpers.js),
-// placeholder links (YOUR_LINK_URL) are skipped.
+// visitors away, which would fail the check when nothing is wrong.
 const { test, expect } = require('@playwright/test');
-const { pages, drafts } = require('./helpers');
+const { pages } = require('./helpers');
 
 for (const url of pages) {
   test(`${url}: every link and file on the site exists`, async ({ page, request, baseURL }) => {
@@ -21,7 +20,6 @@ for (const url of pages) {
     const fetched = new Map();   // each file is fetched once, even when many links point at it
 
     for (const ref of new Set(refs)) {
-      if (drafts.includes(url) && ref.startsWith('YOUR_')) continue;
       const target = new URL(ref, page.url());
       if (target.origin !== site) continue;    // mailto:, other websites
 

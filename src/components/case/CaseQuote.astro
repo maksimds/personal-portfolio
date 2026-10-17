@@ -1,0 +1,11 @@
+---
+// A pull quote on the site's black (the quote marks are added here). To set it over a photo,
+// put <img src="/images/my-photo.jpg" alt="" loading="lazy"> inside it.
+interface Props { quote: string; caption?: string; }
+const { quote, caption } = Astro.props;
+---
+<figure class="case-quote reveal">
+  <slot />
+  <blockquote>“{quote}”</blockquote>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

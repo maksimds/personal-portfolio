@@ -1,0 +1,10 @@
+---
+// A main section with an h2 (Problem, Research, Solution, Impact…). afterRule: the first section
+// after a <CaseRule />, which sits closer to the line.
+interface Props { title: string; afterRule?: boolean; }
+const { title, afterRule = false } = Astro.props;
+---
+<section class:list={['case-section', { 'case-section--after-rule': afterRule }, 'reveal']}>
+  <h2>{title}</h2>
+  <slot />
+</section>

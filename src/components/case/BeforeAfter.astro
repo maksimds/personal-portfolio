@@ -1,0 +1,18 @@
+---
+// "See how it was before": a link under the new screen that opens the old one below it
+import EmbedLink from './EmbedLink.astro';
+import EmbedPanel from './EmbedPanel.astro';
+import CaseMedia, { type MediaImage } from './CaseMedia.astro';
+
+interface Props {
+  id: string;
+  image: MediaImage;
+  // e.g. "card", as on <CaseMedia>
+  variant?: string;
+}
+const { id, image, variant } = Astro.props;
+---
+<EmbedLink class="case-media__toggle" id={id} href={image.src} label="See how it was before" openLabel="Hide how it was before" />
+<EmbedPanel id={id}>
+  <CaseMedia images={[image]} variant={variant} />
+</EmbedPanel>

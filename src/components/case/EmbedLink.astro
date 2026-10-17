@@ -1,0 +1,15 @@
+---
+// A link that opens and closes the <EmbedPanel> with the same id, just below it (see
+// src/scripts/embeds.ts). Without JavaScript it simply opens href in a new tab.
+interface Props {
+  id: string;
+  href: string;
+  label: string;
+  // The label while the panel is open (leave it out to keep the same label)
+  openLabel?: string;
+  lime?: boolean;
+  class?: string;
+}
+const { id, href, label, openLabel, lime = false, class: className } = Astro.props;
+---
+<p class={className}><a class:list={['arrow-link', { 'arrow-link--lime': lime }]} href={href} target="_blank" rel="noopener" data-embed={id} data-embed-open-label={openLabel}><span class="arrow" aria-hidden="true">→</span> <span data-embed-label>{label}</span></a></p>

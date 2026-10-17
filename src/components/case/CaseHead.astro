@@ -1,0 +1,11 @@
+---
+interface Props { title: string; subtitle: string; status: string; }
+const { title, subtitle, status } = Astro.props;
+---
+<header class="case-head reveal">
+  <div>
+    <h1>{title}</h1>
+    <p class="case-head__subtitle">{subtitle}</p>
+  </div>
+  <span class="case-status">{status}</span>
+</header>

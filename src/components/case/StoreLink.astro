@@ -1,0 +1,14 @@
+---
+// A link that drops its address down below it (the App Store page itself can't be embedded).
+import EmbedLink from './EmbedLink.astro';
+import EmbedPanel from './EmbedPanel.astro';
+
+interface Props { id: string; href: string; label: string; }
+const { id, href, label } = Astro.props;
+---
+<div class="case-store">
+  <EmbedLink id={id} href={href} label={label} />
+  <EmbedPanel id={id}>
+    <p><a class="arrow-link" href={href} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> {href.replace(/^https?:\/\//, '')}</a></p>
+  </EmbedPanel>
+</div>

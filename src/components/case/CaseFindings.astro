@@ -1,0 +1,9 @@
+---
+// A list of findings, each a bold title with a line of detail. ordered: numbered (1, 2, 3…).
+interface Props { items: { title: string; text: string }[]; ordered?: boolean; }
+const { items, ordered = false } = Astro.props;
+const List = ordered ? 'ol' : 'ul';
+---
+<List class="case-findings">
+  {items.map((item) => <li><strong>{item.title}</strong><span>{item.text}</span></li>)}
+</List>

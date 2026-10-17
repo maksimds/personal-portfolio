@@ -1,0 +1,164 @@
+---
+order: 4
+published: true
+
+title: "Lynea"
+subtitle: "Case study: AI travel agency for groups"
+status: "In development"
+description: "Lynea: an AI travel agency for groups"
+
+# On the home page
+listDescription: "Designing an AI-powered mobile app for traveling"
+thumb: "/images/lynea-logo.png"
+thumbInset: "34% 8.7%"
+
+# The Lynea logo, on the page background. The mark sits in the middle third of a square
+# image, so it's set narrower than the dōTERRA wordmark; it comes out about as big.
+hero:
+  src: "/images/lynea-logo.png"
+  width: 640
+  height: 640
+  logo: true
+  logoWidth: "min(29.7%, 19.8rem)"
+  logoTrim: 0.339
+
+facts:
+  - label: "Product"
+    value: "Lynea (cross-platform app)"
+  - label: "My role"
+    value: "Team Lead & Product Designer"
+  - label: "Timeline"
+    value: "Sept 2026 – Apr 2027"
+  - label: "Skills"
+    value: "Product design, Figma, User flows, Wireframing, Team leadership"
+  - label: "Team"
+    value: "Me as team lead and product designer, 2 software engineers and a cybersecurity architect"
+    wide: true
+---
+
+{/* ===== Case study: Lynea =====
+   Still in development; "Where it stands" gets updated every month. */}
+
+{/* Intro */}
+
+<CaseIntro>
+
+Lynea is a group travel planner for iOS and Android. Everyone in the group joins the trip from their own device and tells Lynea agent what they want. An AI agent takes all of it and works out one plan the whole group can agree on. It’s my senior capstone project at the University of Cincinnati, and I’m presenting it with my team at the UC IT Expo in April 2027.
+
+</CaseIntro>
+
+{/* Project details */}
+
+<CaseFacts facts={frontmatter.facts} />
+
+{/* Problem */}
+
+<CaseSection title="Problem: Group trip planning is always a mess">
+
+Planning a trip with friends usually starts with excitement and ends in a group chat with hundreds of messages and no decision. One person wants the beach, another one wants a city, while the third one wants to go hiking. Budgeting is also a huge issue, as well as everyone’s availability. And when all members finally agree, they realize that flights are on one site and hotel stays are on three others, so the search starts all over again.
+
+I’ve personally experienced this issue lots of times since I travel a ton. This idea came to me pretty quickly during our team brainstorm, and we ended up sticking to it.
+
+We’re building for friend groups in their 20s and 30s, college students, and groups planning around an event like a bachelor or bachelorette trip.
+
+</CaseSection>
+
+{/* Competitive analysis */}
+
+<CaseSection title="Competitive Analysis">
+
+We started by looking at what’s already out there and found Wanderlog and TripIt. Both are pretty good at what they do, but neither is really built for a group that has to decide together.
+
+<CaseFindings items={[
+  { title: "Made for one planner", text: "Both apps assume one person organizes the trip and everyone else follows along. That’s exactly the “planner friend” problem, just moved into an app." },
+  { title: "None of them merges what people want", text: "You can share an itinerary, but nothing takes five people’s budgets, dates and must-dos and works out where they overlap." },
+  { title: "The AI is shallow", text: "Where AI shows up, it writes a generic itinerary for a destination. It doesn’t know the group, and it doesn’t negotiate between them." },
+]} />
+
+</CaseSection>
+
+{/* Features */}
+
+<CaseSection title="Features (MVP)">
+
+We decided to do things a little different here. Instead of one person collecting everyone’s wishes and doing the math, each person talks to an AI agent on their own, and the agent then finds the plan that works for the entire group.
+
+<CaseFeatures reveal={false} items={[
+  "Join with a link",
+  "Talk to the agent directly",
+  "One plan from everyone’s wishes",
+  "Flights and stays in one place",
+]} />
+
+</CaseSection>
+
+{/* User personas: a card each, the details lining up across the two */}
+
+<CaseSection title="User Personas">
+
+Every group trip has different kinds of people, we picked those two common ones: the person who plans everything and ends up stressed out, and the laid-back one who just wants to show up. Our app has to work for both kinds of people, so we dived down on them. They’re early drafts based on our own trips and our target groups, and we’ll be updating them after our user interviews.
+
+<CasePersonas>
+
+<CasePersona name="Maya"
+  type="The always stressed-out planner"
+  details={[
+    { label: "Age", value: "21" },
+    { label: "Who they are", value: "College junior, organizes spring break for her 6 closest friends" },
+    { label: "Role in the group", value: "Does the research, makes the spreadsheet, chases everyone for answers" },
+    { label: "Goals", value: "Plan a trip everyone actually enjoys" },
+    { label: "Frustrations", value: "Nobody answers until the last minute. 50 different Chrome tabs open to look for flights, hotels, and plan what to do" },
+    { label: "Budget", value: "Tight, every dollar counts" },
+    { label: "What Lynea gives them", value: "The agent collects everyone’s answers, so she stops chasing people. Flights and stays in one place" },
+  ]} />
+
+<CasePersona name="Jordan"
+  type="The laid-back a.k.a. plan-everything-for-me friend"
+  details={[
+    { label: "Age", value: "28" },
+    { label: "Who they are", value: "Works full-time, part of a friend group planning a bachelor trip" },
+    { label: "Role in the group", value: "Wants to go, but checks the group chat every other day at most" },
+    { label: "Goals", value: "Know when, where and how much, then get on with his day" },
+    { label: "Frustrations", value: "300 unread messages. Finds out the plan last, and the price surprises him" },
+    { label: "Budget", value: "Comfortable, but hates surprise costs" },
+    { label: "What Lynea gives them", value: "A quick chat with the agent on his own time, then a vote instead of a debate" },
+  ]} />
+
+</CasePersonas>
+
+</CaseSection>
+
+{/* User flow and wireframes */}
+
+<CaseSection title="User Flow + Lo-fi Wireframes">
+
+*Status: done for the main flows*
+
+Before opening Figma, I sketched the main flows by hand. It let me work out the flow before thinking about actual design system.
+
+</CaseSection>
+
+{/* The hand-drawn onboarding flow, two sheets one under the other */}
+
+<CaseMedia variant="stack" reveal caption="Onboarding + home screen" images={[
+  { src: "/images/lynea-sketch-onboarding-1.png", alt: "Hand-drawn sketch of onboarding for a new user, screens 1 to 6: a starting screen with the Lynea logo; a welcome screen, “Your pocket travel agency”, with Create a trip plan with AI, I have an invite and Log in; trip plan ideation with AI (what kind of trip, when, how many people); trip plan part 2 (budget and activity preferences); a trip overview with two options, Invite and Save for later; and inviting friends with a share link, a post or a QR code.", width: 2000, height: 1530 },
+  { src: "/images/lynea-sketch-onboarding-2.png", alt: "Hand-drawn sketch, screens 7 to 10: back to the trip overview, showing who has joined and who is still waiting, with Add more and Save and continue; saving the trip by creating an account (name, email, date of birth) or signing in with Google; setting alerts to know when your friends join; and the home screen with a trip card for Spain, the group’s avatars and See details, above a tab bar.", width: 2000, height: 1477 },
+]} />
+
+<CaseRule />
+
+{/* Where it stands (update monthly) */}
+
+<CaseSection title="Where it stands" afterRule>
+
+Lynea is a work in progress, and I will update this page monthly to show where we’ve gotten so far. Here’s where we are as of now.
+
+<CaseFindings items={[
+  { title: "Completed", text: "Team contract, topic ideation, scope, system architecture design, brand and logo, and the first wireframes and user flows." },
+  { title: "This month (October)", text: "Finish all lo-fi wireframes, run our user research, and get about half of the high-fidelity screens done in Figma." },
+  { title: "By April ’27", text: "The fully functioning app, presented at the UC IT Expo." },
+]} />
+
+</CaseSection>
+
+<h1 class="case-continued reveal">To be continued</h1>
