@@ -4,13 +4,6 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-// An image in public/images/, with its size (so the page doesn't jump while it loads)
-const image = z.object({
-  src: z.string(),
-  width: z.number(),
-  height: z.number(),
-});
-
 const projects = defineCollection({
   loader: glob({ base: './src/content/projects', pattern: ['*.mdx', '!_*'] }),
   schema: z.object({
@@ -31,6 +24,7 @@ const projects = defineCollection({
 
     // The home page row
     listDescription: z.string(),
+    // Images are file names in src/assets/images/, e.g. "kalorie-app.png"
     thumb: z.string(),
     // How far the logo sits from the thumbnail's edges (--logo-inset) and its corner radius (--logo-radius)
     thumbInset: z.string().optional(),
@@ -38,7 +32,8 @@ const projects = defineCollection({
 
     // The big image under the heading. With logo: true it's a logo on the page background, sized
     // with logoWidth (--logo-width) and logoTrim (--logo-trim, the share of empty space around it).
-    hero: image.extend({
+    hero: z.object({
+      src: z.string(),
       logo: z.boolean().default(false),
       logoWidth: z.string().optional(),
       logoTrim: z.number().optional(),

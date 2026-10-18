@@ -1,18 +1,24 @@
 ---
 // The big image under the heading. A logo sits on the page background, sized with --logo-width
-// and --logo-trim; anything else is a full-width image.
+// and --logo-trim; anything else is a full-width image. src is a file name in src/assets/images/.
+import Img from '../Img.astro';
+
 interface Props {
   src: string;
-  width: number;
-  height: number;
   logo?: boolean;
   logoWidth?: string;
   logoTrim?: number;
 }
-const { src, width, height, logo = false, logoWidth, logoTrim } = Astro.props;
+const { src, logo = false, logoWidth, logoTrim } = Astro.props;
 const style = [logoWidth && `--logo-width: ${logoWidth}`, logoTrim !== undefined && `--logo-trim: ${logoTrim}`]
   .filter(Boolean).join('; ') || undefined;
+
+// How wide the image shows. A logo's width is a share of the page's content area, which is 76% of
+// the window on desktop and 88% on phones (the side margins in styles.css), so "36%" becomes 27.36vw.
+const width = logoWidth ?? 'min(36%, 24rem)';
+const inVw = (share: number) => width.replace(/([\d.]+)%/g, (_, n) => `${+(n * share).toFixed(2)}vw`);
+const sizes = logo ? `(max-width: 767px) ${inVw(0.88)}, ${inVw(0.76)}` : '(max-width: 767px) 88vw, min(76vw, 2000px)';
 ---
 <figure class:list={['case-hero', { 'case-hero--logo': logo }, 'reveal']} style={style}>
-  <img src={src} alt="" width={width} height={height}>
+  <Img src={src} alt="" sizes={sizes} loading="eager" />
 </figure>

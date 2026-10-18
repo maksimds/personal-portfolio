@@ -20,6 +20,7 @@
   "dependencies": {
     "@astrojs/mdx": "8.0.2",
     "@astrojs/sitemap": "3.7.4",
-    "astro": "7.3.5"
+    "astro": "7.3.5",
+    "sharp": "0.35.5"
   }
 }

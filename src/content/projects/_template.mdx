@@ -21,7 +21,7 @@ description: "[YOUR PROJECT NAME]: [YOUR ONE-LINE DESCRIPTION]"
 
 # On the home page
 listDescription: "[YOUR HOME PAGE LINE]"
-thumb: "/images/placeholder-square.svg"
+thumb: "placeholder-square.svg"
 # Optional: how far the logo sits from the thumbnail's edges (top, sides, bottom), and its corners
 # thumbInset: "21.4%"
 # thumbRadius: "50%"
@@ -30,9 +30,7 @@ thumb: "/images/placeholder-square.svg"
 # and optionally logoWidth: "min(29.7%, 19.8rem)" and logoTrim: 0.339 (the share of empty space
 # around the logo in the image) to size it like the others.
 hero:
-  src: "/images/placeholder-wide.svg"
-  width: 2200
-  height: 1000
+  src: "placeholder-wide.svg"
 
 # "Project details" under the intro. wide: true spans the full width.
 facts:
@@ -100,8 +98,8 @@ facts:
 
 </CaseSection>
 
-{/* A quote from research on the site's black (caption is optional). To set it over a photo, put
-   <img src="/images/my-photo.jpg" alt="" loading="lazy"> inside <CaseQuote>. */}
+{/* A quote from research on the site's black (caption is optional). To set it over a photo, add
+   photo="my-photo.jpg" (a file in src/assets/images/) to <CaseQuote>. */}
 
 <CaseQuote quote="[YOUR QUOTE FROM A USER OR STAKEHOLDER]" caption="– [WHO SAID IT]" />
 
@@ -136,14 +134,14 @@ facts:
 </CaseSection>
 
 {/* Images on a grey panel. reveal makes it fade in by itself; leave it off inside a CaseDetail.
-   Every image needs its real width and height. variant (optional):
+   src is a file name in src/assets/images/; its size comes from the file. variant (optional):
      "phone"        a narrow phone-sized image (e.g. placeholder-phone.svg)
      "screen"       a phone screen; "screen pair" puts two side by side, overlapping
      "stack"        several images one under the other
      "card"         a small image at its own size; add retina: true to an image that's 2x */}
 
 <CaseMedia reveal images={[
-  { src: "/images/placeholder-16x10.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]", width: 1600, height: 1000 },
+  { src: "placeholder-16x10.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
 ]} />
 
 <CaseFeatures items={[
@@ -158,11 +156,11 @@ facts:
 <CaseDetail title="[YOUR FEATURE 1 TITLE]">
 
 <CaseMedia images={[
-  { src: "/images/placeholder-4x3.svg", alt: "[YOUR NEW SCREEN]", width: 1200, height: 900 },
+  { src: "placeholder-4x3.svg", alt: "[YOUR NEW SCREEN]" },
 ]} />
 
 {/* "See how it was before": opens the old screen below the new one. Each needs its own id. */}
-<BeforeAfter id="feature-1-before" image={{ src: "/images/placeholder-4x3.svg", alt: "[YOUR OLD SCREEN]", width: 1200, height: 900 }} />
+<BeforeAfter id="feature-1-before" image={{ src: "placeholder-4x3.svg", alt: "[YOUR OLD SCREEN]" }} />
 
 [YOUR FEATURE 1 — the decision, the options you explored and why this one won.]
 
@@ -175,7 +173,7 @@ facts:
 </CaseDetail>
 
 <CaseMedia variant="phone" reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
-  { src: "/images/placeholder-phone.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]", width: 600, height: 1200 },
+  { src: "placeholder-phone.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
 ]} />
 
 <CaseRule />

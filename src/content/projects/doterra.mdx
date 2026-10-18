@@ -10,13 +10,11 @@ description: "dōTERRA Russia Platform Redesign: a full redesign of dōTERRA’s
 
 # On the home page
 listDescription: "Redesigning a web-platform"
-thumb: "/images/doterra-logo.png"
+thumb: "doterra-logo.png"
 
 # The dōTERRA wordmark, on the page background
 hero:
-  src: "/images/doterra-wordmark.png"
-  width: 863
-  height: 157
+  src: "doterra-wordmark.png"
   logo: true
 
 facts:
@@ -74,8 +72,8 @@ I ran more than 20 structured interviews with regional stakeholders and customer
 
 </CaseSection>
 
-{/* Pull quote over an image. To set it over a photo, put
-   <img src="/images/my-photo.jpg" alt="" loading="lazy"> inside <CaseQuote>. */}
+{/* Pull quote over an image. To set it over a photo, add
+   photo="my-photo.jpg" (a file in src/assets/images/) to <CaseQuote>. */}
 
 <CaseQuote quote="Signing up feels more like filling out paperwork, and the site looks like it hasn’t changed since the 2000s." caption="– What 90% of stakeholders told us" />
 
@@ -103,10 +101,10 @@ The deep green and cream palette comes from dōTERRA’s freshly released brand 
 <CaseDetail title="First impression: the login screen">
 
 <CaseMedia images={[
-  { src: "/images/doterra-login.jpg", alt: "The redesigned dōTERRA login screen: the sign-in form on a cream panel on the left, a photo of a lavender oil bottle on the right", width: 1837, height: 1211 },
+  { src: "doterra-login.jpg", alt: "The redesigned dōTERRA login screen: the sign-in form on a cream panel on the left, a photo of a lavender oil bottle on the right" },
 ]} />
 
-<BeforeAfter id="login-before" image={{ src: "/images/doterra-login-before.jpg", alt: "The old dōTERRA Russia login screen: a lavender field banner above a plain sign-in form with purple buttons", width: 1837, height: 1038 }} />
+<BeforeAfter id="login-before" image={{ src: "doterra-login-before.jpg", alt: "The old dōTERRA Russia login screen: a lavender field banner above a plain sign-in form with purple buttons" }} />
 
 People told us the site looked old, and the login page is the first thing they see. So I made everything simple. The left third of the page is the CTA: email or dōTERRA ID, password, remember me, forgot password, one green button. Registering is a quiet text link under a divider. Returning members don’t trip over it, and new people still find it.
 
@@ -117,10 +115,10 @@ The right two thirds is a looped video that shows what dōTERRA is about. This f
 <CaseDetail title="A progress bar with words instead of numbers">
 
 <CaseMedia images={[
-  { src: "/images/doterra-progress.png", alt: "The new sign-up progress bar: five named steps in one pill-shaped bar, with the current step, Choose a kit, in solid green", width: 2224, height: 370 },
+  { src: "doterra-progress.png", alt: "The new sign-up progress bar: five named steps in one pill-shaped bar, with the current step, Choose a kit, in solid green" },
 ]} />
 
-<BeforeAfter id="progress-before" image={{ src: "/images/doterra-progress-before.png", alt: "The old sign-up progress bar: six small step labels above a thin line of circles", width: 2940, height: 192 }} />
+<BeforeAfter id="progress-before" image={{ src: "doterra-progress-before.png", alt: "The old sign-up progress bar: six small step labels above a thin line of circles" }} />
 
 The five steps live in one pill-shaped bar at the top: Choose a kit, Order, Registration, Delivery, Confirmation and payment. The current step is solid green. Everything else stays quiet. I used names instead of “Step 2 of 5” on purpose, because people wanted to know what was coming, not just how much was left.
 
@@ -129,10 +127,10 @@ The five steps live in one pill-shaped bar at the top: Choose a kit, Order, Regi
 <CaseDetail title="Step 1, choose a kit: cards instead of table rows">
 
 <CaseMedia images={[
-  { src: "/images/doterra-kits.jpg", alt: "The redesigned Choose a kit step: a green Promotions panel at the top, six kit cards with photos, PV badges, prices and Choose buttons, and a Build your own cart block below", width: 834, height: 1308 },
+  { src: "doterra-kits.jpg", alt: "The redesigned Choose a kit step: a green Promotions panel at the top, six kit cards with photos, PV badges, prices and Choose buttons, and a Build your own cart block below" },
 ]} />
 
-<BeforeAfter id="kits-before" image={{ src: "/images/doterra-kits-before.jpg", alt: "The old kit selection: kits as table rows with small product photos, long two-language names, price, PV and purple Choose buttons", width: 1837, height: 1038 }} />
+<BeforeAfter id="kits-before" image={{ src: "doterra-kits-before.jpg", alt: "The old kit selection: kits as table rows with small product photos, long two-language names, price, PV and purple Choose buttons" }} />
 
 Picking a kit is the biggest decision in sign-up, and the most expensive one (9,900 to 28,500 ₽). The old flow showed kits as lines in a list. I designed both a compact list and a card grid. In the card version each kit gets its own photo, which finally makes it look like a product instead of a database entry.
 
@@ -151,10 +149,10 @@ On the old site, promos were text you had to go looking for. Now a green “Prom
 <CaseDetail title="Step 2, order: adding products without going back">
 
 <CaseMedia images={[
-  { src: "/images/doterra-order.jpg", alt: "The redesigned Order step: the chosen kit pinned at the top with a Replace kit button, a search field, product rows with price and PV pills, quantity steppers and Add buttons, and a Perfect for beginners carousel below", width: 724, height: 1408 },
+  { src: "doterra-order.jpg", alt: "The redesigned Order step: the chosen kit pinned at the top with a Replace kit button, a search field, product rows with price and PV pills, quantity steppers and Add buttons, and a Perfect for beginners carousel below" },
 ]} />
 
-<BeforeAfter id="order-before" image={{ src: "/images/doterra-order-before.jpg", alt: "The old order screen: the chosen kit in a large box with a purple Change button, a total boxed in the top-right corner, and an Add products search with plain product rows below", width: 1837, height: 1036 }} />
+<BeforeAfter id="order-before" image={{ src: "doterra-order-before.jpg", alt: "The old order screen: the chosen kit in a large box with a purple Change button, a total boxed in the top-right corner, and an Add products search with plain product rows below" }} />
 
 On the Order step, the kit you picked stays pinned at the top with a “Replace kit” button. Changed your mind? You swap it right there, no back button. Under it: a search field, then product rows where price and PV sit in matching pills, a quantity stepper and an Add button. Same order on every row, so your eye learns it once.
 
@@ -165,10 +163,10 @@ Below the main list there’s a “Perfect for beginners” carousel with starte
 <CaseDetail title="A cart that stays out of the way">
 
 <CaseMedia variant="card" images={[
-  { src: "/images/doterra-cart.png", alt: "The cart popover: items, registration fee, total to pay and PV, with a green Next button", width: 410, height: 302, retina: true },
+  { src: "doterra-cart.png", alt: "The cart popover: items, registration fee, total to pay and PV, with a green Next button", retina: true },
 ]} />
 
-<BeforeAfter id="cart-before" variant="card" image={{ src: "/images/doterra-cart-before.png", alt: "The old order summary: a plain white box with the total in rubles, PV, quantity and a purple Continue button", width: 370, height: 210, retina: true }} />
+<BeforeAfter id="cart-before" variant="card" image={{ src: "doterra-cart-before.png", alt: "The old order summary: a plain white box with the total in rubles, PV, quantity and a purple Continue button", retina: true }} />
 
 The cart summary (items, registration fee, total to pay, PV, Next) opens from the cart icon instead of living in a permanent sidebar. The page is for choosing, so choosing gets the full width. Totals are always one move away, never in the way.
 
@@ -177,10 +175,10 @@ The cart summary (items, registration fee, total to pay, PV, Next) opens from th
 <CaseDetail title="Help is now a persistent live-chat feature">
 
 <CaseMedia images={[
-  { src: "/images/doterra-help.png", alt: "The bottom of an Enrollment step: the footer links, with a round green chat button in the bottom-right corner", width: 2672, height: 298 },
+  { src: "doterra-help.png", alt: "The bottom of an Enrollment step: the footer links, with a round green chat button in the bottom-right corner" },
 ]} />
 
-<BeforeAfter id="help-before" variant="card" image={{ src: "/images/doterra-help-before.png", alt: "The old help: a Help dropdown in the top header, listing an FAQ, the support center, leader resources, contact us and join dōTERRA", width: 274, height: 427, retina: true }} />
+<BeforeAfter id="help-before" variant="card" image={{ src: "doterra-help-before.png", alt: "The old help: a Help dropdown in the top header, listing an FAQ, the support center, leader resources, contact us and join dōTERRA", retina: true }} />
 
 The old help was a FAQ link at the top of the page that appeared only after a user finished the onboarding process. Now a round green chat button sits in the bottom-right corner of every step, the spot people already check on other online stores.
 

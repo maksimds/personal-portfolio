@@ -3,6 +3,7 @@
 import EmbedLink from './EmbedLink.astro';
 import EmbedPanel from './EmbedPanel.astro';
 import CaseMedia, { type MediaImage } from './CaseMedia.astro';
+import { getImageFile } from '../../data/images';
 
 interface Props {
   id: string;
@@ -11,8 +12,10 @@ interface Props {
   variant?: string;
 }
 const { id, image, variant } = Astro.props;
+// Without JavaScript the link opens the old screen itself
+const href = getImageFile(image.src).src;
 ---
-<EmbedLink class="case-media__toggle" id={id} href={image.src} label="See how it was before" openLabel="Hide how it was before" />
+<EmbedLink class="case-media__toggle" id={id} href={href} label="See how it was before" openLabel="Hide how it was before" />
 <EmbedPanel id={id}>
   <CaseMedia images={[image]} variant={variant} />
 </EmbedPanel>

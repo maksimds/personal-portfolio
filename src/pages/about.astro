@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Img from '../components/Img.astro';
 ---
 <BaseLayout title="About — Denis Maksimov" description="Denis Maksimov, Product Designer at dōTERRA based in Cincinnati, OH, designing mobile apps, websites, platforms and design systems." canonicalPath="/about.html" hasHero glow="page">
 
@@ -13,7 +14,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       {/* A thin-lined rectangle frames the photo; on hover both grow together */}
       <div class="about-hero__media hero-in">
         <figure class="about-hero__photo">
-          <img src="/images/denis-portrait.jpg" alt="Portrait of Denis Maksimov" width="1000" height="1250">
+          <Img src="denis-portrait.jpg" alt="Portrait of Denis Maksimov" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" loading="eager" fetchpriority="high" />
         </figure>
       </div>
     </div>

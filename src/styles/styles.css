@@ -12,8 +12,9 @@
   --color-rule: #111111;
   --color-accent: #3f578a;      /* hero glow blue (#2f4881 made 10% paler, like the glow in src/scripts/glow.ts) */
 
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-display: "Syne", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  /* The fonts and their fallbacks are set up in astro.config.mjs */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-syne), var(--font-inter);
 
   --max-width: 2000px;
   --gutter: 12vw;               /* side margin on desktop */
@@ -80,7 +81,11 @@ body {
 
 body.menu-open { overflow: hidden; }
 
-img { display: block; max-width: 100%; height: auto; }
+img { display: block; max-width: 100%; height: auto; aspect-ratio: var(--ratio, auto); }
+/* Images come wrapped in <picture> (the AVIF and WebP versions, see src/components/Img.astro). It
+   draws no box of its own, so each image is laid out as if the <picture> weren't there. */
+picture { display: contents; }
+picture source { display: none; }   /* otherwise each <source> becomes an empty box in the layout */
 
 a { color: inherit; text-decoration: none; }
 
@@ -1073,7 +1078,8 @@ a.project__link .project__name:hover,
 .case-media--screen .case-media__panel img { width: min(100%, 26rem); }
 /* Two screens side by side, overlapping where their shadows' clear space meets (stacked on phones) */
 .case-media--pair .case-media__panel img { --screen-width: min(55%, 26rem); width: var(--screen-width); }
-.case-media--pair .case-media__panel img + img { margin-left: calc(var(--screen-width) * -0.2); }
+.case-media--pair .case-media__panel > :not(:first-child) img,
+.case-media--pair .case-media__panel > img:not(:first-child) { margin-left: calc(var(--screen-width) * -0.2); }
 /* Several images in one panel, one under the other (sketches over more than one sheet) */
 .case-media--stack .case-media__panel { flex-direction: column; gap: clamp(1.25rem, 4vw, 4rem); }
 /* A small UI piece at its real size: mark the 2x screenshot with srcset="… 2x" so it shows at half its pixel size */
@@ -1196,7 +1202,8 @@ a.project__link .project__name:hover,
   .case-persona dl { display: block; grid-row: auto; }
   .case-media--pair .case-media__panel { flex-direction: column; align-items: center; }
   .case-media--pair .case-media__panel img { --screen-width: min(100%, 26rem); }
-  .case-media--pair .case-media__panel img + img { margin: -12% 0 0; }
+  .case-media--pair .case-media__panel > :not(:first-child) img,
+  .case-media--pair .case-media__panel > img:not(:first-child) { margin: -12% 0 0; }
 }
 
 /* ---------- Scroll-in fade animation ---------- */

@@ -9,14 +9,12 @@ description: "Turblend: Designed a website for a new local café"
 
 # On the home page
 listDescription: "Designing a website for a local coffee producing company"
-thumb: "/images/turblend-logo.png"
+thumb: "turblend-logo.png"
 thumbInset: "21.4%"
 thumbRadius: "50%"
 
 hero:
-  src: "/images/placeholder-wide.svg"
-  width: 2200
-  height: 1000
+  src: "placeholder-wide.svg"
 
 facts:
   - label: "Product"
@@ -35,7 +33,7 @@ facts:
 {/* ===== Case study =====
    Structure: title, wide hero image, intro, project details, then Problem, Research,
    Solution (with feature highlights and deep dives) and Impact. Every [YOUR …] is a
-   placeholder; swap the grey images in public/images/ for your own. */}
+   placeholder; swap the grey images for your own (in src/assets/images/). */}
 
 {/* Intro */}
 
@@ -75,8 +73,8 @@ facts:
 
 </CaseSection>
 
-{/* A quote from research on the site's black. To set it over a photo, put
-   <img src="/images/my-photo.jpg" alt="" loading="lazy"> inside <CaseQuote>. */}
+{/* A quote from research on the site's black. To set it over a photo, add
+   photo="my-photo.jpg" (a file in src/assets/images/) to <CaseQuote>. */}
 
 <CaseQuote quote="[YOUR QUOTE FROM A USER OR STAKEHOLDER]" />
 
@@ -89,7 +87,7 @@ facts:
 </CaseSection>
 
 <CaseMedia reveal images={[
-  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+  { src: "placeholder-16x10.svg", alt: "" },
 ]} />
 
 <CaseFeatures items={[
@@ -108,7 +106,7 @@ facts:
 </CaseDetail>
 
 <CaseMedia reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
-  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+  { src: "placeholder-16x10.svg", alt: "" },
 ]} />
 
 <CaseDetail title="[YOUR FEATURE 2 TITLE]">
@@ -124,7 +122,7 @@ facts:
 </CaseDetail>
 
 <CaseMedia reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
-  { src: "/images/placeholder-16x10.svg", alt: "", width: 1600, height: 1000 },
+  { src: "placeholder-16x10.svg", alt: "" },
 ]} />
 
 <CaseRule />
