@@ -5,14 +5,4 @@ This is my design portfolio website, live at [dmaksimoff.com](https://dmaksimoff
 
 ## Development
 
-The site is built with [Astro](https://astro.build) and TypeScript. The pages share one layout and a set of components in `src/`, and each case study is a single MDX file in `src/content/projects/`. You'll need Node.js 22.12 or newer, and Google Chrome for the browser checks.
-
-```sh
-npm install     # once
-npm run dev     # live preview at http://localhost:4321, updates as you edit
-npm test        # builds the site into dist/ and runs every check
-```
-
-`npm test` checks that the HTML is valid, that every link and image exists, that the animations end up visible at four screen sizes (also with reduced motion and without JavaScript), and that no template placeholders are left on a published page. On a Mac it also compares every page with saved screenshots.
-
-Every push to `Main` is published to [dmaksimoff.com](https://dmaksimoff.com) by GitHub Actions (`.github/workflows/deploy.yml`). The same checks run first, and the site only goes live if all of them pass. Pushes to other branches and pull requests get the checks without publishing.
+The site is built with [Astro](https://astro.build) and TypeScript. The pages share one layout and a set of components in `src/`, and each case study is a single MDX file in `src/content/projects/`. 
