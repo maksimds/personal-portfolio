@@ -1242,6 +1242,34 @@ a.project__link .project__name:hover,
   animation: blur-in 0.8s var(--blur-in-delay, 0s) var(--ease) backwards;
 }
 
+/* ---------- Page transitions ----------
+   Going to another page of the site crossfades, in browsers that support it (others just load the
+   page). Between the home page and a case study, the project's thumbnail grows into the logo at the
+   top of the case study, and shrinks back into its row on the way home: the script in the <head>
+   of src/layouts/BaseLayout.astro names the two images "project-logo". The logo lands without
+   its own fade-in (.is-arriving), so it doesn't arrive half see-through. Off with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+}
+::view-transition-group(project-logo) {
+  animation-duration: 0.6s;
+  animation-timing-function: var(--ease);
+}
+/* A thumbnail and a logo of different shapes (the Kalorie phone and wordmark) both stay centred
+   in the moving box while one fades into the other, instead of one hanging below it */
+::view-transition-old(project-logo),
+::view-transition-new(project-logo) {
+  height: 100%;
+  object-fit: contain;
+}
+.js .reveal.is-arriving,
+.js .blur-in.is-arriving {
+  opacity: 1;
+  transform: none;
+  transition: none;
+  animation: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *,

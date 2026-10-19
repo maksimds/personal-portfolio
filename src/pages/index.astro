@@ -2,14 +2,35 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
 import ProjectRow from '../components/home/ProjectRow.astro';
+import { getImage } from 'astro:assets';
 import { getProjects, projectUrl } from '../data/projects';
+import { getImageFile } from '../data/images';
+import { site } from '../data/site';
 
 // Every case study in src/content/projects/, in order. Published ones link to their page;
 // the others show as "coming soon" rows until they're published. To add a project, add a file
 // there (start from _template.mdx).
 const projects = await getProjects();
+
+// Who the site is about, for search engines (schema.org "Person"). Visitors don't see it.
+// Keep it in step with the hero and the About page when your job or city changes.
+const portrait = await getImage({ src: getImageFile('denis-portrait.jpg'), width: 800, format: 'jpg' });
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: new URL('/', Astro.site).href,
+  image: new URL(portrait.src, Astro.site).href,
+  email: `mailto:${site.email}`,
+  jobTitle: 'Product Designer',
+  worksFor: { '@type': 'Organization', name: 'dōTERRA' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Cincinnati', addressRegion: 'OH', addressCountry: 'US' },
+  sameAs: [site.linkedinUrl, site.githubUrl],
+};
 ---
 <BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" hasHero>
+
+  <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(person)}></script>
 
   <Hero />
 

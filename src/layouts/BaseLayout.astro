@@ -43,6 +43,60 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
   {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
   <script is:inline src="/js/analytics.js" async></script>
+
+  {/* Page transitions (see "Page transitions" in styles.css). Between the home page and a case study,
+      the project's thumbnail grows into the logo at the top of the case study, and shrinks back on
+      the way home; every other change of page just crossfades. This picks the two images and gives
+      both the same view-transition-name. It's here in the <head> because pagereveal fires before the
+      new page's first frame, before src/scripts/main.ts has run. Browsers without page transitions
+      skip all of it. */}
+  <script is:inline>
+    (function () {
+      var NAME = 'project-logo';
+      function path(url) { return new URL(url, location.href).pathname; }
+      function isHome(url) { var p = path(url); return p === '/' || p === '/index.html'; }
+      // /projects/kalorie-case-study.html -> "kalorie"
+      function caseSlug(url) { var m = /^\/projects\/([^/]+)-case-study\.html$/.exec(path(url)); return m && m[1]; }
+      // The case study shared by two addresses, when one is the home page and the other that case study
+      function project(from, to) { return isHome(from) ? caseSlug(to) : isHome(to) ? caseSlug(from) : null; }
+      // The image that moves on this page: the project's thumbnail on the home page, the logo on its case study
+      function image(slug) {
+        if (!slug) return null;
+        if (isHome(location.href)) {
+          var link = document.querySelector('.project__link[href="/projects/' + slug + '-case-study.html"]');
+          return link && link.querySelector('.project__thumb img');
+        }
+        return caseSlug(location.href) === slug ? document.querySelector('.case-hero img') : null;
+      }
+      function name(el, transition) {
+        el.style.viewTransitionName = NAME;
+        // Cleared afterwards, so a page restored with the Back button doesn't start with a stale name
+        transition.finished.finally(function () { el.style.viewTransitionName = ''; });
+      }
+
+      // Leaving the page: the image moves only if it's on screen
+      addEventListener('pageswap', function (e) {
+        if (!e.viewTransition || !e.activation || !e.activation.entry) return;
+        var el = image(project(location.href, e.activation.entry.url));
+        var box = el && el.getBoundingClientRect();
+        if (box && box.bottom > 0 && box.top < innerHeight) name(el, e.viewTransition);
+      });
+
+      // Arriving: the image lands fully visible, without its usual fade-in or blur-in
+      addEventListener('pagereveal', function (e) {
+        var from = window.navigation && navigation.activation && navigation.activation.from;
+        if (!e.viewTransition || !from) return;
+        var el = image(project(from.url, location.href));
+        if (!el) return;
+        name(el, e.viewTransition);
+        var line = el.closest('.reveal, .blur-in');
+        if (line) line.classList.add('is-arriving');
+      });
+    })();
+  </script>
+
+  {/* Anything a single page adds to the <head> (the home page's structured data) */}
+  <slot name="head" />
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
