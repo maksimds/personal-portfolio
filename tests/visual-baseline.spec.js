@@ -1,10 +1,12 @@
-// Temporary, for the Astro migration (see ASTRO-MIGRATION.md): full-page screenshots of every page at
-// every screen size in playwright.config.js, so the rebuilt site can be compared with today's pixel
-// for pixel. Reduced motion makes the animations finish straight away; the live clock is masked and
-// the glows are hidden, since they change all the time.
+// Full-page screenshots of every page at every screen size in playwright.config.js, compared pixel for
+// pixel with the saved ones, so a change that moves or restyles something by accident fails the
+// checks. (Made for the Astro migration, to prove the rebuilt site looked the same; kept since.)
+// Reduced motion makes the animations finish straight away; the live clock is masked and the glows
+// are hidden, since they change all the time.
 //
 // The screenshots depend on the computer's fonts and browser, so they're only compared on your Mac
-// (the saved ones are in tests/visual-baseline.spec.js-snapshots/). To take new ones:
+// (the saved ones are in tests/visual-baseline.spec.js-snapshots/). After a change you meant to
+// make, or for a new page, take new ones and look them over before committing:
 // npx playwright test visual-baseline --update-snapshots
 const { test, expect } = require('@playwright/test');
 const { pages, scrollThrough } = require('./helpers');
@@ -13,6 +15,8 @@ test.skip(!!process.env.CI, 'screenshots were taken on macOS; GitHub\'s Linux dr
 
 for (const url of pages) {
   test(`${url} looks the same`, async ({ page }) => {
+    // The hero clock always shows the same time, so its mask is always the same width
+    await page.clock.setFixedTime(new Date('2026-10-17T12:00:00-04:00'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(url);
 

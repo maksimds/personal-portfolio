@@ -1,6 +1,5 @@
 .DS_Store
 .claude/
-projects/project-template.html
 
 # Astro's build output and generated types
 dist/
