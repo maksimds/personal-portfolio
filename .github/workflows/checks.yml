@@ -1,12 +1,12 @@
 # Runs the site's checks on GitHub after every push, so a broken page shows up as a red ✗
 # next to the commit instead of on the live site. The same checks run on your Mac with `npm test`.
-# Pushes to Main are checked by deploy.yml, which runs these same checks before publishing,
+# Pushes to main are checked by deploy.yml, which runs these same checks before publishing,
 # so they aren't run twice there.
 name: Site checks
 
 on:
   push:
-    branches-ignore: [Main]
+    branches-ignore: [main]
   pull_request:
   workflow_dispatch:       # adds a "Run workflow" button on the Actions tab
 
