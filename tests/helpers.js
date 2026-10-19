@@ -2,21 +2,18 @@
 const fs = require('fs');
 const path = require('path');
 
-const root = path.join(__dirname, '..');
+// The built site (`npm run build` puts it in dist/)
+const dist = path.join(__dirname, '..', 'dist');
+if (!fs.existsSync(dist)) throw new Error('No dist/ folder: run `npm run build` first (or use `npm test`, which does)');
 
-// Every page of the site: the .html files at the top level and in projects/. The project template
-// is left out: it's gitignored, so it only exists on your Mac and a local run would differ from GitHub's.
+// Every page of the site: the .html files at the top of dist/ and in dist/projects/. Case studies
+// still being written (published: false) aren't built, so they're never among them.
 const pages = [
-  ...fs.readdirSync(root).filter((f) => f.endsWith('.html')),
-  ...fs.readdirSync(path.join(root, 'projects'))
-    .filter((f) => f.endsWith('.html') && f !== 'project-template.html')
+  ...fs.readdirSync(dist).filter((f) => f.endsWith('.html')),
+  ...fs.readdirSync(path.join(dist, 'projects'))
+    .filter((f) => f.endsWith('.html'))
     .map((f) => `projects/${f}`),
 ].sort();
-
-// Case studies still being written, which nothing on the site links to yet. Their [YOUR …] placeholders
-// and YOUR_LINK_URL links are expected for now. When one is finished, take it off this list, and the
-// checks will make sure no placeholder is left on it.
-const drafts = ['projects/turblend-case-study.html'];
 
 // Everything that starts hidden and animates in: the heroes (.hero-in), the blur-in lines (.blur-in)
 // and the older scroll fade-in (.reveal).
@@ -44,4 +41,4 @@ function collectErrors(page) {
   return errors;
 }
 
-module.exports = { pages, drafts, ANIMATED, scrollThrough, collectErrors };
+module.exports = { dist, pages, ANIMATED, scrollThrough, collectErrors };

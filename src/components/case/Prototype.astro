@@ -1,0 +1,11 @@
+---
+// "View prototype": opens a Figma prototype below the link. The embed only loads on first open.
+// href is the prototype's share link (used without JavaScript), src its embed link.
+import EmbedLink from './EmbedLink.astro';
+import EmbedPanel from './EmbedPanel.astro';
+
+interface Props { id: string; href: string; src: string; title: string; lime?: boolean; }
+const { id, href, src, title, lime } = Astro.props;
+---
+<EmbedLink id={id} href={href} label="View prototype" openLabel="Hide prototype" lime={lime} />
+<EmbedPanel id={id} src={src} title={title}><div class="case-embed__frame"></div></EmbedPanel>

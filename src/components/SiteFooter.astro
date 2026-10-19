@@ -1,0 +1,32 @@
+---
+import { site } from '../data/site';
+import Glow from './Glow.astro';
+
+interface Props {
+  // The glow behind the footer, which works like the hero's. Off on the About page, where the
+  // page-wide glow shows through behind the footer instead.
+  glow?: boolean;
+  // The "Updated …" line
+  updated?: string;
+}
+const { glow = true, updated = site.updated } = Astro.props;
+---
+<footer class:list={['site-footer', { glow }]}>
+  {glow && <Glow />}
+  <div class="container">
+    <div class="grid">
+      <div class="footer-col footer-col--a blur-in">
+        <p><a class="footer-link" href={`mailto:${site.email}`} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Email</a></p>
+        <p><a class="footer-link" href={site.resumeUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Resume</a></p>
+      </div>
+      <div class="footer-col footer-col--b blur-in">
+        <p><a class="footer-link" href={site.linkedinUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> LinkedIn</a></p>
+      </div>
+      <div class="footer-col footer-col--meta blur-in">
+        <p>Updated {updated}</p>
+        {/* The year is the build's; src/scripts/year.ts updates it in the browser */}
+        <p>© {site.name} <span data-year>{new Date().getFullYear()}</span></p>
+      </div>
+    </div>
+  </div>
+</footer>

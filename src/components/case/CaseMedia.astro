@@ -1,0 +1,37 @@
+---
+// Images on a light grey panel. variant adds case-media--<name> for each name in it:
+//   card    a small image at its own size (with retina: a 2x image shown at half its pixel size)
+//   screen  a phone screen; "screen pair" puts two side by side, overlapping
+//   phone   a narrow phone-sized image
+//   stack   several images one under the other
+// reveal: fades in by itself (leave it off inside a CaseDetail, which already does).
+// src is a file name in src/assets/images/; the width and height come from the file.
+import Img from '../Img.astro';
+
+export interface MediaImage {
+  src: string;
+  alt: string;
+  retina?: boolean;
+}
+interface Props {
+  images: MediaImage[];
+  variant?: string;
+  caption?: string;
+  reveal?: boolean;
+}
+const { images, variant = '', caption, reveal = false } = Astro.props;
+const names = variant.split(/\s+/).filter(Boolean);
+const variants = names.map((v) => `case-media--${v}`);
+
+// How wide each image shows (see .case-media in styles.css), so phones get smaller files.
+// A card keeps its own size.
+const sizes = names.includes('card') ? undefined
+  : names.includes('pair') ? '(max-width: 767px) min(26rem, 80vw), min(27vw, 26rem)'
+  : names.includes('screen') ? 'min(26rem, 80vw)'
+  : names.includes('phone') ? 'min(15rem, 80vw)'
+  : '(max-width: 767px) 80vw, min(50vw, 1380px)';
+---
+<figure class:list={['case-media', ...variants, { reveal }]}>
+  <div class="case-media__panel">{images.map((img) => <Img src={img.src} alt={img.alt} sizes={sizes} retina={img.retina} />)}</div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

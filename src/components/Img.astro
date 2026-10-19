@@ -1,0 +1,36 @@
+---
+// An image from src/assets/images/, by file name: <Img src="kalorie-home.png" alt="…" sizes="26rem" />.
+// Astro makes AVIF and WebP copies at a few widths, up to the file's own, and the browser picks
+// the smallest that is sharp at the size it shows. sizes says how wide that is (a CSS length,
+// or a list of media conditions and lengths); without it the image keeps its own size.
+// retina: a 2x image shown at half its pixel size. SVGs are used as they are.
+import { Picture } from 'astro:assets';
+import { getImageFile } from '../data/images';
+
+interface Props {
+  src: string;
+  alt: string;
+  sizes?: string;
+  retina?: boolean;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+}
+
+const { src, alt, sizes, retina = false, loading = 'lazy', fetchpriority, class: className } = Astro.props;
+const file = getImageFile(src);
+
+const STEPS = [240, 360, 480, 640, 800, 1080, 1280, 1600, 2000, 2400];
+const widths = [...STEPS.filter((w) => w < file.width), file.width];
+const half = { width: Math.round(file.width / 2), height: Math.round(file.height / 2) };
+// The file's exact proportions (see img in styles.css): the smaller copies round their height to
+// whole pixels, which would otherwise make the image a fraction of a pixel shorter or taller
+const style = `--ratio: ${file.width} / ${file.height}`;
+---
+{file.format === 'svg'
+  ? <img src={file.src} alt={alt} width={file.width} height={file.height} loading={loading === 'lazy' ? 'lazy' : undefined} class={className}>
+  : retina
+    ? <Picture src={file} alt={alt} formats={['avif', 'webp']} width={half.width} height={half.height} densities={[1, 2]} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />
+    : sizes
+      ? <Picture src={file} alt={alt} formats={['avif', 'webp']} widths={widths} sizes={sizes} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />
+      : <Picture src={file} alt={alt} formats={['avif', 'webp']} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />}

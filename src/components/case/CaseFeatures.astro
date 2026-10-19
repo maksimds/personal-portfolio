@@ -1,0 +1,8 @@
+---
+// Key features, in a two-column list. reveal={false} inside a section that already fades in.
+interface Props { items: string[]; reveal?: boolean; }
+const { items, reveal = true } = Astro.props;
+---
+<ul class:list={['case-features', { reveal }]}>
+  {items.map((item) => <li>{item}</li>)}
+</ul>

@@ -1,10 +1,11 @@
-// Checks that no placeholder from the case study template is left on a finished page: no [YOUR …] text
-// on the page and no YOUR_… in a link, image or alt text. Draft pages (see helpers.js) are left out.
-// Only what visitors can see counts, so notes in HTML comments may still mention placeholders.
+// Checks that no placeholder from the case study template (src/content/projects/_template.mdx) is left
+// on a page: no [YOUR …] text on the page and no YOUR_… in a link, image or alt text. Case studies
+// still being written (published: false) aren't built, so this only sees finished ones. Only what
+// visitors can see counts, so notes in {/* comments */} may still mention placeholders.
 const { test, expect } = require('@playwright/test');
-const { pages, drafts } = require('./helpers');
+const { pages } = require('./helpers');
 
-for (const url of pages.filter((p) => !drafts.includes(p))) {
+for (const url of pages) {
   test(`${url}: no placeholders left`, async ({ page }) => {
     await page.goto(url);
     const found = await page.evaluate(() => {

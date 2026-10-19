@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Page not found — Denis Maksimov" hasHero noindex>
+
+  {/* ===== 404 =====
+       Full-screen hero with the same cursor-following glow as the home page (see src/scripts/glow.ts). */}
+  <section class="hero hero--notfound glow" aria-labelledby="notfound-title">
+    <div class="glow__bg" aria-hidden="true"><canvas class="glow__canvas"></canvas></div>
+    <div class="hero__content container notfound">
+      <h1 id="notfound-title" class="notfound__title reveal">This page does not exist.</h1>
+      {/* Returns to the previous page when the visitor came from this site, otherwise goes home. */}
+      <a class="notfound__back reveal" href="/" data-back><span class="arrow" aria-hidden="true">←</span> Go back</a>
+    </div>
+  </section>
+</BaseLayout>

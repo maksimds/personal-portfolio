@@ -1,0 +1,9 @@
+---
+// A smaller block with an h3: a feature deep dive or a step
+interface Props { title: string; }
+const { title } = Astro.props;
+---
+<section class="case-detail reveal">
+  <h3>{title}</h3>
+  <slot />
+</section>

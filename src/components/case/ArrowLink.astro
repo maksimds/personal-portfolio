@@ -1,0 +1,6 @@
+---
+// A link to another site, on its own line, with an arrow: <ArrowLink href="https://…">Live site</ArrowLink>
+interface Props { href: string; }
+const { href } = Astro.props;
+---
+<p><a class="arrow-link" href={href} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> <slot /></a></p>

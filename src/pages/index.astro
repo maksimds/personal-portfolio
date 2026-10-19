@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import ProjectRow from '../components/home/ProjectRow.astro';
+import { getProjects, projectUrl } from '../data/projects';
+
+// Every case study in src/content/projects/, in order. Published ones link to their page;
+// the others show as "coming soon" rows until they're published. To add a project, add a file
+// there (start from _template.mdx).
+const projects = await getProjects();
+---
+<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" hasHero>
+
+  <Hero />
+
+  {/* ===== My works (main projects first, then side projects) ===== */}
+  <section class="section section--works container" id="work" aria-labelledby="work-title">
+    <div class="grid list-head">
+      <h2 id="work-title" class="h3 blur-in">My works</h2>
+      <p class="list-head__meta kv blur-in">Years of experience <span class="arrow">→</span> <strong>3+</strong></p>
+    </div>
+
+    <ul class="project-list">
+      {projects.map((project) => (
+        <ProjectRow href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
+          desc={project.data.listDescription} thumb={project.data.thumb}
+          logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} />
+      ))}
+      <ProjectRow name="Coming soon" desc="building something cool" />
+    </ul>
+  </section>
+
+</BaseLayout>

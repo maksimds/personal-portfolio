@@ -1,0 +1,192 @@
+---
+# ===== Case study template =====
+# Copy this file to src/content/projects/<name>.mdx (without the _). The file name becomes the
+# address: turblend.mdx is /projects/turblend-case-study.html. Files starting with _ aren't built.
+# Every [YOUR …] and YOUR_… is a placeholder; the checks fail if one is left on a published page.
+
+# Place on the home page and in the previous/next links (1 is first)
+order: 99
+# false: not built yet, and a "coming soon" row on the home page. `npm run dev` still shows the
+# page, so you can preview it while you write. Set it to true to publish.
+published: false
+
+# The heading, also the name on the home page and in the previous/next links
+title: "[YOUR PROJECT NAME]"
+# Optional: the browser tab title, if it should differ from the heading
+# pageTitle: "[YOUR LONGER PROJECT NAME]"
+subtitle: "[YOUR ONE-LINE DESCRIPTION]"
+status: "[YOUR STATUS]"
+# For search results
+description: "[YOUR PROJECT NAME]: [YOUR ONE-LINE DESCRIPTION]"
+
+# On the home page
+listDescription: "[YOUR HOME PAGE LINE]"
+thumb: "placeholder-square.svg"
+# Optional: how far the logo sits from the thumbnail's edges (top, sides, bottom), and its corners
+# thumbInset: "21.4%"
+# thumbRadius: "50%"
+
+# The big image under the heading. For a logo on the page background instead, add logo: true,
+# and optionally logoWidth: "min(29.7%, 19.8rem)" and logoTrim: 0.339 (the share of empty space
+# around the logo in the image) to size it like the others.
+hero:
+  src: "placeholder-wide.svg"
+
+# "Project details" under the intro. wide: true spans the full width.
+facts:
+  - label: "Product"
+    value: "[YOUR PRODUCT]"
+  - label: "My role"
+    value: "[YOUR ROLE]"
+  - label: "Timeline"
+    value: "[YOUR TIMELINE]"
+  - label: "Skills"
+    value: "[YOUR SKILLS]"
+  - label: "Team"
+    value: "[YOUR TEAM]"
+    wide: true
+---
+
+{/* Structure: title, wide hero image, intro, project details, then Problem, Research,
+   Solution (with feature highlights and deep dives) and Impact. The heading, hero image and
+   previous/next links come from the frontmatter above; everything else is written here.
+   Text is plain Markdown: a blank line starts a new paragraph, **bold**, *italic*. Leave a blank
+   line after an opening tag like <CaseSection> and before its closing tag. In the text itself,
+   { } and < have special meanings: write \{ \} and &lt; to show them. */}
+
+{/* Intro */}
+
+<CaseIntro>
+
+[YOUR INTRO — one or two sentences on what [YOUR PROJECT NAME] is and what you did on it.]
+
+<ArrowLink href="YOUR_LINK_URL">[YOUR LINK LABEL, e.g. Live site]</ArrowLink>
+
+{/* Or a Figma prototype that opens below the link (lime: the lime link colour, as on Kalorie): */}
+{/* <Prototype id="prototype-1" href="YOUR_FIGMA_SHARE_LINK" src="YOUR_FIGMA_EMBED_LINK" title="[YOUR PROJECT NAME] prototype in Figma" /> */}
+
+{/* Or an App Store link that drops its address below it, as on tap.: */}
+{/* <StoreLink id="store-link" href="YOUR_APP_STORE_LINK" label="App Store link" /> */}
+
+</CaseIntro>
+
+{/* Project details (from facts in the frontmatter) */}
+
+<CaseFacts facts={frontmatter.facts} />
+
+{/* Problem */}
+
+<CaseSection title="Problem: [YOUR PROBLEM HEADLINE]">
+
+[YOUR PROBLEM — who it affected, what wasn't working, and why it mattered.]
+
+[YOUR OPPORTUNITY — the gap you saw and what you set out to change.]
+
+</CaseSection>
+
+{/* Research. Add ordered to number the findings (1, 2, 3…). */}
+
+<CaseSection title="Research">
+
+[YOUR RESEARCH — how you learned about the problem: interviews, surveys, data, audits.]
+
+<CaseFindings items={[
+  { title: "[YOUR FINDING 1]", text: "[YOUR FINDING 1 DETAIL]" },
+  { title: "[YOUR FINDING 2]", text: "[YOUR FINDING 2 DETAIL]" },
+  { title: "[YOUR FINDING 3]", text: "[YOUR FINDING 3 DETAIL]" },
+]} />
+
+</CaseSection>
+
+{/* A quote from research on the site's black (caption is optional). To set it over a photo, add
+   photo="my-photo.jpg" (a file in src/assets/images/) to <CaseQuote>. */}
+
+<CaseQuote quote="[YOUR QUOTE FROM A USER OR STAKEHOLDER]" caption="– [WHO SAID IT]" />
+
+{/* User personas (optional): one card each, with the same labels so the details line up */}
+
+<CasePersonas>
+
+<CasePersona name="[YOUR PERSONA 1 NAME]"
+  type="[YOUR PERSONA 1 IN A FEW WORDS]"
+  details={[
+    { label: "Age", value: "[YOUR AGE]" },
+    { label: "Goals", value: "[YOUR GOALS]" },
+    { label: "Frustrations", value: "[YOUR FRUSTRATIONS]" },
+  ]} />
+
+<CasePersona name="[YOUR PERSONA 2 NAME]"
+  type="[YOUR PERSONA 2 IN A FEW WORDS]"
+  details={[
+    { label: "Age", value: "[YOUR AGE]" },
+    { label: "Goals", value: "[YOUR GOALS]" },
+    { label: "Frustrations", value: "[YOUR FRUSTRATIONS]" },
+  ]} />
+
+</CasePersonas>
+
+{/* Solution */}
+
+<CaseSection title="Solution: [YOUR SOLUTION HEADLINE]">
+
+[YOUR SOLUTION — what you designed and how it answers the problem.]
+
+</CaseSection>
+
+{/* Images on a grey panel. reveal makes it fade in by itself; leave it off inside a CaseDetail.
+   src is a file name in src/assets/images/; its size comes from the file. variant (optional):
+     "phone"        a narrow phone-sized image (e.g. placeholder-phone.svg)
+     "screen"       a phone screen; "screen pair" puts two side by side, overlapping
+     "stack"        several images one under the other
+     "card"         a small image at its own size; add retina: true to an image that's 2x */}
+
+<CaseMedia reveal images={[
+  { src: "placeholder-16x10.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+
+<CaseFeatures items={[
+  "[YOUR KEY FEATURE 1]",
+  "[YOUR KEY FEATURE 2]",
+  "[YOUR KEY FEATURE 3]",
+  "[YOUR KEY FEATURE 4]",
+]} />
+
+{/* Feature deep dives: copy a block to add more */}
+
+<CaseDetail title="[YOUR FEATURE 1 TITLE]">
+
+<CaseMedia images={[
+  { src: "placeholder-4x3.svg", alt: "[YOUR NEW SCREEN]" },
+]} />
+
+{/* "See how it was before": opens the old screen below the new one. Each needs its own id. */}
+<BeforeAfter id="feature-1-before" image={{ src: "placeholder-4x3.svg", alt: "[YOUR OLD SCREEN]" }} />
+
+[YOUR FEATURE 1 — the decision, the options you explored and why this one won.]
+
+</CaseDetail>
+
+<CaseDetail title="[YOUR FEATURE 2 TITLE]">
+
+[YOUR FEATURE 2]
+
+</CaseDetail>
+
+<CaseMedia variant="phone" reveal caption="[YOUR CAPTION FOR THIS IMAGE]" images={[
+  { src: "placeholder-phone.svg", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+
+<CaseRule />
+
+{/* Impact: the first section after the line gets afterRule */}
+
+<CaseSection title="Impact: [YOUR IMPACT HEADLINE]" afterRule>
+
+[YOUR IMPACT — launch, metrics, feedback, recognition.]
+
+<ArrowLink href="YOUR_LINK_URL">[YOUR LINK LABEL]</ArrowLink>
+
+</CaseSection>
+
+{/* For a project that's still going, as on Lynea: */}
+{/* <h1 class="case-continued reveal">To be continued</h1> */}

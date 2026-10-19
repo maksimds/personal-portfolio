@@ -1,0 +1,79 @@
+# Publishes the site to dmaksimoff.com after every push to Main: runs the same checks as `npm test`,
+# then builds the site and hands it to GitHub Pages. If a check fails, nothing is published and the
+# live site stays as it was. Other branches and pull requests are checked by checks.yml instead.
+name: Deploy site
+
+on:
+  push:
+    branches: [Main]
+  workflow_dispatch:       # adds a "Run workflow" button on the Actions tab, to publish again without a push
+
+permissions:
+  contents: read
+
+# One deploy at a time. A push made while one is running waits for it instead of cutting it off halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install Astro and the check tools
+        run: npm ci
+
+      - name: Build the site
+        run: npm run build
+
+      - name: Check the HTML is valid
+        run: npm run test:html
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Check links, files and animations in a browser
+        run: npm run test:browser
+
+      - name: Keep the report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  build:
+    needs: test            # a failed check never reaches the live site
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs, runs `npm run build` and packages dist/ (CNAME included) for GitHub Pages
+      - uses: withastro/action@v6
+        with:
+          node-version: 24
+          package-manager: npm
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write         # to publish the site
+      id-token: write      # to prove to GitHub Pages that this workflow is the one publishing
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

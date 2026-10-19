@@ -1,0 +1,23 @@
+---
+// One persona card. The details line up across the cards, so give each the same labels.
+import Img from '../Img.astro';
+
+interface Props {
+  name: string;
+  type: string;
+  details: { label: string; value: string }[];
+  // A file name in src/assets/images/
+  avatar?: string;
+}
+const { name, type, details, avatar = 'avatar-default.svg' } = Astro.props;
+---
+<div class="case-persona">
+  <div class="case-persona__head">
+    <Img src={avatar} alt="" sizes="9rem" />
+    <h3>{name}</h3>
+    <p class="case-persona__type">{type}</p>
+  </div>
+  <dl>
+    {details.map((d) => <div><dt>{d.label}</dt><dd>{d.value}</dd></div>)}
+  </dl>
+</div>
