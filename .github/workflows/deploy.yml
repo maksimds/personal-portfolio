@@ -1,11 +1,11 @@
-# Publishes the site to dmaksimoff.com after every push to Main: runs the same checks as `npm test`,
+# Publishes the site to dmaksimoff.com after every push to main: runs the same checks as `npm test`,
 # then builds the site and hands it to GitHub Pages. If a check fails, nothing is published and the
 # live site stays as it was. Other branches and pull requests are checked by checks.yml instead.
 name: Deploy site
 
 on:
   push:
-    branches: [Main]
+    branches: [main]
   workflow_dispatch:       # adds a "Run workflow" button on the Actions tab, to publish again without a push
 
 permissions:

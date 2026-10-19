@@ -15,4 +15,4 @@ npm test        # builds the site into dist/ and runs every check
 
 `npm test` checks that the HTML is valid, that every link and image exists, that the animations end up visible at four screen sizes (also with reduced motion and without JavaScript), and that no template placeholders are left on a published page. On a Mac it also compares every page with saved screenshots.
 
-Every push to `Main` is published to [dmaksimoff.com](https://dmaksimoff.com) by GitHub Actions (`.github/workflows/deploy.yml`). The same checks run first, and the site only goes live if all of them pass. Pushes to other branches and pull requests get the checks without publishing.
+Every push to `main` is published to [dmaksimoff.com](https://dmaksimoff.com) by GitHub Actions (`.github/workflows/deploy.yml`). The same checks run first, and the site only goes live if all of them pass. Pushes to other branches and pull requests get the checks without publishing.
