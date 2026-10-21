@@ -718,7 +718,8 @@ a.project__link .project__name:hover,
 /* Footer links get the header's hover: a black box fades in behind white text over 0.9s
    and snaps back instantly. Instead of adding a ↗, the → in front turns to ↗ as it fades in. */
 .footer-link,
-.arrow-link {
+.arrow-link,
+.playlist-link {
   padding: 0.1em 0;            /* a snug box like the site name's; doesn't move the layout */
 }
 
@@ -728,7 +729,9 @@ a.project__link .project__name:hover,
 .footer-link:hover,
 .footer-link:focus-visible,
 .arrow-link:hover,
-.arrow-link:focus-visible {
+.arrow-link:focus-visible,
+.playlist-link:hover,
+.playlist-link:focus-visible {
   background-color: #000;
   color: #fff;
   transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
@@ -841,6 +844,17 @@ a.project__link .project__name:hover,
 .about-section { padding: calc(var(--row) * 2) 0 calc(var(--row) * 3); }
 .about-section h2 { font-size: max(1.375rem, var(--fs-works-title)); margin-bottom: 0.7em; }
 .about-section p { margin: 0 0 0.9em; font-size: var(--fs-text-sm); line-height: 1.6; }
+
+/* The playlist link under the last section: the Spotify logo, then the text. It hovers like the
+   footer links. */
+.about-playlist { margin-top: 1.6em; }
+.playlist-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-weight: 500;
+}
+.playlist-link svg { flex: none; width: 1.2em; height: 1.2em; }
 
 @media (max-width: 767px) {
   .about-hero { padding-top: calc(var(--header-height) + 2.5rem); padding-bottom: 3.5rem; }
