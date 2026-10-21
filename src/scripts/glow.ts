@@ -42,9 +42,10 @@ const GLOW = {
   grain: 0.10,               // grain strength (strongest mid-fade, none at either end)
   warp: 0.15,                // how much the edge distorts
   warpSpeed: 0.08,           // how fast the distortion changes
-  wrapGap: 0.08,             // around text: the clear space between the text and the band of colour (relative to the radius)
+  wrapGap: 0.062,            // around text: the clear space between the text and the band of colour (relative to the radius)
   wrapSpread: 0.24,          // around text: how far the band fades out (relative to the radius)
   wrapShape: 3,              // around text: the band's roundness (2 = an ellipse; higher = closer to a rectangle)
+  wrapFit: 0.77,             // around text: the shape's size (1 = just big enough to hold all of the text; smaller hugs the letters closer)
   wrapLiquid: 0.03,          // around text: how far the band's edges ripple in and out (relative to the radius)
   wrapSpeed: 3.5             // higher = wraps around the text, and lets go of it, faster
 };
@@ -195,8 +196,11 @@ const FRAGMENT_SHADER = [
   ' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);',
   // distance from the shape the glow is drawn around (negative inside it). Away from text it's a
   // point at the glow's centre uBox.xy: the usual round glow. Around text it's a rounded shape
-  // with no straight sides (a superellipse with exponent uShape and half-size uBox.zw) holding
-  // the text; the distance is estimated as its value over its slope.
+  // with no straight sides (a superellipse with exponent uShape and half-size uBox.zw) around
+  // the text; the distance is estimated as its value over its slope. Far from a wide shape that
+  // estimate shrinks to the distance straight up or down, which drew a light wedge along the
+  // shape's long side; the distance from the box the shape fits in (never more than the real
+  // distance) takes over there, smoothly, so it stays round.
   ' vec2 q=abs(p-uBox.xy);',
   ' float s=length(q);',
   ' if(uBox.z>0.){',
@@ -204,6 +208,11 @@ const FRAGMENT_SHADER = [
   '  float g=max(pow(pow(k.x,uShape)+pow(k.y,uShape),1./uShape),1e-4);',
   '  vec2 slope=pow(g,1.-uShape)*vec2(pow(k.x,uShape-1.)/uBox.z,pow(k.y,uShape-1.)/uBox.w);',
   '  s=(g-1.)/max(length(slope),1e-6);',
+  '  vec2 e=q-uBox.zw;',
+  '  float b=length(max(e,0.))+min(max(e.x,e.y),0.);',
+  '  float r=uRadius*.04;',
+  '  float h=max(r-abs(s-b),0.)/r;',
+  '  s=max(s,b)+h*h*r*.25;',
   ' }',
   // around text the edges ripple: finer noise, flowing faster, moves them in and out, fading to
   // nothing at the text so the letters stay on the plain background
@@ -378,9 +387,10 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
       const [bx, by, hw, hh] = drawBox(wr);
       const gap = GLOW.wrapGap * radius;
       // The shape rounds out from a circle (exponent 2) as the glow wraps. A superellipse with
-      // exponent n holds a box when its half-size is the box's × 2^(1/n), so the text's corners touch it.
+      // exponent n holds a box when its half-size is the box's × 2^(1/n), so the text's corners touch
+      // it; wrapFit scales it from there.
       const shape = 2 + (GLOW.wrapShape - 2) * wr;
-      const hold = Math.pow(2, 1 / shape);
+      const hold = Math.pow(2, 1 / shape) * (1 + (GLOW.wrapFit - 1) * wr);
       gl.uniform3fv(loc.uInner, c);
       gl.uniform2f(loc.uRes, canvas.width, canvas.height);
       gl.uniform4f(loc.uBox, bx * dpr, by * dpr, hw * hold * dpr, hh * hold * dpr);
