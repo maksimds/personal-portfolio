@@ -45,7 +45,7 @@ const GLOW = {
   wrapGap: 0.062,            // around text: the clear space between the text and the band of colour (relative to the radius)
   wrapSpread: 0.24,          // around text: how far the band fades out (relative to the radius)
   wrapShape: 3,              // around text: the band's roundness (2 = an ellipse; higher = closer to a rectangle)
-  wrapFit: 0.77,             // around text: the shape's size (1 = just big enough to hold all of the text; smaller hugs the letters closer)
+  wrapFit: 0.77,             // around text: the shape's size (1 = just big enough to hold all of the text; smaller hugs it closer, bulging out around the lines so every letter stays clear)
   wrapLiquid: 0.03,          // around text: how far the band's edges ripple in and out (relative to the radius)
   wrapSpeed: 3.5             // higher = wraps around the text, and lets go of it, faster
 };
@@ -138,11 +138,9 @@ function contentBox(el: Element): Box {
   return { x: r.left, y: r.top, w: r.width, h: r.height };
 }
 
-// Whether a point is on a line of an element's text: between the line's first and last letter,
-// and from the top of its letters to the bottom. Two lines of one paragraph meet halfway across the
-// space between them, so moving down through a paragraph doesn't count as leaving it; the space
-// between a heading and its paragraph, after a short last line, and above and below the text doesn't count.
-function onText(el: Element, p: Point): boolean {
+// The lines of an element's text, top to bottom, in viewport coordinates: each from the line's
+// first letter to its last, and from the top of its letters to the bottom.
+function textLines(el: Element): DOMRect[] {
   const lines: DOMRect[] = [];
   const range = document.createRange();
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -151,7 +149,13 @@ function onText(el: Element, p: Point): boolean {
     range.selectNodeContents(node);
     lines.push(...Array.from(range.getClientRects()));
   }
-  lines.sort((a, b) => a.top - b.top);
+  return lines.sort((a, b) => a.top - b.top);
+}
+
+// Whether a point is on one of the lines (from textLines). Two lines of one paragraph meet halfway
+// across the space between them, so moving down through a paragraph doesn't count as leaving it; the
+// space between a heading and its paragraph, after a short last line, and above and below the text doesn't count.
+function onLine(lines: DOMRect[], p: Point): boolean {
   return lines.some((r, i) => {
     const above = i > 0 ? r.top - lines[i - 1]!.bottom : Infinity;
     const below = i < lines.length - 1 ? lines[i + 1]!.top - r.bottom : Infinity;
@@ -161,13 +165,33 @@ function onText(el: Element, p: Point): boolean {
   });
 }
 
-const UNIFORMS = ['uRes', 'uBox', 'uShape', 'uRadius', 'uSpread', 'uGap', 'uClear', 'uLiquid', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;
+// Lines of text the shader can keep clear. A longer text has neighbouring lines joined in twos, threes...
+const MAX_LINES = 16;
+
+// The lines as the shader takes them: [centre x, centre y, half-width, half-height] for each, relative
+// to the centre of the box around the text, with some room around the letters.
+function lineShapes(lines: DOMRect[], box: Box): number[] {
+  const per = Math.ceil(lines.length / MAX_LINES);
+  const cx = box.x + box.w / 2, cy = box.y + box.h / 2;
+  const shapes: number[] = [];
+  for (let i = 0; i < lines.length; i += per) {
+    const group = lines.slice(i, i + per);
+    const left = Math.min(...group.map((r) => r.left)), right = Math.max(...group.map((r) => r.right));
+    const top = Math.min(...group.map((r) => r.top)), bottom = Math.max(...group.map((r) => r.bottom));
+    const room = group[0]!.height;
+    shapes.push((left + right) / 2 - cx, (top + bottom) / 2 - cy, (right - left) / 2 + room * 0.5, (bottom - top) / 2 + room * 0.25);
+  }
+  return shapes;
+}
+
+const UNIFORMS = ['uRes', 'uBox', 'uShape', 'uLines', 'uLineCount', 'uRadius', 'uSpread', 'uGap', 'uClear', 'uLiquid', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;
 type Uniforms = Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>;
 
 const VERTEX_SHADER = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 const FRAGMENT_SHADER = [
   'precision highp float;',
   'uniform vec2 uRes;uniform vec4 uBox;uniform float uShape;uniform float uRadius;uniform float uSpread;uniform float uGap;uniform float uClear;uniform float uLiquid;uniform float uTime;',
+  `uniform vec4 uLines[${MAX_LINES}];uniform float uLineCount;`,
   'uniform vec3 uInner;uniform vec3 uOuter;uniform float uGrain;uniform float uWarp;uniform float uSeed;',
   // 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT)
   'vec3 m289(vec3 x){return x-floor(x*(1./289.))*289.;}',
@@ -203,6 +227,7 @@ const FRAGMENT_SHADER = [
   // distance) takes over there, smoothly, so it stays round.
   ' vec2 q=abs(p-uBox.xy);',
   ' float s=length(q);',
+  ' float sm=uRadius*.04;',   // how far the joins below are smoothed
   ' if(uBox.z>0.){',
   '  vec2 k=q/uBox.zw;',
   '  float g=max(pow(pow(k.x,uShape)+pow(k.y,uShape),1./uShape),1e-4);',
@@ -210,9 +235,20 @@ const FRAGMENT_SHADER = [
   '  s=(g-1.)/max(length(slope),1e-6);',
   '  vec2 e=q-uBox.zw;',
   '  float b=length(max(e,0.))+min(max(e.x,e.y),0.);',
-  '  float r=uRadius*.04;',
-  '  float h=max(r-abs(s-b),0.)/r;',
-  '  s=max(s,b)+h*h*r*.25;',
+  '  float h=max(sm-abs(s-b),0.)/sm;',
+  '  s=max(s,b)+h*h*sm*.25;',
+  ' }',
+  // the lines of text, each a rounded strip with some room around its letters (uLines: centre and
+  // half-size), are joined on smoothly, so the shape bulges out wherever it would leave a letter in
+  // the band, and every letter stays on the plain background
+  ` for(int i=0;i<${MAX_LINES};i++){`,
+  '  if(float(i)>=uLineCount)break;',
+  '  vec4 L=uLines[i];',
+  '  float r=min(L.z,L.w);',
+  '  vec2 e=abs(p-L.xy)-L.zw+r;',
+  '  float c=length(max(e,0.))+min(max(e.x,e.y),0.)-r;',
+  '  float h=max(sm-abs(s-c),0.)/sm;',
+  '  s=min(s,c)-h*h*sm*.25;',
   ' }',
   // around text the edges ripple: finer noise, flowing faster, moves them in and out, fading to
   // nothing at the text so the letters stay on the plain background
@@ -294,23 +330,29 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     .querySelectorAll('[data-glow-wrap]'));
   // How far the glow is wrapped around text (0 = the usual round glow, 1 = a band around it), the
   // box around the text under the cursor, and the box it's wrapped around now. Boxes are in page
-  // coordinates, so they scroll with the text.
+  // coordinates, so they scroll with the text. wrapLines: that text's lines (see lineShapes).
   let wrap = 0;
   let wrapTo: Box | null = null;
   const box: Box = { x: 0, y: 0, w: 0, h: 0 };
+  let wrapLines: number[] = [];
+  const lineData = new Float32Array(MAX_LINES * 4);
 
-  // The text the cursor is on, or null. It has to be on a line of the text itself (see onText),
-  // with nothing else in front of it, like the header.
-  function textUnder(p: Point): Box | null {
+  // The text the cursor is on and its lines, or null. The cursor has to be on a line of the text
+  // itself (see onLine), with nothing else in front of it, like the header.
+  function textUnder(p: Point): { box: Box; lines: number[] } | null {
     const over = document.elementFromPoint(p.x, p.y);
     const el = over && wrapTargets.find((t) => t.contains(over));
-    if (!el || !onText(el, p)) return null;
+    if (!el) return null;
+    const lines = textLines(el);
+    if (!onLine(lines, p)) return null;
     const b = contentBox(el);
-    return { x: b.x + window.scrollX, y: b.y + window.scrollY, w: b.w, h: b.h };
+    return { box: { x: b.x + window.scrollX, y: b.y + window.scrollY, w: b.w, h: b.h }, lines: lineShapes(lines, b) };
   }
 
   function updateTarget(): void {
-    wrapTo = pointer ? textUnder(pointer) : null;
+    const text = pointer ? textUnder(pointer) : null;
+    wrapTo = text && text.box;
+    if (text) wrapLines = text.lines;   // kept after the cursor leaves, while the glow lets go
     const r = surface.getBoundingClientRect();
     const inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
     if (!pointer || (restWhenOutside && !inside)) {
@@ -388,13 +430,23 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
       const gap = GLOW.wrapGap * radius;
       // The shape rounds out from a circle (exponent 2) as the glow wraps. A superellipse with
       // exponent n holds a box when its half-size is the box's × 2^(1/n), so the text's corners touch
-      // it; wrapFit scales it from there.
+      // it; wrapFit scales it from there. The lines of text, joined on in the shader, grow out from
+      // the same centre, and keep the letters it no longer reaches clear.
       const shape = 2 + (GLOW.wrapShape - 2) * wr;
       const hold = Math.pow(2, 1 / shape) * (1 + (GLOW.wrapFit - 1) * wr);
+      const lineCount = wr ? wrapLines.length / 4 : 0;
+      for (let i = 0; i < lineCount * 4; i += 4) {
+        lineData[i] = (bx + wrapLines[i]! * wr) * dpr;
+        lineData[i + 1] = (by + wrapLines[i + 1]! * wr) * dpr;
+        lineData[i + 2] = wrapLines[i + 2]! * wr * dpr;
+        lineData[i + 3] = wrapLines[i + 3]! * wr * dpr;
+      }
       gl.uniform3fv(loc.uInner, c);
       gl.uniform2f(loc.uRes, canvas.width, canvas.height);
       gl.uniform4f(loc.uBox, bx * dpr, by * dpr, hw * hold * dpr, hh * hold * dpr);
       gl.uniform1f(loc.uShape, shape);
+      gl.uniform4fv(loc.uLines, lineData);
+      gl.uniform1f(loc.uLineCount, lineCount);
       gl.uniform1f(loc.uRadius, radius * dpr);
       gl.uniform1f(loc.uSpread, (radius + (GLOW.wrapSpread - 1) * radius * wr) * dpr);
       gl.uniform1f(loc.uGap, gap * wr * dpr);
