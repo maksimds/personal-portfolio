@@ -253,10 +253,13 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   let wrapTo: Box | null = null;
   const box: Box = { x: 0, y: 0, w: 0, h: 0 };
 
-  // The text under the cursor (or in the clear space around it), or null.
+  // The text under the cursor (or in the clear space around it), or null. Pointing at a link that
+  // isn't part of the text (the About page's playlist link, just under the last section) doesn't count.
   function textUnder(p: Point): Box | null {
     const gap = GLOW.wrapGap * radiusPx();
+    const link = document.elementFromPoint(p.x, p.y)?.closest('a');
     for (const el of wrapTargets) {
+      if (link && !el.contains(link)) continue;
       const b = contentBox(el);
       if (p.x >= b.x - gap && p.x <= b.x + b.w + gap && p.y >= b.y - gap && p.y <= b.y + b.h + gap) {
         return { x: b.x + window.scrollX, y: b.y + window.scrollY, w: b.w, h: b.h };

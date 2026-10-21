@@ -43,8 +43,11 @@ import Spotify from '../components/icons/Spotify.astro';
         <section class="about-section" data-glow-wrap aria-labelledby="what-i-believe-in">
           <h2 id="what-i-believe-in" class="blur-in">What I believe in</h2>
           <p class="blur-in">I have strong principles in everything I design. I believe that the design of a product should come from the target users’ preferences. I believe that design should be eye-catching and polished yet simple and seamless. I believe that having a system is as important as other parts of design to make sure that there are no inconsistencies. I also believe that great design must tell a story and deliver positive emotions.</p>
-          <p class="about-playlist blur-in"><a class="playlist-link" href="https://open.spotify.com/playlist/78eraksErZ72KlZe62RBy9?si=JUrINZ19Qeq29-6UCzZkAg" target="_blank" rel="noopener"><Spotify /> Check out my playlist</a></p>
         </section>
+
+        {/* In the middle of the space between the last paragraph and the footer. Outside the section,
+            so the glow doesn't wrap around it. */}
+        <p class="about-playlist"><a class="playlist-link blur-in" href="https://open.spotify.com/playlist/78eraksErZ72KlZe62RBy9?si=JUrINZ19Qeq29-6UCzZkAg" target="_blank" rel="noopener"><Spotify /> Check out my playlist</a></p>
       </div>
     </div>
   </div>
