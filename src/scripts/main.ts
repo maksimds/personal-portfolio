@@ -20,7 +20,6 @@ import { initBackLinks } from './back-links';
 import { initYear } from './year';
 import { initPhotoDots } from './photos';
 
-document.documentElement.classList.add('js');
 initHeaderHeight();
 initMenu();
 initScrollHeader();

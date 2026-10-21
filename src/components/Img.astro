@@ -14,10 +14,9 @@ interface Props {
   retina?: boolean;
   loading?: 'lazy' | 'eager';
   fetchpriority?: 'high' | 'low' | 'auto';
-  class?: string;
 }
 
-const { src, alt, sizes, retina = false, loading = 'lazy', fetchpriority, class: className } = Astro.props;
+const { src, alt, sizes, retina = false, loading = 'lazy', fetchpriority } = Astro.props;
 const file = getImageFile(src);
 
 const STEPS = [240, 360, 480, 640, 800, 1080, 1280, 1600, 2000, 2400];
@@ -28,9 +27,9 @@ const half = { width: Math.round(file.width / 2), height: Math.round(file.height
 const style = `--ratio: ${file.width} / ${file.height}`;
 ---
 {file.format === 'svg'
-  ? <img src={file.src} alt={alt} width={file.width} height={file.height} loading={loading === 'lazy' ? 'lazy' : undefined} class={className}>
+  ? <img src={file.src} alt={alt} width={file.width} height={file.height} loading={loading === 'lazy' ? 'lazy' : undefined}>
   : retina
-    ? <Picture src={file} alt={alt} formats={['avif', 'webp']} width={half.width} height={half.height} densities={[1, 2]} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />
+    ? <Picture src={file} alt={alt} formats={['avif', 'webp']} width={half.width} height={half.height} densities={[1, 2]} loading={loading} fetchpriority={fetchpriority} style={style} />
     : sizes
-      ? <Picture src={file} alt={alt} formats={['avif', 'webp']} widths={widths} sizes={sizes} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />
-      : <Picture src={file} alt={alt} formats={['avif', 'webp']} loading={loading} fetchpriority={fetchpriority} class={className} style={style} />}
+      ? <Picture src={file} alt={alt} formats={['avif', 'webp']} widths={widths} sizes={sizes} loading={loading} fetchpriority={fetchpriority} style={style} />
+      : <Picture src={file} alt={alt} formats={['avif', 'webp']} loading={loading} fetchpriority={fetchpriority} style={style} />}
