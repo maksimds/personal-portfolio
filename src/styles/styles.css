@@ -848,15 +848,17 @@ a.project__link .project__name:hover,
 .about-section h2 { font-size: max(1.375rem, var(--fs-works-title)); margin-bottom: 0.7em; }
 .about-section p { margin: 0 0 0.9em; font-size: var(--fs-text-sm); line-height: 1.6; }
 
-/* The playlist link sits in the middle of the space between the last paragraph and the footer,
-   without changing that space. The space is the paragraph's 0.9em margin plus the last section's
-   and the page's bottom padding (3 rows each), so its middle is 0.45em above the bottom of the
-   column. The Spotify logo, then the text; on hover, the nav links' black box and ↗. */
+/* The playlist link sits in the middle of the space between the last paragraph's text and the
+   footer, without changing that space. Below the paragraph's box are its 0.9em margin and the last
+   section's and the page's bottom padding (3 rows each), whose middle is 0.45em above the bottom
+   of the column. But the text ends about 0.48em above the box (the line spacing and the room for
+   descenders sit below the last line), so the middle of the space you see is half that, 0.24em,
+   higher again. The Spotify logo, then the text; on hover, the nav links' black box and ↗. */
 .about-sections__col { position: relative; }
 .about-playlist {
   position: absolute;
   left: 0;
-  top: calc(100% - 0.45em);
+  top: calc(100% - 0.69em);    /* 0.45em + 0.24em, see above */
   display: flex;
   align-items: center;         /* centres the link on that line */
   height: 0;
