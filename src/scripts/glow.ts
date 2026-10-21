@@ -10,8 +10,12 @@
      share one clock, so they always show the same colour
    - the edge is slowly warped by animated noise
    - animated grain dithers the blend, so it only shows in the fade
+   - while the cursor is over text marked data-glow-wrap (the About page's
+     sections), the glow clears from behind the text and wraps around it as a
+     band of colour, so the text stays readable; it lets go when the cursor leaves
    If WebGL is unavailable, the CSS gradient on .glow__bg is used instead;
-   it still follows the cursor and changes colour. */
+   it still follows the cursor and changes colour, and fades out over the text
+   instead of wrapping around it. */
 const GLOW = {
   colors: [                  // centre colours, visited in order, then looping.
                              // Ordered around the colour wheel so each step is a small one.
@@ -36,11 +40,16 @@ const GLOW = {
   followSpeed: 3.2,          // higher = catches up with the cursor faster
   grain: 0.10,               // grain strength (strongest mid-fade, none at either end)
   warp: 0.15,                // how much the edge distorts
-  warpSpeed: 0.08            // how fast the distortion changes
+  warpSpeed: 0.08,           // how fast the distortion changes
+  wrapGap: 0.08,             // around text: the clear space between the text and the band of colour (relative to the radius)
+  wrapSpread: 0.18,          // around text: how far the band fades out (relative to the radius)
+  wrapSpeed: 3.5             // higher = wraps around the text, and lets go of it, faster
 };
 
 type Vec3 = [number, number, number];
 interface Point { x: number; y: number; }
+interface Box { x: number; y: number; w: number; h: number; }
+const BOX_KEYS = ['x', 'y', 'w', 'h'] as const;
 
 function hexToRgb(hex: string): Vec3 {
   const n = parseInt(hex.slice(1), 16);
@@ -83,7 +92,8 @@ function labDistance(a: Vec3, b: Vec3): number {
 // never pausing: a bigger step between two colours simply takes proportionally longer.
 // With reduced motion the colour, grain and edge stay still (the glow still follows the cursor).
 let glowAnimate = true;
-const glowOuter = rgbToOklab(hexToRgb(GLOW.outer));
+const glowOuterRgb = hexToRgb(GLOW.outer);
+const glowOuter = rgbToOklab(glowOuterRgb);
 const glowPalette: Vec3[] = GLOW.colors.map((hex) => {
   const c = rgbToOklab(hexToRgb(hex));
   return c.map((v, i) => v + (glowOuter[i]! - v) * GLOW.pale) as Vec3;
@@ -116,13 +126,21 @@ function glowColorAt(seconds: number): Vec3 {
 // hero. The footer's glow rests at the same spot, so the two match. Set by initGlow.
 let heroGlowSpot: (() => Point) | null = null;
 
-const UNIFORMS = ['uRes', 'uCenter', 'uRadius', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;
+// The box around an element's contents (without its own padding), in viewport coordinates.
+function contentBox(el: Element): Box {
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const r = range.getBoundingClientRect();
+  return { x: r.left, y: r.top, w: r.width, h: r.height };
+}
+
+const UNIFORMS = ['uRes', 'uBox', 'uRadius', 'uSpread', 'uGap', 'uClear', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;
 type Uniforms = Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>;
 
 const VERTEX_SHADER = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 const FRAGMENT_SHADER = [
   'precision highp float;',
-  'uniform vec2 uRes;uniform vec2 uCenter;uniform float uRadius;uniform float uTime;',
+  'uniform vec2 uRes;uniform vec4 uBox;uniform float uRadius;uniform float uSpread;uniform float uGap;uniform float uClear;uniform float uTime;',
   'uniform vec3 uInner;uniform vec3 uOuter;uniform float uGrain;uniform float uWarp;uniform float uSeed;',
   // 3D simplex noise (Ashima Arts / Stefan Gustavson, MIT)
   'vec3 m289(vec3 x){return x-floor(x*(1./289.))*289.;}',
@@ -149,12 +167,18 @@ const FRAGMENT_SHADER = [
   'float hash(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233))+uSeed)*43758.5453);}',
   'void main(){',
   ' vec2 p=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);',
-  ' vec2 q=(p-uCenter)/uRadius;',
+  // distance from the box the glow is drawn around (centre uBox.xy, half-size uBox.zw; negative
+  // inside it). Away from text the box is a point at the glow's centre: the usual round glow.
+  ' vec2 e=abs(p-uBox.xy)-uBox.zw;',
+  ' float s=length(max(e,0.))+min(max(e.x,e.y),0.);',
+  // the colour is strongest uGap outside the box and fades out over uSpread; inside that, it
+  // clears over 1/uClear (no clearing while the glow isn't wrapped around text)
+  ' float d=s>uGap?(s-uGap)/uSpread:(uGap-s)*uClear;',
   // noise field drifts slowly along a fixed direction (280deg), two octaves
   ' vec2 dir=vec2(0.1736,-0.9848);',
   ' vec2 np=p/uRadius*.9+dir*uTime*.35;',
   ' float n=snoise(vec3(np,uTime))+.5*snoise(vec3(np*2.+7.3,uTime*1.3));',
-  ' float d=length(q)+n/1.5*uWarp;',
+  ' d+=n/1.5*uWarp;',
   ' float t=smoothstep(.1,1.05,d);',
   ' t=clamp(t+(hash(gl_FragCoord.xy)-.5)*uGrain*4.*t*(1.-t),0.,1.);',
   ' gl_FragColor=vec4(mix(uInner,uOuter,t),1.);',
@@ -218,7 +242,31 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     heroGlowSpot = () => ({ x: target.x / w, y: target.y / h });
   }
 
+  // Text the glow wraps around while the cursor is over it: anywhere on the page for the
+  // page-wide glow (About), inside its own section for the others.
+  const wrapTargets = Array.from((surface.matches('.page-glow') ? document : surface)
+    .querySelectorAll('[data-glow-wrap]'));
+  // How far the glow is wrapped around text (0 = the usual round glow, 1 = a band around it), the
+  // box around the text under the cursor, and the box it's wrapped around now. Boxes are in page
+  // coordinates, so they scroll with the text.
+  let wrap = 0;
+  let wrapTo: Box | null = null;
+  const box: Box = { x: 0, y: 0, w: 0, h: 0 };
+
+  // The text under the cursor (or in the clear space around it), or null.
+  function textUnder(p: Point): Box | null {
+    const gap = GLOW.wrapGap * radiusPx();
+    for (const el of wrapTargets) {
+      const b = contentBox(el);
+      if (p.x >= b.x - gap && p.x <= b.x + b.w + gap && p.y >= b.y - gap && p.y <= b.y + b.h + gap) {
+        return { x: b.x + window.scrollX, y: b.y + window.scrollY, w: b.w, h: b.h };
+      }
+    }
+    return null;
+  }
+
   function updateTarget(): void {
+    wrapTo = pointer ? textUnder(pointer) : null;
     const r = surface.getBoundingClientRect();
     const inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
     if (!pointer || (restWhenOutside && !inside)) {
@@ -276,23 +324,63 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     draw();
   }
 
+  // The box the glow is drawn around, as centre and half-size in CSS px relative to the section:
+  // a point at the glow's centre, growing into the box around the text as the glow wraps (wr).
+  function drawBox(wr: number): [number, number, number, number] {
+    if (!wr) return [pos.x, pos.y, 0, 0];
+    const r = surface.getBoundingClientRect();
+    const cx = box.x + box.w / 2 - r.left - window.scrollX;
+    const cy = box.y + box.h / 2 - r.top - window.scrollY;
+    return [pos.x + (cx - pos.x) * wr, pos.y + (cy - pos.y) * wr, box.w / 2 * wr, box.h / 2 * wr];
+  }
+
   function draw(): void {
     const time = glowTime();
     const c = glowColorAt(time);
+    const radius = radiusPx();
+    const wr = wrap * wrap * (3 - 2 * wrap);   // eased in and out
     if (gl && loc && canvas) {
+      const [bx, by, hw, hh] = drawBox(wr);
+      const gap = GLOW.wrapGap * radius;
       gl.uniform3fv(loc.uInner, c);
       gl.uniform2f(loc.uRes, canvas.width, canvas.height);
-      gl.uniform2f(loc.uCenter, pos.x * dpr, pos.y * dpr);
-      gl.uniform1f(loc.uRadius, radiusPx() * dpr);
+      gl.uniform4f(loc.uBox, bx * dpr, by * dpr, hw * dpr, hh * dpr);
+      gl.uniform1f(loc.uRadius, radius * dpr);
+      gl.uniform1f(loc.uSpread, (radius + (GLOW.wrapSpread - 1) * radius * wr) * dpr);
+      gl.uniform1f(loc.uGap, gap * wr * dpr);
+      // Inside the band the colour clears over a bit more than the gap, so once wrapped the text sits
+      // on the plain background. Half-wrapped, it's only partly cleared, so a small box stays filled in.
+      gl.uniform1f(loc.uClear, wr / (1.2 * gap * dpr));
       gl.uniform1f(loc.uTime, time * GLOW.warpSpeed);
       gl.uniform1f(loc.uSeed, glowAnimate ? Math.random() * 100 : 0);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     } else {
+      // Without WebGL the glow fades out over the text instead of wrapping around it.
+      const faded = c.map((v, i) => v + (glowOuterRgb[i]! - v) * wr);
       bg.style.setProperty('--glow-x', pos.x + 'px');
       bg.style.setProperty('--glow-y', pos.y + 'px');
-      bg.style.setProperty('--glow-r', Math.round(radiusPx()) + 'px');
-      bg.style.setProperty('--color-accent', 'rgb(' + c.map((v) => Math.round(v * 255)).join(',') + ')');
+      bg.style.setProperty('--glow-r', Math.round(radius) + 'px');
+      bg.style.setProperty('--color-accent', 'rgb(' + faded.map((v) => Math.round(v * 255)).join(',') + ')');
     }
+  }
+
+  // Wraps around the text under the cursor, or lets go of it. Moving straight from one text to
+  // the next, the band glides over to it instead of letting go.
+  function stepWrap(dt: number): void {
+    const k = 1 - Math.exp(-dt * GLOW.wrapSpeed);
+    if (wrapTo) {
+      if (!wrap) Object.assign(box, wrapTo);
+      else for (const key of BOX_KEYS) box[key] += (wrapTo[key] - box[key]) * k;
+    }
+    const to = wrapTo ? 1 : 0;
+    wrap += (to - wrap) * k;
+    if (Math.abs(to - wrap) < 0.001) wrap = to;
+  }
+
+  // Whether the glow has caught up with the cursor, and finished wrapping around text or letting go.
+  function caughtUp(): boolean {
+    return Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5 &&
+      wrap === (wrapTo ? 1 : 0) && (!wrapTo || BOX_KEYS.every((key) => Math.abs(wrapTo![key] - box[key]) < 0.5));
   }
 
   function frame(now: number): void {
@@ -302,6 +390,7 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     const k = 1 - Math.exp(-dt * GLOW.followSpeed);
     pos.x += (target.x - pos.x) * k;
     pos.y += (target.y - pos.y) * k;
+    stepWrap(dt);
     draw();
     schedule();
   }
@@ -309,10 +398,14 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   function schedule(): void {
     // Off screen, the glow moves straight to where it's going, so it's already there when it's
     // scrolled into view (the footer's starts where the hero's stopped, instead of gliding there).
-    if (!inView) { pos.x = target.x; pos.y = target.y; }
+    if (!inView) {
+      pos.x = target.x; pos.y = target.y;
+      wrap = wrapTo ? 1 : 0;
+      if (wrapTo) Object.assign(box, wrapTo);
+    }
     if (rafId || !inView || document.hidden) return;
     // Without animation, stop redrawing once the glow has caught up with the cursor.
-    if (!glowAnimate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
+    if (!glowAnimate && caughtUp()) {
       last = 0;
       return;
     }
@@ -334,6 +427,8 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   // Scrolling moves the section under a still cursor, so re-aim the glow.
   window.addEventListener('scroll', () => {
     if (pointer) { updateTarget(); schedule(); }
+    // A band around text moves with it. Without animation nothing else may redraw it.
+    if (wrap && !rafId) draw();
   }, { passive: true });
 
   // Only animate while the section is on screen and the tab is visible.
