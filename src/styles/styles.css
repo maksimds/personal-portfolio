@@ -834,6 +834,49 @@ a.project__link .project__name:hover,
 }
 .about-hero__photo:hover { transform: scale(1.06); }
 
+/* Three photos in the one frame. The first sets its size; the other two lie over it, hidden until
+   their dot is clicked, and fade in (src/scripts/photos.ts). */
+.about-hero__photos { position: relative; }
+.about-hero__slide + .about-hero__slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.about-hero__slide + .about-hero__slide img { height: 100%; }
+.about-hero__slide + .about-hero__slide:not(.is-current) { opacity: 0; }
+
+/* The dots, in a row in the middle of the mat under the photo. The mat's height is a share of the
+   photo's width, so a percentage margin (which is of the width) can reach its middle: half the
+   bottom margin, which is 1.2 × the top one. Only with JavaScript, which makes them work. */
+.about-hero__dots {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 0;
+  margin-top: calc(100% * var(--photo-ratio) / 5 * var(--mat) * 0.6);
+}
+.js .about-hero__dots { display: flex; }
+.about-hero__dots button {
+  padding: 6px;                /* a bigger target than the dot itself */
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.about-hero__dots button::before {
+  content: "";
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #000;
+  transition: background-color 0.3s var(--ease);
+}
+.about-hero__dots button[aria-current="true"]::before { background-color: #fff; }
+
 /* Sections, each opened by a short thin line */
 .about-sections { padding-bottom: calc(var(--row) * 3); }
 .about-sections__col { grid-column: 4 / 22; }

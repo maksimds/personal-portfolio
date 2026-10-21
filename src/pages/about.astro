@@ -15,10 +15,26 @@ import Spotify from '../components/icons/Spotify.astro';
         <h1 id="about-title" class="about-hero__name hero-in">Denis Maksimov</h1>
         <p class="about-hero__bio hero-in">Product Designer at dōTERRA, based in Cincinnati, OH. I design mobile apps, websites, platforms and design systems, and I’m looking for design roles after graduating in May ’27.</p>
       </div>
-      {/* A thin-lined rectangle frames the photo; on hover both grow together */}
+      {/* A thin-lined rectangle frames the photo; on hover both grow together. Three dots in the mat
+          under it switch between three photos (src/scripts/photos.ts); the current one's dot is white. */}
       <div class="about-hero__media hero-in">
         <figure class="about-hero__photo">
-          <Img src="denis-portrait.jpg" alt="Portrait of Denis Maksimov" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" loading="eager" fetchpriority="high" />
+          <div class="about-hero__photos">
+            <div class="about-hero__slide is-current">
+              <Img src="denis-portrait.jpg" alt="Portrait of Denis Maksimov" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" loading="eager" fetchpriority="high" />
+            </div>
+            <div class="about-hero__slide" aria-hidden="true">
+              <Img src="denis-portrait-2.jpg" alt="Denis Maksimov in sunglasses on a terrace above a city at sunset" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" />
+            </div>
+            <div class="about-hero__slide" aria-hidden="true">
+              <Img src="denis-portrait-3.jpg" alt="Black-and-white photo of Denis Maksimov leaning on a stone wall by the sea" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" />
+            </div>
+            <div class="about-hero__dots" role="group" aria-label="Photos">
+              <button type="button" aria-label="Photo 1" aria-current="true"></button>
+              <button type="button" aria-label="Photo 2" aria-current="false"></button>
+              <button type="button" aria-label="Photo 3" aria-current="false"></button>
+            </div>
+          </div>
         </figure>
       </div>
     </div>
