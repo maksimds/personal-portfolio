@@ -845,10 +845,9 @@ a.project__link .project__name:hover,
 .about-hero__slide + .about-hero__slide img { height: 100%; }
 .about-hero__slide + .about-hero__slide:not(.is-current) { opacity: 0; }
 
-/* The dots (small squares), in a row in the middle of the mat under the photo. The mat's height is
-   a share of the photo's width, so a percentage margin (which is of the width) can reach its
-   middle: half the bottom margin, which is 1.2 × the top one. Only with JavaScript, which makes
-   them work. */
+/* The dots, in a row in the middle of the mat under the photo. The mat's height is a share of the
+   photo's width, so a percentage margin (which is of the width) can reach its middle: half the
+   bottom margin, which is 1.2 × the top one. Only with JavaScript, which makes them work. */
 .about-hero__dots {
   position: absolute;
   top: 100%;
@@ -872,10 +871,12 @@ a.project__link .project__name:hover,
   display: block;
   width: 7px;
   height: 7px;
+  border-radius: 50%;
   background-color: #000;
+  transform: scale(1.2);       /* 8.4px; drawn scaled, so it stays perfectly round (a box of 8.4px would be rounded to whole pixels, unevenly) */
   transition: background-color 0.3s var(--ease);
 }
-/* The current photo's square: white, with a thin black outline inside its edge (so it stays 7px) */
+/* The current photo's dot: white, with a thin black outline inside its edge (so it keeps its size) */
 .about-hero__dots button[aria-current="true"]::before {
   background-color: #fff;
   box-shadow: inset 0 0 0 1px #000;
