@@ -244,7 +244,9 @@ main > section + nav,
 .site-title:hover,
 .site-title:focus-visible,
 .site-nav a:hover,
-.site-nav a:focus-visible {
+.site-nav a:focus-visible,
+.playlist-link:hover,
+.playlist-link:focus-visible {
   background-color: #000;
   color: #fff;
   transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
@@ -255,16 +257,20 @@ main > section + nav,
 .site-title:hover::after,
 .site-title:focus-visible::after,
 .site-nav a:hover::after,
-.site-nav a:focus-visible::after {
+.site-nav a:focus-visible::after,
+.playlist-link:hover::after,
+.playlist-link:focus-visible::after {
   content: "";
   background-color: currentColor;
   -webkit-mask: var(--nav-arrow) no-repeat;
   mask: var(--nav-arrow) no-repeat;
 }
 
-/* Nav links: a slot after the word holding the arrow, sized to the text */
+/* Nav links (and the About page's playlist link): a slot after the word holding the arrow, sized to the text */
 .site-nav a:hover::after,
-.site-nav a:focus-visible::after {
+.site-nav a:focus-visible::after,
+.playlist-link:hover::after,
+.playlist-link:focus-visible::after {
   width: 1.143em;
   -webkit-mask-size: 0.857em;
   mask-size: 0.857em;
@@ -828,6 +834,57 @@ a.project__link .project__name:hover,
 }
 .about-hero__photo:hover { transform: scale(1.06); }
 
+/* Three photos in the one frame. The first sets its size; the other two lie over it, hidden until
+   their dot is clicked, and fade in (src/scripts/photos.ts). */
+.about-hero__photos { position: relative; }
+.about-hero__slide + .about-hero__slide {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.about-hero__slide + .about-hero__slide img { height: 100%; }
+.about-hero__slide + .about-hero__slide:not(.is-current) { opacity: 0; }
+
+/* The dots, in a row in the middle of the mat under the photo. The mat's height is a share of the
+   photo's width, so a percentage margin (which is of the width) can reach its middle: half the
+   bottom margin, which is 1.2 × the top one. Only with JavaScript, which makes them work. */
+.about-hero__dots {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  height: 0;
+  margin-top: calc(100% * var(--photo-ratio) / 5 * var(--mat) * 0.6);
+}
+.js .about-hero__dots { display: flex; }
+.about-hero__dots button {
+  padding: 6px;                /* a bigger target than the dot itself */
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.about-hero__dots button::before {
+  content: "";
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #000;
+  transform: scale(1.2);       /* 8.4px; drawn scaled, so it stays perfectly round (a box of 8.4px would be rounded to whole pixels, unevenly) */
+  transition: background-color 0.3s var(--ease);
+}
+/* The current photo's dot: white, with a thin black outline inside its edge (so it keeps its size),
+   1px once scaled up */
+.about-hero__dots button[aria-current="true"]::before {
+  background-color: #fff;
+  box-shadow: inset 0 0 0 calc(1px / 1.2) #000;
+}
+/* The other dots lighten a little under the cursor */
+.about-hero__dots button:not([aria-current="true"]):hover::before { background-color: #1f1f1f; }
+
 /* Sections, each opened by a short thin line */
 .about-sections { padding-bottom: calc(var(--row) * 3); }
 .about-sections__col { grid-column: 4 / 22; }
@@ -841,6 +898,35 @@ a.project__link .project__name:hover,
 .about-section { padding: calc(var(--row) * 2) 0 calc(var(--row) * 3); }
 .about-section h2 { font-size: max(1.375rem, var(--fs-works-title)); margin-bottom: 0.7em; }
 .about-section p { margin: 0 0 0.9em; font-size: var(--fs-text-sm); line-height: 1.6; }
+
+/* The playlist link sits in the middle of the space between the last paragraph's text and the
+   footer, without changing that space. Below the paragraph's box are its 0.9em margin and the last
+   section's and the page's bottom padding (3 rows each), whose middle is 0.45em above the bottom
+   of the column. But the text ends about 0.48em above the box (the line spacing and the room for
+   descenders sit below the last line), so the middle of the space you see is half that, 0.24em,
+   higher again. The Spotify logo, then the text; on hover, the nav links' black box and ↗. */
+.about-sections__col { position: relative; }
+.about-playlist {
+  position: absolute;
+  left: 0;
+  top: calc(100% - 0.69em);    /* 0.45em + 0.24em, see above */
+  display: flex;
+  align-items: center;         /* centres the link on that line */
+  height: 0;
+  margin: 0;
+  font-size: var(--fs-text-sm);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.playlist-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.1em 0;            /* a snug box for the hover background, like the nav links' */
+  font-weight: 500;
+}
+.playlist-link svg { flex: none; width: 1.2em; height: 1.2em; }
+.playlist-link::after { align-self: stretch; margin-left: -0.5em; }   /* the ↗ slot runs the full height, right after the word */
 
 @media (max-width: 767px) {
   .about-hero { padding-top: calc(var(--header-height) + 2.5rem); padding-bottom: 3.5rem; }
