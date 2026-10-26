@@ -47,7 +47,8 @@ const person = {
           desc={project.data.listDescription} thumb={project.data.thumb}
           logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} />
       ))}
-      <ProjectRow name="Coming soon" desc="building something cool" />
+      {/* The Focal tile, with the same margin as the other logos; the hit area matches its rounded corners */}
+      <ProjectRow name="Coming soon" desc="Building Focal" thumb="focal-logo.png" logoInset="21.4% 22%" logoRadius="16%" />
     </ul>
   </section>
 
