@@ -643,6 +643,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
 .project__thumb--logo {
   position: relative;
   pointer-events: none;
+  transform: scale(1.1);       /* the logos 10% bigger, hit area included, without moving the row */
 }
 .project__thumb--logo::after {
   content: "";
