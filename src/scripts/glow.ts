@@ -10,8 +10,10 @@
      share one clock, so they always show the same colour
    - the edge is slowly warped by animated noise
    - animated grain dithers the blend, so it only shows in the fade
+   - the page-wide glow (About) gets paler while the cursor is on text or a
+     picture in the page's content, so the text is easier to read
    If WebGL is unavailable, the CSS gradient on .glow__bg is used instead;
-   it still follows the cursor and changes colour. */
+   it still follows the cursor, changes colour and gets paler. */
 const GLOW = {
   colors: [                  // centre colours, visited in order, then looping.
                              // Ordered around the colour wheel so each step is a small one.
@@ -36,7 +38,9 @@ const GLOW = {
   followSpeed: 3.2,          // higher = catches up with the cursor faster
   grain: 0.10,               // grain strength (strongest mid-fade, none at either end)
   warp: 0.15,                // how much the edge distorts
-  warpSpeed: 0.08            // how fast the distortion changes
+  warpSpeed: 0.08,           // how fast the distortion changes
+  hoverPale: 0.30,           // page-wide glow: how much paler it gets on text or a picture (share mixed toward `outer`)
+  hoverPaleSpeed: 4          // higher = pales, and comes back, faster
 };
 
 type Vec3 = [number, number, number];
@@ -84,10 +88,13 @@ function labDistance(a: Vec3, b: Vec3): number {
 // With reduced motion the colour, grain and edge stay still (the glow still follows the cursor).
 let glowAnimate = true;
 const glowOuter = rgbToOklab(hexToRgb(GLOW.outer));
-const glowPalette: Vec3[] = GLOW.colors.map((hex) => {
-  const c = rgbToOklab(hexToRgb(hex));
-  return c.map((v, i) => v + (glowOuter[i]! - v) * GLOW.pale) as Vec3;
-});
+
+// An OKLab colour mixed `share` of the way toward the edge colour, which makes it paler.
+function paler(c: Vec3, share: number): Vec3 {
+  return c.map((v, i) => v + (glowOuter[i]! - v) * share) as Vec3;
+}
+
+const glowPalette: Vec3[] = GLOW.colors.map((hex) => paler(rgbToOklab(hexToRgb(hex)), GLOW.pale));
 const glowSteps = glowPalette.map((c, i) => labDistance(c, glowPalette[(i + 1) % glowPalette.length]!));
 const glowAvgStep = glowSteps.reduce((a, b) => a + b, 0) / glowSteps.length || 1;
 const glowDurations = glowSteps.map((d) => Math.max(0.001, GLOW.change * d / glowAvgStep));
@@ -98,9 +105,10 @@ function glowTime(): number {
   return glowAnimate ? performance.now() / 1000 : 0;
 }
 
-function glowColorAt(seconds: number): Vec3 {
+// The centre colour at `seconds` on the shared clock, made paler by `pale` (see paler).
+function glowColorAt(seconds: number, pale = 0): Vec3 {
   const palette = glowPalette;
-  if (palette.length < 2) return oklabToRgb(palette[0]!);
+  if (palette.length < 2) return oklabToRgb(paler(palette[0]!, pale));
   let time = seconds % glowCycle;
   let i = 0;
   for (; i < palette.length; i++) {
@@ -109,12 +117,35 @@ function glowColorAt(seconds: number): Vec3 {
   }
   const t = Math.min(1, time / glowDurations[i]!);
   const a = palette[i]!, b = palette[(i + 1) % palette.length]!;
-  return oklabToRgb([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]);
+  return oklabToRgb(paler([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t], pale));
 }
 
 // On a page with a hero glow, returns where it is (or where it stopped) as a fraction of the
 // hero. The footer's glow rests at the same spot, so the two match. Set by initGlow.
 let heroGlowSpot: (() => Point) | null = null;
+
+// Whether a point (viewport coordinates) is on a picture in the page's content (the photo with its
+// frame and mat, or an icon) or on its text: on a line, between its first and last letter, not in
+// the space after a short line or between a heading and its paragraph. Lines of one paragraph meet
+// halfway, so moving down through a paragraph doesn't count as leaving it.
+function onContent(p: Point): boolean {
+  // The deepest element at the point, so the text under it is one of its own text nodes
+  const el = document.elementFromPoint(p.x, p.y);
+  if (!el?.closest('main')) return false;
+  if (el.closest('figure, picture, img, svg')) return true;
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);   // NaN for "normal": lines don't stretch
+  const range = document.createRange();
+  for (const node of el.childNodes) {
+    if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue;
+    range.selectNodeContents(node);
+    for (const r of range.getClientRects()) {
+      // Half the line spacing, plus half a pixel so rounding in the line height can't leave a gap
+      const stretch = lineHeight > r.height ? (lineHeight - r.height) / 2 + 0.5 : 0;
+      if (p.x >= r.left && p.x <= r.right && p.y >= r.top - stretch && p.y <= r.bottom + stretch) return true;
+    }
+  }
+  return false;
+}
 
 const UNIFORMS = ['uRes', 'uCenter', 'uRadius', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;
 type Uniforms = Record<(typeof UNIFORMS)[number], WebGLUniformLocation | null>;
@@ -217,8 +248,14 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   if (surface.matches('.hero')) {
     heroGlowSpot = () => ({ x: target.x / w, y: target.y / h });
   }
+  // The page-wide glow (About) gets paler while the cursor is on text or a picture. How far it
+  // has paled (0 = not at all, 1 = by GLOW.hoverPale), and where it's going.
+  const paleOnContent = surface.matches('.page-glow');
+  let pale = 0;
+  let paleTo = 0;
 
   function updateTarget(): void {
+    paleTo = paleOnContent && pointer && onContent(pointer) ? 1 : 0;
     const r = surface.getBoundingClientRect();
     const inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
     if (!pointer || (restWhenOutside && !inside)) {
@@ -278,7 +315,7 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
 
   function draw(): void {
     const time = glowTime();
-    const c = glowColorAt(time);
+    const c = glowColorAt(time, GLOW.hoverPale * pale);
     if (gl && loc && canvas) {
       gl.uniform3fv(loc.uInner, c);
       gl.uniform2f(loc.uRes, canvas.width, canvas.height);
@@ -302,6 +339,8 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     const k = 1 - Math.exp(-dt * GLOW.followSpeed);
     pos.x += (target.x - pos.x) * k;
     pos.y += (target.y - pos.y) * k;
+    pale += (paleTo - pale) * (1 - Math.exp(-dt * GLOW.hoverPaleSpeed));
+    if (Math.abs(paleTo - pale) < 0.001) pale = paleTo;
     draw();
     schedule();
   }
@@ -309,10 +348,10 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   function schedule(): void {
     // Off screen, the glow moves straight to where it's going, so it's already there when it's
     // scrolled into view (the footer's starts where the hero's stopped, instead of gliding there).
-    if (!inView) { pos.x = target.x; pos.y = target.y; }
+    if (!inView) { pos.x = target.x; pos.y = target.y; pale = paleTo; }
     if (rafId || !inView || document.hidden) return;
-    // Without animation, stop redrawing once the glow has caught up with the cursor.
-    if (!glowAnimate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5) {
+    // Without animation, stop redrawing once the glow has caught up with the cursor (and paled).
+    if (!glowAnimate && Math.abs(target.x - pos.x) < 0.5 && Math.abs(target.y - pos.y) < 0.5 && pale === paleTo) {
       last = 0;
       return;
     }
