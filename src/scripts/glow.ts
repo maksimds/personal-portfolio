@@ -148,8 +148,9 @@ function lineRects(nodes: Iterable<Node>): DOMRect[] {
 // its frame and mat, or an icon) or on their text: on a line, between its first and last letter,
 // not in the space after a short line or between a heading and its paragraph. Lines of one
 // paragraph meet halfway, so moving down through a paragraph doesn't count as leaving it.
-// A block marked data-glow-block (the home hero's location and status lines) counts as a whole: anywhere from
-// its first line to its last, between the left of its text and the end of its longest line.
+// A block marked data-glow-block (the home hero's location and status lines, an About section's
+// heading and paragraph) counts as a whole: anywhere from its first line to its last, between the
+// left of its text and the end of its longest line.
 function onContent(p: Point, areas: Element[]): boolean {
   // The deepest element at the point, so the text under it is one of its own text nodes
   const el = document.elementFromPoint(p.x, p.y);
