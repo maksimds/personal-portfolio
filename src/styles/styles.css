@@ -583,22 +583,31 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
 }
 
+/* Each row's grid has a line for the title and one for the description, between the row's top
+   and bottom space. The link fills the whole row on the same grid, so the row is one link, except
+   the description: it's outside the link and laid over it, so it's plain text. */
 .project {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-rows: calc(var(--row) * 0.75) auto auto calc(var(--row) * 0.75);
+  column-gap: var(--gap);
+  font-size: var(--fs-text-sm);
   border-bottom: var(--rule-weight) solid transparent;
   background: var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
 }
 
 .project__link {
   display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: var(--gap);
-  align-items: center;
-  padding: calc(var(--row) * 0.75) 0;
-  font-size: var(--fs-text-sm);
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  grid-template-columns: subgrid;
+  grid-template-rows: subgrid;
 }
 
 .project__thumb {
   grid-column: 1 / 3;
+  grid-row: 2 / 4;
+  align-self: center;
   overflow: hidden;
   aspect-ratio: 1 / 1;
 }
@@ -609,20 +618,27 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   transition: transform 0.6s var(--ease);
 }
 
-.project__text { grid-column: 3 / 16; line-height: 1.5; }
+/* The title sits on the line between its row and the description's, so the two stay together in
+   the middle of the row */
+.project__text { grid-column: 3 / 16; grid-row: 2; align-self: end; line-height: 1.5; }
 .project__name {
   display: inline;
   font-weight: 700;
   padding: 0.1em 0;            /* a snug box for the hover background; doesn't move the layout */
 }
 .project__desc {
-  display: block;
-  margin-top: 0.35em;
-  font-style: italic;
+  grid-column: 3 / 16;
+  grid-row: 3;
+  align-self: start;
+  justify-self: start;         /* only as wide as its text, so the rest of the line is still the link */
+  margin: 0.35em 0 0;
+  line-height: 1.5;
 }
 
 .project__cta {
   grid-column: 22 / -1;
+  grid-row: 2 / 4;
+  align-self: center;
   justify-self: end;
   font-size: 1.25rem;
   line-height: 1;
@@ -688,16 +704,15 @@ a.project__link .project__name:hover,
   .list-head h2 { grid-column: 1 / -1; }
   .list-head__meta { grid-column: 1 / -1; justify-self: start; margin-top: 0.5rem; }
 
-  .project__link {
+  .project {
     grid-template-columns: repeat(8, minmax(0, 1fr));
-    row-gap: 1rem;
-    padding: 1.25rem 0;
+    grid-template-rows: 1.25rem auto auto auto 1.25rem;
   }
-  .project__thumb { grid-column: 1 / 3; }
-  .project__text { grid-column: 1 / 7; grid-row: 2; }
+  .project__thumb { grid-column: 1 / 3; grid-row: 2; margin-bottom: 1rem; }
+  .project__text { grid-column: 1 / 7; grid-row: 3; }
+  .project__desc { grid-column: 1 / 7; grid-row: 4; }
   .project--soon .project__thumb:empty { display: none; }   /* on phones the thumbnail has its own line, so drop an empty one */
-  .project--soon .project__thumb:empty + .project__text { grid-row: auto; }
-  .project__cta { grid-column: 7 / -1; grid-row: 2; }
+  .project__cta { grid-column: 7 / -1; grid-row: 3 / 5; }
 }
 
 /* ---------- Footer ---------- */

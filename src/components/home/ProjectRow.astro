@@ -1,7 +1,8 @@
 ---
 // One row of the "My works" list. With href it links to the case study; without, it's a
 // "coming soon" row (no arrow, dimmed). Without thumb, an empty thumbnail space keeps the text in
-// line with the rows above.
+// line with the rows above. The description is outside the link, so it's plain text: the link
+// still covers the rest of the row (see .project in styles.css).
 import Img from '../Img.astro';
 
 interface Props {
@@ -24,10 +25,8 @@ const thumbStyle = [logoInset && `--logo-inset: ${logoInset}`, logoRadius && `--
     {thumb
       ? <div class="project__thumb project__thumb--logo" style={thumbStyle}><Img src={thumb} alt="" sizes="(max-width: 767px) 22vw, 6.5vw" /></div>
       : <div class="project__thumb" aria-hidden="true"></div>}
-    <div class="project__text">
-      <span class="project__name">{name}</span>
-      <span class="project__desc">{desc}</span>
-    </div>
+    <div class="project__text"><span class="project__name">{name}</span></div>
     {href && <div class="project__cta" aria-hidden="true"><span class="arrow">→</span></div>}
   </Link>
+  <p class="project__desc">{desc}</p>
 </li>
