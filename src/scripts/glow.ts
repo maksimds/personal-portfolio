@@ -2,10 +2,10 @@
    A radial gradient (grey edge → coloured centre) drawn with WebGL on every
    element with class "glow" (markup: .glow > .glow__bg > canvas.glow__canvas,
    see src/components/Glow.astro):
-   - the centre eases toward the cursor while it's over the glow's own section;
-     when the cursor leaves, the hero's glow stays where it is and the footer's
-     glides back to its resting position (on a page with a hero, the spot where
-     the hero's glow is)
+   - the centre eases toward the cursor while it's over the glow's own section,
+     and stays where it is when the cursor leaves. The footer's glow starts where
+     the hero's is (on a page with a hero) and keeps matching it until the cursor
+     first comes over the footer; from then on it moves on its own
    - the centre colour drifts slowly and steadily through `colors`; all glows
      share one clock, so they always show the same colour
    - the edge is slowly warped by animated noise
@@ -122,7 +122,8 @@ function glowColorAt(seconds: number, pale = 0): Vec3 {
 }
 
 // On a page with a hero glow, returns where it is (or where it stopped) as a fraction of the
-// hero. The footer's glow rests at the same spot, so the two match. Set by initGlow.
+// hero. The footer's glow starts at the same spot, so the two match until the cursor comes
+// over the footer. Set by initGlow.
 let heroGlowSpot: (() => Point) | null = null;
 
 // Whether a point (viewport coordinates) is on a picture inside `areas` (like the About photo with
@@ -243,9 +244,9 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
   const target: Point = { x: 0, y: 0 };
   let pointer: Point | null = null;   // last cursor position in viewport coordinates
   let wasInside = false;
-  // Each glow only follows the cursor while it's over its own section. When the cursor leaves,
-  // the footer's glow glides back to its resting position; the others (the hero) stay put.
-  const restWhenOutside = surface.matches('.site-footer');
+  // Each glow only follows the cursor while it's over its own section, and stays put when the
+  // cursor leaves. The footer's glow matches the hero's until the cursor first comes over the footer.
+  let matchHero = surface.matches('.site-footer');
   if (surface.matches('.hero')) {
     heroGlowSpot = () => ({ x: target.x / w, y: target.y / h });
   }
@@ -262,10 +263,10 @@ function initGlow(surface: HTMLElement, bg: HTMLElement): void {
     paleTo = pointer && onContent(pointer, paleAreas) ? 1 : 0;
     const r = surface.getBoundingClientRect();
     const inside = !!pointer && pointer.x >= r.left && pointer.x <= r.right && pointer.y >= r.top && pointer.y <= r.bottom;
-    if (!pointer || (restWhenOutside && !inside)) {
-      // Resting position (the glow glides back here when the cursor leaves the footer). Below a
-      // hero, the footer's glow rests where the hero's is.
-      const rest = restWhenOutside && heroGlowSpot ? heroGlowSpot() : { x: GLOW.x, y: GLOW.y };
+    if (inside) matchHero = false;
+    if (!pointer || matchHero) {
+      // Starting position. Below a hero, the footer's glow starts where the hero's is.
+      const rest = matchHero && heroGlowSpot ? heroGlowSpot() : { x: GLOW.x, y: GLOW.y };
       target.x = w * rest.x;
       target.y = h * rest.y;
       return;
