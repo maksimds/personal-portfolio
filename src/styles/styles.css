@@ -632,6 +632,7 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   align-self: start;
   justify-self: start;         /* only as wide as its text, so the rest of the line is still the link */
   margin: 0.35em 0 0;
+  font-size: 0.9em;            /* 90% of the title on every screen: 18px where the title is 20px */
   line-height: 1.5;
 }
 
