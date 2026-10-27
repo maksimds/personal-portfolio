@@ -8,7 +8,8 @@ import Glow from '../Glow.astro';
   <Glow />
   <div class="hero__content container">
     <div class="grid">
-      <p class="hero__location hero-in">
+      {/* data-glow-block: the glow stays pale anywhere over this line, gaps included (src/scripts/glow.ts) */}
+      <p class="hero__location hero-in" data-glow-block>
         Based in Cincinnati, OH <span class="arrow">→</span>
         {/* The time zone is set in src/data/site.ts */}
         <strong class="hero__clock" data-clock data-timezone={site.timezone}></strong>
