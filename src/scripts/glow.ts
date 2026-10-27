@@ -126,27 +126,46 @@ function glowColorAt(seconds: number, pale = 0): Vec3 {
 // over the footer. Set by initGlow.
 let heroGlowSpot: (() => Point) | null = null;
 
+// The lines of the text nodes among `nodes`, each stretched up and down by half the line spacing
+// (plus half a pixel so rounding in the line height can't leave a gap), so the lines of one
+// paragraph meet halfway.
+function lineRects(nodes: Iterable<Node>): DOMRect[] {
+  const rects: DOMRect[] = [];
+  const range = document.createRange();
+  for (const node of nodes) {
+    if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim() || !node.parentElement) continue;
+    const lineHeight = parseFloat(getComputedStyle(node.parentElement).lineHeight);   // NaN for "normal": lines don't stretch
+    range.selectNodeContents(node);
+    for (const r of range.getClientRects()) {
+      const stretch = lineHeight > r.height ? (lineHeight - r.height) / 2 + 0.5 : 0;
+      rects.push(new DOMRect(r.left, r.top - stretch, r.width, r.height + stretch * 2));
+    }
+  }
+  return rects;
+}
+
 // Whether a point (viewport coordinates) is on a picture inside `areas` (like the About photo with
 // its frame and mat, or an icon) or on their text: on a line, between its first and last letter,
 // not in the space after a short line or between a heading and its paragraph. Lines of one
 // paragraph meet halfway, so moving down through a paragraph doesn't count as leaving it.
+// A block marked data-glow-block (the home hero's status lines) counts as a whole: anywhere from
+// its first line to its last, between the left of its text and the end of its longest line.
 function onContent(p: Point, areas: Element[]): boolean {
   // The deepest element at the point, so the text under it is one of its own text nodes
   const el = document.elementFromPoint(p.x, p.y);
   if (!el || !areas.some((area) => area.contains(el))) return false;
   if (el.closest('figure, picture, img, svg')) return true;
-  const lineHeight = parseFloat(getComputedStyle(el).lineHeight);   // NaN for "normal": lines don't stretch
-  const range = document.createRange();
-  for (const node of el.childNodes) {
-    if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue;
-    range.selectNodeContents(node);
-    for (const r of range.getClientRects()) {
-      // Half the line spacing, plus half a pixel so rounding in the line height can't leave a gap
-      const stretch = lineHeight > r.height ? (lineHeight - r.height) / 2 + 0.5 : 0;
-      if (p.x >= r.left && p.x <= r.right && p.y >= r.top - stretch && p.y <= r.bottom + stretch) return true;
-    }
+  const block = el.closest('[data-glow-block]');
+  if (block) {
+    const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+    const nodes: Node[] = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    const lines = lineRects(nodes);
+    return lines.length > 0 &&
+      p.x >= Math.min(...lines.map((r) => r.left)) && p.x <= Math.max(...lines.map((r) => r.right)) &&
+      p.y >= Math.min(...lines.map((r) => r.top)) && p.y <= Math.max(...lines.map((r) => r.bottom));
   }
-  return false;
+  return lineRects(el.childNodes).some((r) => p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom);
 }
 
 const UNIFORMS = ['uRes', 'uCenter', 'uRadius', 'uTime', 'uInner', 'uOuter', 'uGrain', 'uWarp', 'uSeed'] as const;

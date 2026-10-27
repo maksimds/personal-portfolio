@@ -15,7 +15,8 @@ import Glow from '../Glow.astro';
       </p>
       <hr class="rule hero-in">
       <h1 id="hero-title" class="hero__title hero-in">Hi, this is Denis.</h1>
-      <div class="hero__status kv">
+      {/* data-glow-block: the glow stays pale anywhere over these lines, gaps included (src/scripts/glow.ts) */}
+      <div class="hero__status kv" data-glow-block>
         <p class="hero-in">Currently <span class="arrow">→</span> <strong>Product Designer @ dōTERRA</strong></p>
         <p class="hero-in">Seeking <span class="arrow">→</span> <strong>Design roles after graduation in May ’27</strong></p>
         <p class="hero-in">Focus <span class="arrow">→</span> <strong>Mobile apps, websites, platforms &amp; design systems</strong></p>
