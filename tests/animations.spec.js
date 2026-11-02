@@ -1,5 +1,5 @@
 // Checks that nothing animated stays hidden: on every page, at every screen size in playwright.config.js,
-// with reduced motion and without JavaScript.
+// with reduced motion, without JavaScript and in a very tall window.
 const { test, expect } = require('@playwright/test');
 const { pages, ANIMATED, scrollThrough, collectErrors } = require('./helpers');
 
@@ -41,6 +41,19 @@ for (const url of pages) {
       test.use({ javaScriptEnabled: false });
 
       test('everything still shows', async ({ page }) => {
+        await page.goto(url);
+        for (const line of await page.locator(ANIMATED).all()) {
+          await expect(line).toHaveCSS('opacity', '1');
+        }
+      });
+    });
+
+    // A search engine may draw the page in one very tall window, without scrolling. The full-screen
+    // heroes stretch to fill it, which leaves the lines under them out of view.
+    test.describe('in a very tall window', () => {
+      test.use({ viewport: { width: 412, height: 12000 } });
+
+      test('everything shows without scrolling', async ({ page }) => {
         await page.goto(url);
         for (const line of await page.locator(ANIMATED).all()) {
           await expect(line).toHaveCSS('opacity', '1');
