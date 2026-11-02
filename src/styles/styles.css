@@ -1332,6 +1332,15 @@ a.project__link .project__name:hover,
   animation: blur-in 0.8s var(--blur-in-delay, 0s) var(--ease) backwards;
 }
 
+/* A window this tall is a search engine drawing the whole page at once, not someone's screen. The
+   full-screen heroes stretch to fill it, so everything under them stays out of view and the lines
+   waiting to be scrolled to would never show. Here they skip the animation and just show. */
+@media (min-height: 3000px) {
+  .js .reveal { opacity: 1; transform: none; }
+  .js .blur-in { opacity: 1; }
+  .js .blur-in.is-visible { animation: none; }
+}
+
 /* ---------- Page transitions ----------
    Going to another page of the site crossfades, in browsers that support it (others just load the
    page). Between the home page and a case study, the project's thumbnail grows into the logo at the
