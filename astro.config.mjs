@@ -1,7 +1,34 @@
 // @ts-check
+import { execFileSync } from 'node:child_process';
+import { copyFile } from 'node:fs/promises';
 import { defineConfig, fontProviders, sharpImageService } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+
+// The day a page's own content last changed, from the git history, for its date in the sitemap.
+// Changes to the shared layout and styles don't count. Left out if the history isn't there: a shallow
+// clone (GitHub's default, hence fetch-depth in the workflows) would date every page the same day.
+/** @param {string} url */
+function lastChanged(url) {
+  /** @param {string[]} args */
+  const git = (...args) => execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  /** @param {string[]} args */
+  const changed = (...args) => git('log', '-1', '--format=%cs', ...args);
+  const { pathname } = new URL(url);
+  const caseStudy = pathname.match(/^\/projects\/(.+)-case-study\.html$/);
+  try {
+    if (git('rev-parse', '--is-shallow-repository') === 'true') return undefined;
+    if (caseStudy) return changed('--', `src/content/projects/${caseStudy[1]}.mdx`) || undefined;
+    if (pathname === '/about.html') return changed('--', 'src/pages/about.astro') || undefined;
+    // The home page: its own files, and the lines of each case study that appear in its row
+    return [
+      changed('--', 'src/pages/index.astro', 'src/components/home'),
+      changed('-G^(order|published|title|listDescription|thumb):', '--', 'src/content/projects', ':!src/content/projects/_template.mdx'),
+    ].sort().at(-1) || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export default defineConfig({
   site: 'https://dmaksimoff.com',
@@ -51,7 +78,20 @@ export default defineConfig({
     // the .html, so it's added back: the sitemap lists the same addresses as the canonical tags.
     sitemap({
       filter: (page) => !page.includes('/404'),
-      serialize: (item) => ({ ...item, url: item.url.endsWith('/') ? item.url : item.url + '.html' }),
+      serialize: (item) => {
+        const url = item.url.endsWith('/') ? item.url : item.url + '.html';
+        return { ...item, url, lastmod: lastChanged(url) };
+      },
     }),
+    // The list of pages is also at /sitemap.xml, the address people and tools try first. Runs after
+    // the integration above, which writes sitemap-0.xml and the sitemap-index.xml pointing to it.
+    {
+      name: 'sitemap-xml',
+      hooks: {
+        'astro:build:done': async ({ dir }) => {
+          await copyFile(new URL('sitemap-0.xml', dir), new URL('sitemap.xml', dir));
+        },
+      },
+    },
   ],
 });
