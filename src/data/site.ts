@@ -8,5 +8,5 @@ export const site = {
   // The hero clock's IANA time zone, e.g. "America/New_York". Empty = the visitor's local time.
   timezone: 'America/New_York',
   // The "Updated …" line in the footer
-  updated: 'October ’26',
+  updated: 'November ’26',
 } as const;
