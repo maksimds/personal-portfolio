@@ -2,7 +2,7 @@
 export const site = {
   name: 'Denis Maksimov',
   email: 'dnmvatm@gmail.com',
-  resumeUrl: 'https://drive.google.com/file/d/1BHMNYwFxk6GOIzV7RJ2aKFgxG48ZRLda/view?usp=sharing',
+  resumeUrl: 'https://drive.google.com/file/d/1hrP_Xc4-LwAUeC_nBnUFipkKyc1tPHkf/view?usp=sharing',
   linkedinUrl: 'https://www.linkedin.com/in/denismaksimov1',
   githubUrl: 'https://github.com/maksimds',
   // The hero clock's IANA time zone, e.g. "America/New_York". Empty = the visitor's local time.
