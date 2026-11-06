@@ -13,12 +13,12 @@ const root = path.join(__dirname, '..');
 const GOOGLE = /^https:\/\/www\.googletagmanager\.com\//;
 const id = fs.readFileSync(path.join(root, 'public/js/analytics.js'), 'utf8').match(/MEASUREMENT_ID = '([^']*)'/)[1];
 
-for (const url of pages) {
-  test(`${url}: loads Google Analytics`, async ({ page }) => {
+test('every page loads Google Analytics', async ({ page }) => {
+  for (const url of pages) {
     await page.goto(url);
-    await expect(page.locator('head script[src$="js/analytics.js"]')).toHaveCount(1);
-  });
-}
+    await expect(page.locator('head script[src$="js/analytics.js"]'), url).toHaveCount(1);
+  }
+});
 
 test('on dmaksimoff.com, Google Analytics starts with the Measurement ID', async ({ page }) => {
   test.skip(!id, 'no Measurement ID in js/analytics.js yet, so Analytics is off');

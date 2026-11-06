@@ -1,6 +1,6 @@
-# Publishes the site to dmaksimoff.com after every push to main: runs the same checks as `npm test`,
-# then builds the site and hands it to GitHub Pages. If a check fails, nothing is published and the
-# live site stays as it was. Other branches and pull requests are checked by checks.yml instead.
+# Publishes the site to dmaksimoff.com after every push to main: builds the site once, runs the same
+# checks as `npm test` on that build, then hands the very same build to GitHub Pages. If a check fails,
+# nothing is published and the live site stays as it was. Other branches are checked by checks.yml instead.
 name: Deploy site
 
 on:
@@ -17,7 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
+  build:
+    name: Build and check
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -32,6 +33,15 @@ jobs:
 
       - name: Install Astro and the check tools
         run: npm ci
+
+      # Astro keeps the images it has resized in node_modules/.astro. Reusing them from the last build
+      # saves about a minute; a new or changed image is still resized as usual.
+      - name: Reuse resized images from the last build
+        uses: actions/cache@v6
+        with:
+          path: node_modules/.astro
+          key: astro-cache-${{ runner.os }}-${{ github.sha }}
+          restore-keys: astro-cache-${{ runner.os }}-
 
       - name: Build the site
         run: npm run build
@@ -53,23 +63,15 @@ jobs:
           path: playwright-report/
           retention-days: 14
 
-  build:
-    needs: test            # a failed check never reaches the live site
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v7
+      # Packs up dist/ (CNAME included) for GitHub Pages. Only reached when every check passed.
+      - name: Hand the checked site to GitHub Pages
+        uses: actions/upload-pages-artifact@v5
         with:
-          fetch-depth: 0   # the whole history: the sitemap's dates come from it
-
-      # Installs, runs `npm run build` and packages dist/ (CNAME included) for GitHub Pages
-      - uses: withastro/action@v6
-        with:
-          node-version: 24
-          package-manager: npm
+          path: dist/
+          include-hidden-files: true
 
   deploy:
-    needs: build
+    needs: build           # a failed check never reaches the live site
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

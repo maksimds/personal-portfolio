@@ -1,11 +1,12 @@
-// Checks that nothing animated stays hidden: on every page, at every screen size in playwright.config.js,
-// with reduced motion, without JavaScript and in a very tall window.
+// Checks that nothing animated stays hidden on every page: after scrolling through it (on desktop and
+// on a phone), with reduced motion, without JavaScript and in a very tall window (desktop only, since
+// screen size doesn't change those).
 const { test, expect } = require('@playwright/test');
 const { pages, ANIMATED, scrollThrough, collectErrors } = require('./helpers');
 
 for (const url of pages) {
   test.describe(url, () => {
-    test('every animated line ends up visible, with no errors', async ({ page }) => {
+    test('every animated line ends up visible, with no errors', { tag: '@phone' }, async ({ page }) => {
       const errors = collectErrors(page);
       await page.goto(url);
       await scrollThrough(page);

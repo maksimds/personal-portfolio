@@ -1,13 +1,13 @@
-# Runs the site's checks on GitHub after every push, so a broken page shows up as a red ✗
-# next to the commit instead of on the live site. The same checks run on your Mac with `npm test`.
-# Pushes to main are checked by deploy.yml, which runs these same checks before publishing,
+# Runs the site's checks on GitHub after every push to a branch other than main, so a broken page shows
+# up as a red ✗ next to the commit instead of on the live site. A pull request shows the result of its
+# branch's last push, so pull requests don't start a second run. The same checks run on your Mac with
+# `npm test`. Pushes to main are checked by deploy.yml, which runs these same checks before publishing,
 # so they aren't run twice there.
 name: Site checks
 
 on:
   push:
     branches-ignore: [main]
-  pull_request:
   workflow_dispatch:       # adds a "Run workflow" button on the Actions tab
 
 jobs:
@@ -26,6 +26,14 @@ jobs:
 
       - name: Install Astro and the check tools
         run: npm ci
+
+      # Astro keeps the images it has resized in node_modules/.astro: reusing them saves about a minute
+      - name: Reuse resized images from the last build
+        uses: actions/cache@v6
+        with:
+          path: node_modules/.astro
+          key: astro-cache-${{ runner.os }}-${{ github.sha }}
+          restore-keys: astro-cache-${{ runner.os }}-
 
       - name: Build the site
         run: npm run build

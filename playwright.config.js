@@ -29,11 +29,10 @@ module.exports = defineConfig({
     stderr: 'ignore',                    // the server logs every request; keep the output to the results
   },
 
-  // The animation checks and the screenshots run at four screen sizes; the link check only needs one.
+  // Every check runs on a desktop screen. The phone, whose layout is the one that differs, repeats
+  // only the checks tagged @phone (the main animation check in tests/animations.spec.js).
   projects: [
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
-    { name: 'tall screen', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 1080, height: 1920 } } },
-    { name: 'tablet', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 768, height: 1024 } } },
-    { name: 'phone', testMatch: /(animations|visual-baseline)\.spec\.js/, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'phone', grep: /@phone/, use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
   ],
 });
