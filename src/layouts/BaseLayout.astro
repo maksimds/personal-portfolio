@@ -1,11 +1,15 @@
 ---
-// Every page: the <head>, the skip link, header, mobile menu, footer and scripts around the page's own content.
+// Every page: the <head>, the skip link, the floating chrome (the two pills at the top, the toolbar
+// and the zoom pill at the bottom), the phone menu, and the board that holds the page's own content
+// and the footer.
 import { Font } from 'astro:assets';
 import '../styles/styles.css';
-import SiteHeader from '../components/SiteHeader.astro';
+import FilePill from '../components/board/FilePill.astro';
+import CollabPill from '../components/board/CollabPill.astro';
+import Toolbar from '../components/board/Toolbar.astro';
+import ZoomPill from '../components/board/ZoomPill.astro';
 import MobileMenu from '../components/MobileMenu.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import Glow from '../components/Glow.astro';
 
 interface Props {
   title: string;
@@ -14,14 +18,9 @@ interface Props {
   canonicalPath?: string;
   // Keeps search engines from listing the page (the 404 page)
   noindex?: boolean;
-  // The page starts with a full-screen hero (adds class="has-hero" to <main>)
-  hasHero?: boolean;
-  // Where the cursor-following glow goes besides the hero: behind the footer, or behind the
-  // whole page (About). With 'page', the footer has no glow of its own; the page's shows through.
-  glow?: 'footer' | 'page';
 }
 
-const { title, description, canonicalPath, noindex = false, hasHero = false, glow = 'footer' } = Astro.props;
+const { title, description, canonicalPath, noindex = false } = Astro.props;
 const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 ---
 <!doctype html>
@@ -41,6 +40,17 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  {/* Runs before anything is drawn: marks the page as having JavaScript (the CSS then hides the
+      objects that drop in, and shows the tools that need it), and remembers a visitor who turned
+      the single-key shortcuts off. src/scripts/main.ts runs a moment later (module scripts wait
+      for the page). */}
+  <script is:inline>
+    (function () {
+      var root = document.documentElement;
+      root.classList.add('js');
+      try { if (localStorage.getItem('shortcuts') === 'off') root.classList.add('no-shortcuts'); } catch (e) {}
+    })();
+  </script>
   {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
   <script is:inline src="/js/analytics.js" async></script>
 
@@ -101,31 +111,28 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  {glow === 'page' && (
-    // Fixed to the screen, so it follows the cursor wherever you scroll
-    <div class="page-glow glow" aria-hidden="true"><Glow hidden={false} /></div>
-  )}
-
-  <SiteHeader />
+  <header class="chrome chrome--top">
+    <FilePill />
+    <CollabPill />
+  </header>
   <MobileMenu />
 
-  <main id="main" class={hasHero ? 'has-hero' : undefined}>
-    <slot />
-  </main>
+  {/* The board. Everything on it is in reading order: the page's content, then the footer. */}
+  <div class="board">
+    <div class="board__layer">
+      <main id="main">
+        <slot />
+      </main>
 
-  <SiteFooter glow={glow === 'footer'} />
+      <SiteFooter />
+    </div>
+  </div>
 
-  {/* Runs right away, where js/main.js used to, before anything is drawn: marks the page as having
-      JavaScript (the CSS then hides the lines that animate in) and sets the header height the
-      layout depends on. src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
-  <script is:inline>
-    (function () {
-      var root = document.documentElement;
-      var header = document.querySelector('.site-header');
-      root.classList.add('js');
-      if (header) root.style.setProperty('--header-height', header.getBoundingClientRect().height + 'px');
-    })();
-  </script>
+  <div class="chrome chrome--bottom">
+    <Toolbar />
+    <ZoomPill />
+  </div>
+
   <script src="../scripts/main.ts"></script>
 </body>
 </html>

@@ -1,0 +1,79 @@
+---
+// The toolbar at the bottom of every page. Every tool does something real: the pointer and the
+// hand choose how the mouse moves the board (on a page shown as a canvas), the rest are the site's
+// links, and the stamp drops a short-lived emote where you next click. The two bigger, drawn tiles
+// (the stickies and the pen) sit on the bar's bottom edge and lift when pointed at.
+// The single-letter shortcuts (data-shortcut) and the stamp are in src/scripts/chrome.ts; the
+// pointer and the hand in src/scripts/board.ts.
+import { site } from '../../data/site';
+import { playlistUrl } from '../../data/links';
+import { isCurrentPage } from '../../data/pages';
+import Icon from '../icons/Icon.astro';
+import Tooltip from './Tooltip.astro';
+
+const onAbout = isCurrentPage('/about.html', Astro.url.pathname);
+---
+<nav class="pill toolbar" aria-label="Tools">
+  {/* Pointer and hand: only where there's a mouse (hidden on phones) */}
+  <span class="tool tool--pointer">
+    <button class="icon-button" type="button" data-tool="select" data-shortcut="v" aria-label="Select" aria-pressed="true" aria-describedby="tip-select" aria-keyshortcuts="V"><Icon name="pointer" /></button>
+    <Tooltip id="tip-select" name="Select" keys="V" />
+  </span>
+  <span class="tool tool--pointer canvas-only">
+    <button class="icon-button" type="button" data-tool="hand" data-shortcut="h" aria-label="Hand" aria-pressed="false" aria-describedby="tip-hand" aria-keyshortcuts="H"><Icon name="hand" /></button>
+    <Tooltip id="tip-hand" name="Hand" keys="H" />
+  </span>
+  <span class="toolbar__divider tool--pointer" aria-hidden="true"></span>
+
+  <span class="tool tool--tile">
+    <a class="tool-tile" href="/#work" data-shortcut="w" aria-label="Work" aria-describedby="tip-work" aria-keyshortcuts="W">
+      {/* A small pile of stickies, the bottom of it below the bar's edge */}
+      <svg viewBox="0 0 56 44" width="56" height="44" aria-hidden="true" focusable="false">
+        <rect x="12" y="9" width="34" height="34" rx="3" fill="#d3bdff" transform="rotate(-10 29 26)"/>
+        <rect x="11" y="8" width="34" height="34" rx="3" fill="#a8daff" transform="rotate(-3 28 25)"/>
+        <rect x="11" y="7" width="34" height="34" rx="3" fill="#ffe299" transform="rotate(5 28 24)"/>
+        <path d="M18.5 16.5 36 18M18 22.5l12 1M17.500 28.500l15 1.300" fill="none" stroke="#1e1e1e" stroke-opacity=".4" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+    </a>
+    <Tooltip id="tip-work" name="Work" keys="W" />
+  </span>
+  <span class="tool">
+    <a class="icon-button" href="/about.html" data-shortcut="a" aria-label="About" aria-current={onAbout ? 'page' : undefined} aria-describedby="tip-about" aria-keyshortcuts="A"><Icon name="text" /></a>
+    <Tooltip id="tip-about" name="About" keys="A" />
+  </span>
+  <span class="tool tool--tile">
+    <a class="tool-tile" href={site.resumeUrl} target="_blank" rel="noopener" data-shortcut="r" aria-label="Resume" aria-describedby="tip-resume" aria-keyshortcuts="R">
+      {/* A marker pen, tip up, the rest of it below the bar's edge */}
+      <svg viewBox="0 0 56 44" width="56" height="44" aria-hidden="true" focusable="false">
+        <g transform="rotate(12 28 44)">
+          <path d="M20 48V24.500l2.500-6h11l2.500 6V48z" fill="#1e1e1e"/>
+          <path d="M22.500 18.500 25 13h6l2.500 5.500z" fill="#4d4d4d"/>
+          <path d="M25 13l3-7.500 3 7.500z" fill="#9747ff"/>
+          <rect x="20" y="28.500" width="16" height="4.500" fill="#9747ff"/>
+        </g>
+      </svg>
+    </a>
+    <Tooltip id="tip-resume" name="Resume" keys="R" />
+  </span>
+  <span class="tool">
+    <a class="icon-button" href={`mailto:${site.email}`} target="_blank" rel="noopener" data-shortcut="c" aria-label="Email" aria-describedby="tip-email" aria-keyshortcuts="C"><Icon name="comment" /></a>
+    <Tooltip id="tip-email" name="Email" keys="C" />
+  </span>
+  {/* Hidden for visitors who have turned on reduced motion, and without JavaScript, which it needs */}
+  <span class="tool tool--stamp">
+    <button class="icon-button" type="button" data-tool="stamp" data-shortcut="e" aria-label="Stamp" aria-pressed="false" aria-describedby="tip-stamp" aria-keyshortcuts="E"><Icon name="stamp" /></button>
+    <Tooltip id="tip-stamp" name="Stamp" keys="E" />
+  </span>
+  <span class="tool">
+    <button class="icon-button" id="more-button" type="button" popovertarget="more-menu" data-shortcut="i" aria-label="More" aria-describedby="tip-more" aria-keyshortcuts="I"><Icon name="plus" /></button>
+    <Tooltip id="tip-more" name="More" keys="I" />
+  </span>
+</nav>
+
+<div class="menu menu--above-center" id="more-menu" popover data-anchor="#more-button">
+  <a class="menu__item" href={site.linkedinUrl} target="_blank" rel="noopener">LinkedIn <Icon name="external" size={16} class="menu__hint" /></a>
+  <a class="menu__item" href={site.githubUrl} target="_blank" rel="noopener">GitHub <Icon name="external" size={16} class="menu__hint" /></a>
+  <a class="menu__item" href={playlistUrl} target="_blank" rel="noopener">Playlist <Icon name="music" size={16} class="menu__hint" /></a>
+  <hr class="menu__rule">
+  <button class="menu__item" type="button" popovertarget="help">Keyboard shortcuts <Icon name="keyboard" size={16} class="menu__hint" /></button>
+</div>

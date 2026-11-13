@@ -1,0 +1,47 @@
+---
+// The top-left pill: the DM mark, which opens the site's main menu; the "file name" (the site's
+// name, linking home); and the page switcher, which lists every page as a "page" of the board and
+// is the site's main navigation. On phones the switcher opens the full-screen menu instead
+// (MobileMenu.astro, src/scripts/menu.ts). The menus are native popovers, so they open, close on
+// Escape or a click outside, and work without JavaScript; src/scripts/chrome.ts lines each one up
+// under its button.
+import { site } from '../../data/site';
+import { getPages, isCurrentPage } from '../../data/pages';
+import Icon from '../icons/Icon.astro';
+
+const pages = await getPages();
+const current = pages.find((page) => isCurrentPage(page.href, Astro.url.pathname));
+// A page that isn't in the list (the 404 page) is named by its number
+const pageName = current?.title ?? '404';
+---
+<div class="pill file-pill">
+  <button class="pill-button file-pill__mark" type="button" popovertarget="file-menu" aria-label="Menu">
+    <span class="mark" aria-hidden="true">DM</span>
+    <Icon name="chevron" size={16} />
+  </button>
+  <a class="file-pill__name" href="/">{site.name}</a>
+  <span class="pill__divider" aria-hidden="true"></span>
+  {/* From tablet width up: opens the list of pages under itself */}
+  <button class="pill-button page-switch page-switch--desktop" type="button" popovertarget="page-menu">
+    <Icon name="pages" /><span class="visually-hidden">Page:</span> <span class="page-switch__name">{pageName}</span><Icon name="chevron" size={16} />
+  </button>
+  {/* On phones: opens the full-screen menu */}
+  <button class="pill-button page-switch menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
+    <Icon name="pages" /><span class="visually-hidden">Page:</span> <span class="page-switch__name">{pageName}</span><Icon name="chevron" size={16} />
+  </button>
+</div>
+
+<nav class="menu menu--below-start" id="file-menu" popover aria-label="Main" data-anchor=".file-pill__mark">
+  <a class="menu__item" href="/">Home</a>
+  <a class="menu__item" href="/#work">Work</a>
+  <a class="menu__item" href="/about.html">About</a>
+  <hr class="menu__rule">
+  <a class="menu__item" href={site.resumeUrl} target="_blank" rel="noopener">Resume <Icon name="external" size={16} class="menu__hint" /></a>
+  <a class="menu__item" href={`mailto:${site.email}`} target="_blank" rel="noopener">Email <Icon name="mail" size={16} class="menu__hint" /></a>
+</nav>
+
+<nav class="menu menu--below-start menu--pages" id="page-menu" popover aria-label="Pages" data-anchor=".page-switch--desktop">
+  {pages.map((page) => (
+    <a class="menu__item" href={page.href} aria-current={page === current ? 'page' : undefined}><Icon name="check" size={16} class="menu__check" />{page.title}</a>
+  ))}
+</nav>

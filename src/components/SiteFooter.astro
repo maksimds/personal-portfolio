@@ -1,30 +1,17 @@
 ---
+// The footer: a small gray section at the end of the board, with the "Updated …" line as its tab.
 import { site } from '../data/site';
-import Glow from './Glow.astro';
-
-interface Props {
-  // The glow behind the footer, which works like the hero's. Off on the About page, where the
-  // page-wide glow shows through behind the footer instead.
-  glow?: boolean;
-}
-const { glow = true } = Astro.props;
 ---
-<footer class:list={['site-footer', { glow }]}>
-  {glow && <Glow />}
-  <div class="container">
-    <div class="grid">
-      <div class="footer-col footer-col--a blur-in">
-        <p><a class="footer-link" href={`mailto:${site.email}`} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Email</a></p>
-        <p><a class="footer-link" href={site.resumeUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Resume</a></p>
-      </div>
-      <div class="footer-col footer-col--b blur-in">
-        <p><a class="footer-link" href={site.linkedinUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> LinkedIn</a></p>
-      </div>
-      <div class="footer-col footer-col--meta blur-in">
-        <p>Updated {site.updated}</p>
-        {/* The year is the build's; src/scripts/year.ts updates it in the browser */}
-        <p>© {site.name} <span data-year>{new Date().getFullYear()}</span></p>
-      </div>
-    </div>
+<footer class="site-footer board-section board-section--gray drop-in">
+  <ul class="site-footer__links">
+    <li><a class="footer-link" href={`mailto:${site.email}`} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Email</a></li>
+    <li><a class="footer-link" href={site.resumeUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Resume</a></li>
+    <li><a class="footer-link" href={site.linkedinUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> LinkedIn</a></li>
+  </ul>
+  <div class="site-footer__meta">
+    {/* Drawn as the section's tab, above its top-left corner; it stays here in the reading order */}
+    <p class="board-section__tab">Updated {site.updated}</p>
+    {/* The year is the build's; src/scripts/year.ts updates it in the browser */}
+    <p class="mono">© {site.name} <span data-year>{new Date().getFullYear()}</span></p>
   </div>
 </footer>

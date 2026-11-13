@@ -1,3 +1,29 @@
+/* ---------- Drop in ----------
+   Board objects with class "drop-in" start see-through and 8px higher, then settle into place
+   (see "Drop in" in src/styles/styles.css) once their top is 48px into view. Objects that come in
+   together follow each other 0.06s apart, in page order; after the eighth they come together, so
+   a long page doesn't keep you waiting. */
+export function initDropIn(): void {
+  const els = Array.from(document.querySelectorAll<HTMLElement>('.drop-in'));
+  const show = (list: HTMLElement[]): void => {
+    list.forEach((el, i) => {
+      el.style.setProperty('--drop-delay', Math.min(i, 8) * 0.06 + 's');
+      el.classList.add('is-visible');
+    });
+  };
+
+  if (!('IntersectionObserver' in window)) {
+    show(els);
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    const seen = entries.filter((entry) => entry.isIntersecting).map((entry) => entry.target as HTMLElement);
+    seen.forEach((el) => io.unobserve(el));
+    show(seen);
+  }, { rootMargin: '0px 0px -48px 0px' });
+  els.forEach((el) => io.observe(el));
+}
+
 /* ---------- Fade in on scroll ---------- */
 export function initReveal(): void {
   const revealEls = document.querySelectorAll('.reveal');

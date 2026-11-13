@@ -1,0 +1,31 @@
+---
+// The top-right pill: a stack of "viewers" (the portrait, plus two made-up ones for show), the
+// live Cincinnati clock in a timer-style chip, the CV, LinkedIn and GitHub links, and the violet
+// Contact button, which writes an email.
+import { site } from '../../data/site';
+import Img from '../Img.astro';
+import Icon from '../icons/Icon.astro';
+import Cv from '../icons/Cv.astro';
+import LinkedIn from '../icons/LinkedIn.astro';
+import GitHub from '../icons/GitHub.astro';
+import Tooltip from './Tooltip.astro';
+---
+<div class="pill collab-pill">
+  {/* Decoration: nobody is really watching, so screen readers skip it */}
+  <div class="avatars" aria-hidden="true">
+    <span class="avatar avatar--photo"><Img src="denis-portrait.jpg" alt="" sizes="28px" loading="eager" /></span>
+    <span class="avatar avatar--green">R</span>
+    <span class="avatar avatar--blue">A</span>
+  </div>
+
+  {/* The same clock as the hero's (src/scripts/clock.ts); the time zone is set in src/data/site.ts */}
+  <p class="clock-chip"><Icon name="clock" size={16} /><span class="visually-hidden">Cincinnati time:</span> <span data-clock data-timezone={site.timezone}></span></p>
+
+  <div class="collab-pill__links">
+    <span class="tool"><a class="icon-button" href={site.resumeUrl} target="_blank" rel="noopener" aria-label="Resume"><Cv /></a><Tooltip name="Resume" below decorative /></span>
+    <span class="tool"><a class="icon-button" href={site.linkedinUrl} target="_blank" rel="noopener" aria-label="LinkedIn"><LinkedIn /></a><Tooltip name="LinkedIn" below decorative /></span>
+    <span class="tool"><a class="icon-button" href={site.githubUrl} target="_blank" rel="noopener" aria-label="GitHub"><GitHub /></a><Tooltip name="GitHub" below decorative /></span>
+  </div>
+
+  <a class="button-primary" href={`mailto:${site.email}`} target="_blank" rel="noopener">Contact</a>
+</div>

@@ -21,6 +21,7 @@
   --chrome-text-2: rgb(0 0 0 / 0.6);  /* 60%, not a lighter 50%: at 13px, 50% black on white is 3.95:1, under AA */
   --chrome-text-3: rgb(0 0 0 / 0.3);  /* dividers and decoration only, never text */
   --chrome-border: #e6e6e6;
+  --chrome-hover: #f5f5f5;            /* a button under the pointer */
   --accent: #9747ff;                 /* product accent: active tool, highlights */
   --accent-2: #7c2bda;               /* hover/pressed */
   --accent-3: #f1e5ff;               /* light wash */
@@ -194,6 +195,548 @@ hr { border: 0; margin: 0; }
   letter-spacing: 0;
 }
 
+/* ---------- Board ----------
+   Everything on the board sits in .board__layer, in reading order. The space above and below
+   keeps the content clear of the pills at the top and the toolbar at the bottom. */
+.board__layer {
+  padding-top: calc(var(--chrome-h) + var(--chrome-inset) * 2 + 24px);
+  padding-bottom: calc(var(--chrome-h) + var(--chrome-inset) * 2 + 48px + env(safe-area-inset-bottom, 0px));
+}
+
+/* Shown only on a page that's a canvas (src/scripts/board.ts): the hand, the zoom pill */
+html:not(.is-canvas) .canvas-only { display: none; }
+
+/* ---------- Chrome: the floating pills ----------
+   White panels over the board: the file pill (top left), the collab pill (top right), the toolbar
+   (bottom centre) and the zoom pill (bottom right). 13px text on an 8px spacing grid. The strips
+   that hold them let clicks through to the board between the pills. */
+.chrome {
+  position: fixed;
+  left: var(--chrome-inset);
+  right: var(--chrome-inset);
+  z-index: 100;
+  display: flex;
+  gap: var(--space);
+  color: var(--chrome-text);
+  font-size: var(--fs-small);
+  font-weight: 450;
+  line-height: var(--lh-chrome);
+  pointer-events: none;
+}
+.chrome > * { pointer-events: auto; }
+.chrome--top { top: var(--chrome-inset); justify-content: space-between; }
+.chrome--bottom {
+  bottom: calc(var(--chrome-inset) + env(safe-area-inset-bottom, 0px));
+  justify-content: center;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  height: var(--chrome-h);
+  padding: var(--space);
+  border-radius: var(--r-panel);
+  background: var(--chrome-bg);
+  box-shadow: var(--shadow-panel);
+}
+.pill--round { border-radius: var(--r-pill); }
+.pill__divider,
+.toolbar__divider { flex: none; width: 1px; height: 16px; background: var(--chrome-border); }
+
+/* A button with words in a pill, and a square one with just an icon */
+.pill-button,
+.icon-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 var(--space);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease);
+}
+.icon-button { width: 32px; padding: 0; }
+.icon-button svg { width: 20px; height: 20px; }
+.pill-button:hover,
+.icon-button:hover,
+.pill-button:focus-visible,
+.icon-button:focus-visible { background: var(--chrome-hover); }
+/* The tool in use: the one place the chrome is violet */
+.icon-button[aria-pressed="true"],
+.icon-button[aria-pressed="true"]:hover { background: var(--accent); color: #fff; }
+/* The tool for the page you're on: a light wash of it */
+.icon-button[aria-current="page"] { background: var(--accent-3); color: var(--accent-2); }
+.pill-button > .icon:last-child { margin-inline: -2px; color: var(--chrome-text-2); }   /* the chevron */
+
+/* The violet button (Contact, where a board would have Share) */
+.button-primary {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-sm);
+  background: var(--accent);
+  color: #fff;
+  font-weight: 550;
+  transition: background-color 0.15s var(--ease);
+}
+.button-primary:hover,
+.button-primary:focus-visible { background: var(--accent-2); }
+
+/* File pill (top left) */
+.file-pill { min-width: 0; }
+.file-pill__mark { padding: 0 4px; }
+.mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--charcoal);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.file-pill__name {
+  padding: 7px 4px;
+  border-radius: var(--r-sm);
+  font-weight: 550;
+  white-space: nowrap;
+}
+.file-pill__name:hover { background: var(--chrome-hover); }
+.page-switch { gap: 6px; min-width: 0; }
+.page-switch .icon:first-child { flex: none; color: var(--chrome-text-2); }
+.page-switch__name { overflow: hidden; text-overflow: ellipsis; }
+
+/* Collab pill (top right) */
+.collab-pill { flex: none; }
+.avatars { display: flex; padding-inline: 2px; }
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-left: -6px;
+  overflow: hidden;
+  border: 2px solid var(--chrome-bg);
+  border-radius: 50%;
+  color: var(--charcoal);
+  font-size: 11px;
+  font-weight: 650;
+}
+.avatar:first-child { margin-left: 0; }
+.avatar--photo img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--green { background: var(--sticky-green); }
+.avatar--blue { background: var(--sticky-blue); }
+/* The clock, in an outlined box like a board's timer. It keeps its width as the digits change. */
+.clock-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  margin: 0;
+  padding: 0 var(--space);
+  border: 1px solid var(--chrome-border);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.clock-chip .icon { flex: none; color: var(--chrome-text-2); }
+.clock-chip [data-clock] { min-width: 11ch; }
+.collab-pill__links { display: flex; }
+
+/* Toolbar (bottom centre): floats a little higher than the pills */
+.toolbar { box-shadow: var(--shadow-float); }
+.toolbar__divider { height: 24px; }
+.tool { position: relative; display: flex; flex: none; }
+/* The drawn tiles: 56 × 40 with rounded top corners, sitting on the bar's bottom edge. The
+   drawing starts 4px low, half out of sight, and lifts when pointed at. */
+.tool--tile { align-self: flex-end; margin-bottom: calc(var(--space) * -1); }
+.tool-tile {
+  display: block;
+  width: 56px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: var(--r-tile) var(--r-tile) 0 0;
+  transition: background-color 0.15s var(--ease);
+}
+.tool-tile svg {
+  display: block;
+  translate: 0 4px;
+  transition: translate 0.25s var(--ease-out);
+}
+.tool-tile:hover,
+.tool-tile:focus-visible { background: var(--chrome-hover); }
+.tool-tile:hover svg,
+.tool-tile:focus-visible svg { translate: 0 0; }
+.tool-tile:focus-visible { outline-offset: -2px; }
+
+/* The stamp needs JavaScript, and is left out for visitors who have turned on reduced motion */
+.tool--stamp { display: none; }
+.js .tool--stamp { display: flex; }
+html:not(.js) .help__stamp { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js .tool--stamp,
+  .help__stamp { display: none; }
+}
+.is-stamping,
+.is-stamping * { cursor: copy !important; }
+/* The emote it drops: a round white sticker that pops in, then fades after two seconds */
+.emote {
+  position: fixed;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-float);
+  font-size: 22px;
+  line-height: 1;
+  rotate: var(--tilt, 0deg);
+  pointer-events: none;
+  animation: emote 2s var(--ease-out) forwards;
+}
+@keyframes emote {
+  0% { opacity: 0; scale: 0.4; }
+  8% { opacity: 1; scale: 1.15; }
+  14% { scale: 1; }
+  80% { opacity: 1; translate: 0 0; }
+  100% { opacity: 0; translate: 0 -12px; }
+}
+
+/* Zoom pill and the "?" button (bottom right) */
+.corner-tools {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+}
+.zoom { gap: 0; height: 40px; padding: 4px; }
+.zoom .icon-button { border-radius: 50%; }
+.zoom__value {
+  min-width: 48px;
+  height: 32px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+.zoom__value:hover { background: var(--chrome-hover); }
+.help-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--chrome-bg);
+  box-shadow: var(--shadow-panel);
+  color: inherit;
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+}
+.help-button:hover { background: var(--chrome-hover); }
+
+/* Tooltip: shows over its button on hover (after a moment) and on keyboard focus. The bridge
+   under it keeps it open while the pointer crosses the gap from the button onto it. */
+.tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 14px);
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  height: 24px;
+  padding: 4px var(--space);
+  border-radius: var(--r-sm);
+  background: var(--tooltip-bg);
+  box-shadow: var(--shadow-tooltip);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 16px;
+  white-space: nowrap;
+  translate: -50% 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.12s var(--ease), visibility 0.12s;
+}
+.tooltip::before { content: ""; position: absolute; inset: -14px 0; z-index: -1; }
+.tooltip kbd { color: rgb(255 255 255 / 0.6); font: inherit; }
+.tooltip--below { top: calc(100% + 14px); bottom: auto; }
+@media (hover: hover) {
+  .tool:hover > .tooltip { opacity: 1; visibility: visible; transition-delay: 0.3s; }
+}
+.tool:has(:focus-visible) > .tooltip { opacity: 1; visibility: visible; }
+.tool.is-dismissed > .tooltip { opacity: 0; visibility: hidden; transition-delay: 0s; }
+
+/* Menus: the lists the pills open. Each is a popover, so the browser shows and hides it. The
+   places here are for when src/scripts/chrome.ts hasn't lined it up with its button (no JavaScript). */
+.menu {
+  position: fixed;
+  inset: auto;
+  min-width: 208px;
+  max-width: calc(100vw - var(--chrome-inset) * 2);
+  max-height: calc(100vh - (var(--chrome-h) + var(--chrome-inset) * 2 + var(--space)) * 2);
+  margin: 0;
+  padding: var(--space);
+  overflow: auto;
+  border: 0;
+  border-radius: var(--r-panel);
+  background: var(--chrome-bg);
+  box-shadow: var(--shadow-float);
+  color: var(--chrome-text);
+  font-size: var(--fs-small);
+  font-weight: 450;
+  line-height: var(--lh-chrome);
+}
+.menu--below-start { top: calc(var(--chrome-h) + var(--chrome-inset) + var(--space)); left: var(--chrome-inset); }
+.menu--above-center,
+.menu--above-end { bottom: calc(var(--chrome-h) + var(--chrome-inset) + var(--space)); }
+.menu--above-center { left: 50%; translate: -50% 0; }
+.menu--above-end { right: var(--chrome-inset); }
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  width: 100%;
+  min-height: 32px;
+  padding: 7px var(--space);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.menu__item:hover,
+.menu__item:focus-visible { background: var(--chrome-hover); }
+.menu__item:focus-visible { outline-offset: -2px; }
+.menu__hint { margin-left: auto; color: var(--chrome-text-2); }      /* the small icon after a link that leaves the site */
+/* The tick before the page you're on; the other pages keep its space, so the names line up */
+.menu__check { visibility: hidden; color: var(--accent-text); }
+.menu__item[aria-current="page"] { font-weight: 550; }
+.menu__item[aria-current="page"] .menu__check { visibility: visible; }
+.menu__rule { height: 1px; margin: var(--space); background: var(--chrome-border); }
+
+/* The "?" list: each shortcut with its key, then the switch that turns the single-key ones off */
+.help { width: 264px; }
+.help__title { padding: 4px var(--space) var(--space); font-size: var(--fs-small); font-weight: 550; letter-spacing: 0; line-height: var(--lh-chrome); }
+.help__keys { margin: 0; }
+.help__keys > div { display: flex; justify-content: space-between; gap: 16px; padding: 5px var(--space); }
+.help__keys dd { margin: 0; color: var(--chrome-text-2); white-space: nowrap; }
+.help kbd {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--chrome-border);
+  border-radius: 4px;
+  color: var(--chrome-text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+}
+.help__prefs { display: none; }
+.js .help__prefs { display: block; }
+.switch { justify-content: space-between; }
+.switch__track {
+  position: relative;
+  flex: none;
+  width: 28px;
+  height: 16px;
+  border-radius: var(--r-pill);
+  background: var(--chrome-text-3);
+  transition: background-color 0.15s var(--ease);
+}
+.switch__track::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: translate 0.15s var(--ease);
+}
+.switch[aria-checked="true"] .switch__track { background: var(--accent); }
+.switch[aria-checked="true"] .switch__track::after { translate: 12px 0; }
+
+/* The full-screen menu on phones, under the top bar: the board, with the menu as one white panel */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  padding: calc(var(--chrome-h) + var(--chrome-inset) * 2) var(--chrome-inset) calc(var(--chrome-h) + var(--chrome-inset) * 2 + env(safe-area-inset-bottom, 0px));
+  overflow: auto;
+  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px) 0 0 / var(--board-dot-gap) var(--board-dot-gap);
+  color: var(--chrome-text);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s var(--ease), visibility 0.2s;
+}
+.menu-open .mobile-menu { opacity: 1; visibility: visible; }
+.mobile-menu__panel {
+  padding: var(--space);
+  border-radius: var(--r-panel);
+  background: var(--chrome-bg);
+  box-shadow: var(--shadow-float);
+}
+.mobile-menu ul { margin: 0; padding: 0; list-style: none; }
+.mobile-menu .menu__item { min-height: 44px; font-size: 1rem; }   /* finger-sized */
+.mobile-menu__icons { display: flex; align-items: center; gap: var(--space); }
+.mobile-menu__icons .icon-button { width: 44px; height: 44px; }
+.mobile-menu__icons .menu__item { width: auto; margin-left: auto; font-weight: 550; }
+
+/* Tablets: the top pills run out of room, so the made-up viewers go first, then the clock */
+@media (max-width: 1023px) {
+  .avatars { display: none; }
+}
+@media (max-width: 879px) {
+  .clock-chip { display: none; }
+}
+
+/* Phones: the two top pills become one bar, with the mark and the page switcher on the left and
+   Contact on the right; the rest of the top-right pill is in the menu the switcher opens. The
+   toolbar keeps its six link tools (no pointer or hand without a mouse), and the "?" list of
+   keyboard shortcuts goes. */
+@media (max-width: 767px) {
+  .chrome--top {
+    align-items: center;
+    height: var(--chrome-h);
+    padding: var(--space);
+    border-radius: var(--r-panel);
+    background: var(--chrome-bg);
+    box-shadow: var(--shadow-panel);
+    pointer-events: auto;
+  }
+  .chrome--top .pill { height: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .collab-pill > :not(.button-primary) { display: none; }
+  .page-switch--desktop { display: none; }
+  .tool--pointer,
+  .corner-tools { display: none; }
+}
+@media (max-width: 419px) {
+  /* Too narrow for the name beside the page switcher: the mark's menu still leads home */
+  .file-pill__name,
+  .file-pill .pill__divider { display: none; }
+}
+@media (min-width: 768px) {
+  .menu-toggle,
+  .mobile-menu { display: none; }
+}
+
+/* ---------- Board objects ---------- */
+/* Section: a lightly tinted area with its name in a small tab above its top-left corner. The tab
+   is white on a darker shade of the section's colour. */
+.board-section {
+  --tint: var(--section-gray);
+  --stroke: #dedede;
+  --tab: var(--tab-gray);
+  position: relative;
+  padding: var(--section-pad);
+  border-radius: var(--r-panel);
+  background: var(--tint);
+  box-shadow: inset 0 0 0 1.5px var(--stroke);
+}
+.board-section--blue { --tint: var(--section-blue); --stroke: #c2e3ff; --tab: var(--tab-blue); }
+.board-section--violet { --tint: var(--section-violet); --stroke: #e0d1ff; --tab: var(--tab-violet); }
+.board-section--green { --tint: var(--section-green); --stroke: #b5ecbf; --tab: var(--tab-green); }
+.board-section--yellow { --tint: var(--section-yellow); --stroke: #fbe3a3; --tab: var(--tab-yellow); }
+.board-section--pink { --tint: var(--section-pink); --stroke: #ffcdea; --tab: var(--tab-pink); }
+.board-section__tab {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  max-width: 100%;
+  margin: 0;
+  padding: 3px var(--space);
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  background: var(--tab);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: var(--fs-small);
+  font-weight: 550;
+  letter-spacing: 0;
+  line-height: var(--lh-chrome);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Footer ----------
+   A small gray section at the end of the board: the links on the left, the copyright on the
+   right, and the "Updated …" line as the section's tab. */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+  width: min(var(--column), 100% - 32px);
+  margin: 120px auto 0;
+}
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space) 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-weight: 550;
+}
+.site-footer__meta p { margin: 0; }
+
+/* Footer links and the case studies' links out ("→ Live site"): on hover the words are
+   underlined and the → in front turns to point up and out */
+.footer-link .arrow,
+.arrow-link .arrow { transition: transform 0.3s var(--ease-out); }
+.footer-link:hover,
+.footer-link:focus-visible,
+.arrow-link:hover,
+.arrow-link:focus-visible { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 0.2em; }
+.footer-link:hover .arrow,
+.footer-link:focus-visible .arrow,
+.arrow-link:hover .arrow,
+.arrow-link:focus-visible .arrow { transform: rotate(-45deg); }
+
+/* ---------- Drop in ----------
+   A board object with class "drop-in" starts see-through and 8px higher, then settles into place
+   as it comes into view (src/scripts/reveal.ts adds .is-visible and --drop-delay). Only the
+   starting state is written, so each object ends on its own styles; it moves with `translate`,
+   which leaves an object's own `transform` or `rotate` (a tilted sticky) alone. */
+@keyframes drop-in {
+  from { opacity: 0; translate: 0 -8px; }
+}
+.js .drop-in { opacity: 0; }
+.js .drop-in.is-visible {
+  opacity: 1;
+  animation: drop-in 0.45s var(--drop-delay, 0s) var(--ease-out) backwards;
+}
+
 /* ---------- Legacy (the old design's tokens and layout, removed as each page is redesigned) ---------- */
 :root {
   --color-bg: var(--board-bg);
@@ -209,7 +752,7 @@ hr { border: 0; margin: 0; }
   --rule-weight: 2px;
   --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
   --header-pad-y: 1vw;
-  --header-height: 65px;
+  --header-height: 0px;
   --header-solid-bg: var(--color-bg);
   --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
   --dur: 0.9s;
@@ -248,233 +791,8 @@ hr { border: 0; margin: 0; }
 
 .section { padding-top: calc(var(--row) * 3); padding-bottom: calc(var(--row) * 2); }
 
-/* Edge-to-edge divider between page sections and above the footer, matching the line under the header */
-main > section + section,
-.site-footer { border-top: var(--rule-weight) solid var(--color-rule); }
-
-/* ---------- Header ---------- */
-/* See-through only when the page is at the very top (on the home page the hero's glow
-   shows behind it there); as soon as the page scrolls it fades to a solid background. */
-.site-header {
-  position: fixed;
-  inset: 0 0 auto 0;
-  z-index: 100;
-  background-color: transparent;
-  border-bottom: var(--rule-weight) solid var(--color-rule);
-  transition: transform 0.45s var(--ease), background-color 0.5s var(--ease);
-}
-.site-header.is-solid { background-color: var(--header-solid-bg); }
-.menu-open .site-header { background-color: transparent; }
-
-/* "Scroll back" header: hides when scrolling down, returns on scroll up */
-.site-header.is-hidden { transform: translateY(-100%); }
-
-.site-header__inner {
-  display: flex;
-  align-items: center;
-  gap: 4vw;
-  max-width: calc(var(--max-width) + var(--gutter) * 2);
-  margin: 0 auto;
-  padding: var(--header-pad-y) var(--gutter);
-  min-height: calc(33px + var(--header-pad-y) * 2);
-}
-
-.site-title {
-  font-family: var(--font-display);
-  font-size: min(var(--fs-title), 5.4vw);   /* 20px; a little smaller on phones under ~370px wide so the header fits */
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.22;           /* with the padding, a 22px box for the hover background */
-  padding-top: 0.16em;
-  white-space: nowrap;
-}
-
-.site-nav ul {
-  display: flex;
-  gap: 1.6em;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.site-nav a {
-  display: flex;               /* keeps the hover arrow right after the word */
-  font-family: var(--font-display);
-  font-size: var(--fs-nav);
-  font-weight: 600;
-  line-height: 1.8rem;         /* with the padding, a 32px box for the hover background */
-  padding: 0.1rem 0;
-}
-
-/* Hover (and keyboard focus) on the site name and nav links: a black box fades in
-   behind white text and a ↗ is added after the word, pushing what follows along.
-   It fades in over 0.9s and snaps back instantly when the pointer leaves. */
-.site-title:hover,
-.site-title:focus-visible,
-.site-nav a:hover,
-.site-nav a:focus-visible,
-.playlist-link:hover,
-.playlist-link:focus-visible {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-
-/* The ↗ is drawn as a thin vector arrow (filled with the text colour, so it fades in
-   with it), sized and placed to match the original. */
-.site-title:hover::after,
-.site-title:focus-visible::after,
-.site-nav a:hover::after,
-.site-nav a:focus-visible::after,
-.playlist-link:hover::after,
-.playlist-link:focus-visible::after {
-  content: "";
-  background-color: currentColor;
-  -webkit-mask: var(--nav-arrow) no-repeat;
-  mask: var(--nav-arrow) no-repeat;
-}
-
-/* Nav links (and the About page's playlist link): a slot after the word holding the arrow, sized to the text */
-.site-nav a:hover::after,
-.site-nav a:focus-visible::after,
-.playlist-link:hover::after,
-.playlist-link:focus-visible::after {
-  width: 1.143em;
-  -webkit-mask-size: 0.857em;
-  mask-size: 0.857em;
-  -webkit-mask-position: 0.09em 0.4em;
-  mask-position: 0.09em 0.4em;
-}
-
-/* Site name: a slot after the name, holding a 15px arrow level with the text */
-.site-title:hover::after,
-.site-title:focus-visible::after {
-  display: inline-block;
-  vertical-align: top;
-  width: 1.14em;
-  height: 1.22em;
-  -webkit-mask-size: 0.9375em;
-  mask-size: 0.9375em;
-  -webkit-mask-position: 0.09em 0.03em;
-  mask-position: 0.09em 0.03em;
-}
-
-.site-icons {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 1.5rem;
-  margin-left: auto;
-}
-
-.icon-link {
-  display: inline-flex;
-  width: 21px;
-  height: 21px;
-  transition: opacity 0.25s var(--ease);
-}
-.icon-link svg { width: 100%; height: 100%; }
-.icon-link:hover,
-.icon-link:focus-visible { opacity: 0.6; }
-
-/* Burger button (mobile only) */
-.menu-toggle {
-  display: none;
-  flex-shrink: 0;
-  position: relative;
-  width: 36px;
-  height: 36px;
-  margin-right: -6px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  cursor: pointer;
-}
-
-.menu-toggle span {
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  height: 2px;
-  background: currentColor;
-  transition: transform 0.3s var(--ease), opacity 0.2s var(--ease), top 0.3s var(--ease);
-}
-.menu-toggle span:nth-child(1) { top: 11px; }
-.menu-toggle span:nth-child(2) { top: 17px; }
-.menu-toggle span:nth-child(3) { top: 23px; }
-
-.menu-open .menu-toggle span:nth-child(1) { top: 17px; transform: rotate(45deg); }
-.menu-open .menu-toggle span:nth-child(2) { opacity: 0; }
-.menu-open .menu-toggle span:nth-child(3) { top: 17px; transform: rotate(-45deg); }
-
-/* Full-screen mobile menu */
-.mobile-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: calc(var(--header-height) + 2rem) var(--gutter) 3rem;
-  background: var(--color-bg);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.35s var(--ease), visibility 0s linear 0.35s;
-}
-
-.menu-open .mobile-menu {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.35s var(--ease), visibility 0s;
-}
-
-.mobile-menu ul { margin: 0; padding: 0; list-style: none; }
-
-.mobile-menu li {
-  transform: translateY(12px);
-  opacity: 0;
-  transition: transform 0.45s var(--ease), opacity 0.45s var(--ease);
-}
-.menu-open .mobile-menu li { transform: none; opacity: 1; }
-.menu-open .mobile-menu li:nth-child(2) { transition-delay: 0.05s; }
-
-.mobile-menu li a {
-  display: inline-block;
-  font-family: var(--font-display);
-  font-size: 2.75rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.3;
-}
-
-/* The header's CV, LinkedIn and GitHub icons, shown in the menu on phones (see below)
-   at 1.5x their header size, followed by the Email link */
-.mobile-menu__icons {
-  display: none;
-  align-items: center;
-  gap: 1.5rem;
-  margin-top: 3rem;
-  font-size: 1rem;
-}
-.mobile-menu__icons .icon-link { width: 31.5px; height: 31.5px; }
-
-/* On phones the header keeps just the name and the burger: the nav links and the
-   icons move into the menu */
-@media (max-width: 767px) {
-  .site-header__inner { gap: 1rem; min-height: 0; }
-  .site-nav { display: none; }
-  .site-icons { display: none; }
-  .menu-toggle { display: block; margin-left: auto; }
-  .mobile-menu__icons { display: flex; }
-}
-
-@media (min-width: 768px) {
-  .mobile-menu { display: none; }
-}
-
-main { padding-top: var(--header-height); }
-main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
+/* Edge-to-edge divider between page sections */
+main > section + section { border-top: var(--rule-weight) solid var(--color-rule); }
 
 /* ---------- Home: hero ---------- */
 .hero {
@@ -485,40 +803,6 @@ main.has-hero { padding-top: 0; }   /* the hero runs up behind the header */
   min-height: 100svh;
   padding: calc(var(--header-height) + var(--row) * 3) 0 calc(var(--row) * 3);
 }
-
-/* ---------- Glow surfaces (hero and footer) ----------
-   Any element with class "glow" containing .glow__bg > canvas.glow__canvas gets the
-   cursor-following glow from src/scripts/glow.ts. The CSS gradient is the no-WebGL fallback;
-   the canvas paints over it. */
-.glow {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.glow__bg {
-  --glow-x: 61%;
-  --glow-y: 60%;
-  --glow-r: 73vmax;
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(circle var(--glow-r) at var(--glow-x) var(--glow-y),
-    var(--color-accent) 10%, var(--color-bg) 100%);
-  background: radial-gradient(circle min(var(--glow-r), 800px) at var(--glow-x) var(--glow-y),
-    var(--color-accent) 10%, var(--color-bg) 100%);
-}
-
-.glow__canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 0.8s var(--ease);
-}
-.glow__canvas.is-ready { opacity: 1; }
 
 .hero__content { position: relative; }
 
@@ -789,62 +1073,7 @@ a.project__link .project__name:hover,
   .project__cta { grid-column: 7 / -1; grid-row: 3 / 5; }
 }
 
-/* ---------- Footer ---------- */
-/* --footer-scale sizes the whole footer (spacing and text) in one place. */
-.site-footer {
-  --footer-scale: 0.75;
-  padding-top: calc(var(--row) * 2 * var(--footer-scale));
-  padding-bottom: calc(var(--row) * 2 * var(--footer-scale));
-  font-size: calc(var(--fs-text) * var(--footer-scale));
-}
-
-.footer-col p { margin: 0 0 0.5em; }
-
-/* Footer links get the header's hover: a black box fades in behind white text over 0.9s
-   and snaps back instantly. Instead of adding a ↗, the → in front turns to ↗ as it fades in. */
-.footer-link,
-.arrow-link {
-  padding: 0.1em 0;            /* a snug box like the site name's; doesn't move the layout */
-}
-
-.footer-link .arrow,
-.arrow-link .arrow { transition: none; }
-
-.footer-link:hover,
-.footer-link:focus-visible,
-.arrow-link:hover,
-.arrow-link:focus-visible {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-
-.footer-link:hover .arrow,
-.footer-link:focus-visible .arrow,
-.arrow-link:hover .arrow,
-.arrow-link:focus-visible .arrow {
-  transform: rotate(-45deg);
-  transition: transform 0.9s ease 0.04s;
-}
-.footer-col--a { grid-column: 1 / 5; }
-.footer-col--b { grid-column: 5 / 9; }
-.footer-col--meta { grid-column: 17 / -1; text-align: right; }
-
-@media (max-width: 767px) {
-  .footer-col--a { grid-column: 1 / 5; }
-  .footer-col--b { grid-column: 5 / -1; }
-  .footer-col--meta { grid-column: 1 / -1; text-align: left; margin-top: calc(2rem * var(--footer-scale)); }
-}
-
 /* ---------- About ---------- */
-/* The glow fills the screen behind the whole page and follows the cursor as you scroll. */
-.page-glow.glow {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-}
-
 /* Hero: a full screen with the name and bio on the left and the photo on the right, the pair
    centred on the page, with equal space above and below. */
 .about-hero {
@@ -1410,8 +1639,10 @@ a.project__link .project__name:hover,
    waiting to be scrolled to would never show. Here they skip the animation and just show. */
 @media (min-height: 3000px) {
   .js .reveal { opacity: 1; transform: none; }
-  .js .blur-in { opacity: 1; }
-  .js .blur-in.is-visible { animation: none; }
+  .js .blur-in,
+  .js .drop-in { opacity: 1; }
+  .js .blur-in.is-visible,
+  .js .drop-in.is-visible { animation: none; }
 }
 
 /* ---------- Page transitions ----------
@@ -1451,7 +1682,9 @@ a.project__link .project__name:hover,
     animation-duration: 0.01ms !important;
   }
   .js .reveal { opacity: 1; transform: none; }
-  .js .blur-in { opacity: 1; }
+  .js .blur-in,
+  .js .drop-in { opacity: 1; }
   .hero-in,
-  .js .blur-in.is-visible { animation: none; }   /* the shortened duration above would still keep the delay */
+  .js .blur-in.is-visible,
+  .js .drop-in.is-visible { animation: none; }   /* the shortened duration above would still keep the delay */
 }
