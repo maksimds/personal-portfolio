@@ -18,13 +18,18 @@ interface Props {
   canonicalPath?: string;
   // Keeps search engines from listing the page (the 404 page)
   noindex?: boolean;
+  // 'canvas': on a wide screen the page is a board you pan and zoom (src/scripts/board.ts), with
+  // its content placed by the page's own rules in styles.css. 'document': it scrolls as usual.
+  board?: 'canvas' | 'document';
+  // A name for the page's own rules in styles.css (html[data-page="home"])
+  page?: string;
 }
 
-const { title, description, canonicalPath, noindex = false } = Astro.props;
+const { title, description, canonicalPath, noindex = false, board = 'document', page } = Astro.props;
 const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-board={board} data-page={page}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,14 +46,17 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
   {/* Runs before anything is drawn: marks the page as having JavaScript (the CSS then hides the
-      objects that drop in, and shows the tools that need it), and remembers a visitor who turned
-      the single-key shortcuts off. src/scripts/main.ts runs a moment later (module scripts wait
-      for the page). */}
+      objects that drop in, and shows the tools that need it), remembers a visitor who turned the
+      single-key shortcuts off, and decides whether the page is a canvas: only a page that asks to
+      be (data-board), on a screen at least 1024px wide, for a visitor who hasn't chosen "View as
+      list". src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
   <script is:inline>
     (function () {
       var root = document.documentElement;
+      var saved = function (key) { try { return localStorage.getItem(key); } catch (e) { return null; } };
       root.classList.add('js');
-      try { if (localStorage.getItem('shortcuts') === 'off') root.classList.add('no-shortcuts'); } catch (e) {}
+      if (saved('shortcuts') === 'off') root.classList.add('no-shortcuts');
+      if (root.dataset.board === 'canvas' && saved('view') !== 'list' && matchMedia('(min-width: 1024px)').matches) root.classList.add('is-canvas');
     })();
   </script>
   {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
@@ -73,8 +81,8 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
       function image(slug) {
         if (!slug) return null;
         if (isHome(location.href)) {
-          var link = document.querySelector('.project__link[href="/projects/' + slug + '-case-study.html"]');
-          return link && link.querySelector('.project__thumb img');
+          var link = document.querySelector('.work-card__link[href="/projects/' + slug + '-case-study.html"]');
+          return link && link.querySelector('.work-card__thumb img');
         }
         return caseSlug(location.href) === slug ? document.querySelector('.case-hero img') : null;
       }
@@ -92,14 +100,14 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
         if (box && box.bottom > 0 && box.top < innerHeight) name(el, e.viewTransition);
       });
 
-      // Arriving: the image lands fully visible, without its usual fade-in or blur-in
+      // Arriving: the image lands fully visible, without its usual drop-in or fade-in
       addEventListener('pagereveal', function (e) {
         var from = window.navigation && navigation.activation && navigation.activation.from;
         if (!e.viewTransition || !from) return;
         var el = image(project(from.url, location.href));
         if (!el) return;
         name(el, e.viewTransition);
-        var line = el.closest('.reveal, .blur-in');
+        var line = el.closest('.reveal, .blur-in, .drop-in');
         if (line) line.classList.add('is-arriving');
       });
     })();

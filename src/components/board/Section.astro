@@ -12,13 +12,15 @@ interface Props {
   tabAs?: 'h2' | 'h3' | 'p' | 'span';
   id?: string;
   tabId?: string;
+  // The id of another heading inside that names the section, when the tab isn't the one
+  labelledby?: string;
   // Drops in as it comes into view (see "Drop in" in styles.css)
   dropIn?: boolean;
   class?: string;
 }
-const { name, color = 'gray', as: Tag = 'section', tabAs: Tab = 'span', id, tabId, dropIn = false, class: className } = Astro.props;
+const { name, color = 'gray', as: Tag = 'section', tabAs: Tab = 'span', id, tabId, labelledby, dropIn = false, class: className } = Astro.props;
 ---
-<Tag class:list={['board-section', `board-section--${color}`, { 'drop-in': dropIn }, className]} id={id} aria-labelledby={tabId}>
+<Tag class:list={['board-section', `board-section--${color}`, { 'drop-in': dropIn }, className]} id={id} aria-labelledby={labelledby ?? tabId}>
   {Astro.slots.has('tab') ? <slot name="tab" /> : name && <Tab class="board-section__tab" id={tabId}>{name}</Tab>}
   <slot />
 </Tag>

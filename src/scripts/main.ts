@@ -1,6 +1,7 @@
 /* ==========================================================================
    Personal portfolio — scripts (loaded on every page by src/layouts/BaseLayout.astro)
    - the chrome: menus, tooltips, single-key shortcuts and the stamp
+   - the board as a canvas: panning and zooming the home page on a wide screen
    - the phone menu
    - live clocks (the top-right pill and the hero)
    - objects dropping in, plus the older fade-in and blur-in on pages not yet redesigned
@@ -11,6 +12,7 @@
    drawn; everything here runs a moment later.
    ========================================================================== */
 import { initChrome } from './chrome';
+import { initBoard } from './board';
 import { initMenu } from './menu';
 import { initClock } from './clock';
 import { initDropIn, initReveal, initBlurIn } from './reveal';
@@ -29,6 +31,7 @@ initReveal();
 initBlurIn();
 initConnectors();
 initCursors();
+initBoard();
 initEmbeds();
 initBackLinks();
 initYear();

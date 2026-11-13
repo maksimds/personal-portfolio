@@ -1,8 +1,10 @@
 ---
 // Bottom-right: the zoom pill (minus, the percentage, plus), on a page shown as a canvas only,
-// and the round "?" button, which opens the list of keyboard shortcuts and the switch that turns
-// the single-letter ones off (some people's assistive tools type letters for them, so they need
-// to be able to). The zoom buttons are wired up in src/scripts/board.ts, the switch in
+// and the round "?" button, which opens the list of keyboard shortcuts and two switches. "View as
+// list" turns a canvas page into an ordinary scrolling one (it only shows on those pages, on a
+// screen wide enough to be a canvas). "Single-key shortcuts" turns the single-letter ones off:
+// some people's assistive tools type letters for them, so they need to be able to. The zoom
+// buttons and "View as list" are wired up in src/scripts/board.ts, the other switch in
 // src/scripts/chrome.ts.
 import Icon from '../icons/Icon.astro';
 ---
@@ -21,6 +23,7 @@ import Icon from '../icons/Icon.astro';
     <div class="canvas-only"><dt>Select</dt><dd><kbd>V</kbd></dd></div>
     <div class="canvas-only"><dt>Hand</dt><dd><kbd>H</kbd> or hold <kbd>Space</kbd></dd></div>
     <div class="canvas-only"><dt>Move around</dt><dd><kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd></dd></div>
+    <div class="canvas-only"><dt>Back to the start</dt><dd><kbd>Home</kbd></dd></div>
     <div class="canvas-only"><dt>Zoom</dt><dd><kbd>Ctrl</kbd> or <kbd>⌘</kbd> + scroll</dd></div>
     <div><dt>Work</dt><dd><kbd>W</kbd></dd></div>
     <div><dt>About</dt><dd><kbd>A</kbd></dd></div>
@@ -33,6 +36,7 @@ import Icon from '../icons/Icon.astro';
   {/* The switches need JavaScript, so they only show with it */}
   <div class="help__prefs">
     <hr class="menu__rule">
+    <button class="menu__item switch" type="button" role="switch" aria-checked="false" data-pref="list">View as list <span class="switch__track" aria-hidden="true"></span></button>
     <button class="menu__item switch" type="button" role="switch" aria-checked="true" data-pref="shortcuts">Single-key shortcuts <span class="switch__track" aria-hidden="true"></span></button>
   </div>
 </div>

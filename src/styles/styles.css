@@ -1046,6 +1046,226 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
   animation: drop-in 0.45s var(--drop-delay, 0s) var(--ease-out) backwards;
 }
 
+/* ---------- Canvas ----------
+   A page laid out as a canvas (html.is-canvas: home, on a wide screen) doesn't scroll. Its content
+   sits on one layer the size of the board (--board-w by --board-h, set per page), which
+   src/scripts/board.ts moves and scales. Until that script takes over, the layer is already drawn
+   at the same starting place: the board's point (--start-x, --start-y) in the middle of the
+   screen, a little above its centre. The dots are the board's own here, so they can move with it. */
+html.is-canvas,
+.is-canvas body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+.is-canvas .board {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;            /* for browsers without the next line */
+  overflow: clip;              /* never scrolled, not even by a link to a section: the script moves the layer instead */
+  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px) calc(50vw - var(--start-x)) calc(46vh - var(--start-y)) / var(--board-dot-gap) var(--board-dot-gap);
+  touch-action: none;          /* a finger pans and pinches the board, not the page */
+}
+.is-canvas .board__layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--board-w);
+  height: var(--board-h);
+  padding: 0;
+  transform: translate(calc(50vw - var(--start-x)), calc(46vh - var(--start-y)));
+  transform-origin: 0 0;
+}
+/* Only while it's moving: left on, the browser would keep the text as drawn at the old zoom, and it would blur */
+.board__layer.is-moving { will-change: transform; }
+/* The hand tool, or Space held: the board can be grabbed and dragged */
+.tool-hand .board,
+.is-space .board,
+.is-space .board * { cursor: grab; }
+.is-grabbing .board,
+.is-grabbing .board * { cursor: grabbing !important; user-select: none; }
+/* "View as list" only makes sense on a page that can be a canvas, on a screen wide enough for one */
+html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
+@media (max-width: 1023px) {
+  [data-pref="list"] { display: none; }
+}
+.zoom .icon-button:disabled { color: var(--chrome-text-3); cursor: default; background: none; }
+
+/* ---------- Home ----------
+   As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
+   the works over the footer. As a canvas: the same three on a 4000 × 3000 board, the intro at the
+   middle, the works below it and the footer at the bottom right. The layer's padding is where
+   the column starts on the board; everything inside still flows, so nothing can overlap. */
+html[data-page="home"] {
+  --board-w: 4000px;
+  --board-h: 3000px;
+  --start-x: 2000px;           /* the middle of the intro */
+  --start-y: 1396px;
+}
+html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
+.is-canvas[data-page="home"] .board__layer { padding: 1160px 1448px 0; }
+.is-canvas[data-page="home"] main { width: auto; }
+/* Arriving at /#work, the layer starts at the works instead: where the script would put it
+   (centred, its top 120px down the screen). The works' place on the board is fixed: the layer's
+   padding (1160) + the intro's height (472) + the gap between them (168) = 1800. */
+.is-canvas[data-page="home"]:has(#work:target) .board__layer { transform: translate(calc(50vw - 2000px), -1680px); }
+.is-canvas[data-page="home"] .site-footer { width: 512px; margin: 152px 0 0 auto; }
+
+/* Intro: where and when in small technical type, the greeting, then a sticky for each status line */
+.intro__location {
+  margin: 0 0 20px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.intro__clock { font-variant-numeric: tabular-nums; font-weight: 600; }
+.intro__title { margin-bottom: 40px; }
+.intro { margin-top: 32px; }   /* room above for the tab and the portrait's tape */
+.is-canvas .intro { margin-top: 0; }
+/* On each sticky the label is small and technical, the value big underneath it */
+.intro__notes .sticky p {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.intro__notes .sticky strong {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+/* The portrait, taped on at an angle in the top-right corner */
+.intro__photo { position: absolute; top: -40px; right: 32px; width: 136px; rotate: 4deg; }
+.intro__photo img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+/* As a canvas the intro has a fixed size, so the works' place below it is known (see above),
+   and the portrait hangs off its corner */
+.is-canvas .intro { width: 912px; height: 472px; margin-left: 96px; }
+.is-canvas .intro__photo { top: -56px; right: -64px; width: 184px; }
+@media (min-width: 768px) {
+  .intro__notes.sticky-grid { display: flex; }   /* side by side from tablet width up; stacked on phones */
+}
+/* On a tablet three 240px stickies don't fit in a row, so they share it equally */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .intro__notes.sticky-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+  .intro__notes .sticky { width: auto; min-height: 200px; }
+}
+@media (max-width: 767px) {
+  .intro__photo { display: none; }
+  .intro__title { margin-bottom: 28px; }
+}
+
+/* My works: a card for each project */
+.works { margin-top: 136px; }
+.is-canvas .works { margin-top: 168px; }
+.works__meta {
+  margin: 0 0 28px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.5;
+}
+.works__stamp { position: absolute; top: -30px; right: 40px; }
+.works__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(256px, 1fr));
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.is-canvas .works__list { grid-template-columns: repeat(3, 304px); gap: var(--object-gap); }
+
+/* A card: a white frame with the logo in its top-left corner, an arrow in its top-right, and the
+   project's name and line at the bottom. The link's ::after covers the whole card, so all of it
+   is the link. */
+.work-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 256px;
+  padding: 24px;
+  border-radius: var(--r-panel);
+  background: #fff;
+  box-shadow: var(--shadow-sticky);
+  transition: translate 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out);
+}
+.work-card__link { display: flex; flex: 1; flex-direction: column; align-items: flex-start; }
+a.work-card__link::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-panel); }
+a.work-card__link:focus-visible { outline: none; }
+a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outline-offset: 2px; }
+.work-card:has(a):hover,
+.work-card:has(a:focus-visible) { translate: 0 -3px; box-shadow: var(--shadow-float); }
+/* The logos are square pictures with clear space around the mark, so the thumbnail is pulled
+   out by that much to line the mark up with the text */
+.work-card__thumb {
+  position: relative;
+  width: 112px;
+  aspect-ratio: 1 / 1;
+  margin: -20px 0 0 -20px;
+  pointer-events: none;
+}
+.work-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+/* Pointing at the logo itself makes it grow and tilt. The hit area is an invisible box over the
+   mark's own bounds: --logo-inset (and --logo-radius for a round one), set on the thumbnail when
+   its logo has a different shape (the default fits the dōTERRA mark). */
+.work-card__thumb::after {
+  content: "";
+  position: absolute;
+  inset: var(--logo-inset, 21.4% 30.1%);
+  z-index: 1;
+  border-radius: var(--logo-radius, 0);
+  pointer-events: auto;
+}
+.work-card__thumb:hover img { transform: scale(1.12) rotate(15deg); }
+.work-card__name {
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.work-card__desc { margin: 6px 0 0; font-size: 0.9375rem; line-height: 1.4; }
+.work-card__cta { position: absolute; top: 20px; right: 24px; font-size: 1.25rem; line-height: 1; }
+.work-card__cta .arrow { transition: none; }
+/* The → nudges to the right and glides back when the card is pointed at */
+.work-card:hover .work-card__cta .arrow,
+.work-card__link:focus-visible .work-card__cta .arrow { animation: arrow-nudge-right 0.9s 0.04s both; }
+@keyframes arrow-nudge-right {
+  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }       /* quick out… */
+  35% { transform: translateX(0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); } /* …then a smooth glide back */
+  100% { transform: translateX(0); }
+}
+/* "Coming soon" (not a link): a gray sticky with a dashed outline, at a slight angle on the canvas */
+.work-card--soon {
+  border-radius: 4px;
+  background: var(--sticky-gray);
+  box-shadow: none;
+  outline: 1.5px dashed var(--line-gray);
+  outline-offset: -1.5px;
+}
+.work-card--soon .work-card__thumb::after { pointer-events: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .is-canvas .work-card--soon { rotate: var(--tilt, 0deg); }
+}
+@media (max-width: 767px) {
+  .works { margin-top: 96px; }
+  .works__list { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .work-card { min-height: 0; padding: 20px; }
+  .work-card__thumb { width: 96px; margin: -16px 0 0 -16px; }
+  .works__stamp { right: 16px; }
+}
+
+/* The made-up visitors' cursors, where they start on the canvas */
+.home-cursor--a { left: 2060px; top: 1262px; }
+.home-cursor--b { left: 2500px; top: 1930px; }
+
 /* ---------- Legacy (the old design's tokens and layout, removed as each page is redesigned) ---------- */
 :root {
   --color-bg: var(--board-bg);
@@ -1074,10 +1294,6 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
 @media (max-width: 767px) {
   :root { --gutter: 6vw; --header-pad-y: 6vw; --row: 24px; }
 }
-.h3 { font-size: var(--fs-h3); letter-spacing: -0.02em; line-height: 1.1; }
-.rule { border: 0; border-top: var(--rule-weight) solid var(--color-rule); margin: 0; width: 100%; }
-.kv { font-size: var(--fs-text); line-height: 2; }
-.kv p { margin: 0; }
 
 /* ---------- Layout container / grid ---------- */
 .container {
@@ -1098,67 +1314,15 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
   .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 
-.section { padding-top: calc(var(--row) * 3); padding-bottom: calc(var(--row) * 2); }
-
-/* Edge-to-edge divider between page sections */
-main > section + section { border-top: var(--rule-weight) solid var(--color-rule); }
-
-/* ---------- Home: hero ---------- */
+/* ---------- Old full-screen hero (still used by the 404 page) ---------- */
 .hero {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 100vh;
-  min-height: 100svh;
-  padding: calc(var(--header-height) + var(--row) * 3) 0 calc(var(--row) * 3);
+  min-height: 70vh;
+  padding: calc(var(--row) * 3) 0;
 }
-
 .hero__content { position: relative; }
-
-.hero__location {
-  grid-column: 1 / -1;
-  margin: 0 0 1.6vw;
-  font-size: var(--fs-text-sm);
-  line-height: 1.6;
-}
-.hero__clock { font-variant-numeric: tabular-nums; }
-
-/* The hero line is thinner than the other rules (1.275px instead of 2px). Browsers round
-   border widths to whole pixels, so it's drawn as a background whose lower edge fades over
-   one pixel, which renders as exactly 1.275px. It still takes up 2px, so nothing moves. */
-.hero .rule {
-  grid-column: 1 / -1;
-  height: var(--rule-weight);
-  border-top: 0;
-  background: var(--thin-rule);
-}
-
-/* 94px from a 1470px-wide window up, scaling down on smaller screens (phones keep 2.6rem) */
-.hero__title {
-  grid-column: 1 / -1;
-  padding-top: 3vw;
-  font-size: clamp(2.6rem, 6.4vw, 94px);
-  font-weight: 600;
-}
-
-.hero__status {
-  grid-column: 1 / -1;
-  margin-top: 8.6vw;
-  font-size: var(--fs-text-sm);
-}
-
-/* From tablet width up, each status line stays on one line. Phones are too narrow, so they wrap there. */
-@media (min-width: 768px) {
-  .hero__status p { white-space: nowrap; }
-}
-
-
-@media (max-width: 767px) {
-  .hero { min-height: calc(100svh - var(--rule-weight)); }   /* the line under the hero is the bottom edge of the screen */
-  .hero__location { margin-bottom: 1rem; }
-  .hero__title { padding-top: 1.5rem; }
-  .hero__status { margin-top: 3rem; }
-}
 
 /* ---------- 404 page ---------- */
 /* Same full-screen hero as the home page, with equal space above and below so the content
@@ -1211,175 +1375,6 @@ main > section + section { border-top: var(--rule-weight) solid var(--color-rule
 .notfound__back:hover .arrow,
 .notfound__back:focus-visible .arrow {
   animation: project-arrow-nudge 0.9s 0.04s both;
-}
-
-/* ---------- Home: project list ---------- */
-/* The space under the last row matches the space from the divider above down to the top of the
-   "My works" letters: the section's top padding, plus (on wider screens, where the heading sits at
-   the bottom of a row as tall as the "Years of experience" line) the difference between their line
-   heights, plus the part of the heading's line box above its letters (about 0.17em). */
-.section--works {
-  padding-bottom: calc(var(--row) * 3 + var(--fs-text-sm) * 2 - var(--fs-works-title) * 0.93);
-}
-@media (max-width: 767px) {
-  .section--works {
-    --fs-works-title: calc(var(--fs-text-sm) * 1.47);   /* "My works" to the project titles as on a 1470px-wide desktop (29.5px to 20px) */
-    padding-bottom: calc(var(--row) * 3 + var(--fs-works-title) * 0.17);
-  }
-}
-
-.list-head {
-  align-items: end;
-  padding-bottom: calc(var(--row) * 1);
-}
-.list-head h2 { grid-column: 1 / 12; font-size: var(--fs-works-title); }
-.list-head__meta {
-  grid-column: 12 / -1;
-  justify-self: end;
-  font-size: var(--fs-text-sm);
-}
-
-/* The lines in the list are as thin as the hero's line (1.275px) and drawn the same way: the 2px
-   borders are transparent and the line is a background painted over them, so nothing moves. */
-.project-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: var(--rule-weight) solid transparent;
-  background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
-}
-
-/* Each row's grid has a line for the title and one for the description, between the row's top
-   and bottom space. The link fills the whole row on the same grid, so the row is one link, except
-   the description: it's outside the link and laid over it, so it's plain text. */
-.project {
-  display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  grid-template-rows: calc(var(--row) * 0.75) auto auto calc(var(--row) * 0.75);
-  column-gap: var(--gap);
-  font-size: var(--fs-text-sm);
-  border-bottom: var(--rule-weight) solid transparent;
-  background: var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
-}
-
-.project__link {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-row: 1 / -1;
-  grid-template-columns: subgrid;
-  grid-template-rows: subgrid;
-}
-
-.project__thumb {
-  grid-column: 1 / 3;
-  grid-row: 2 / 4;
-  align-self: center;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-}
-.project__thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.6s var(--ease);
-}
-
-/* The title sits on the line between its row and the description's, so the two stay together in
-   the middle of the row */
-.project__text { grid-column: 3 / 16; grid-row: 2; align-self: end; line-height: 1.5; }
-.project__name {
-  display: inline;
-  font-weight: 700;
-  padding: 0.1em 0;            /* a snug box for the hover background; doesn't move the layout */
-}
-.project__desc {
-  grid-column: 3 / 16;
-  grid-row: 3;
-  align-self: start;
-  justify-self: start;         /* only as wide as its text, so the rest of the line is still the link */
-  margin: 0.35em 0 0;
-  font-size: 0.9em;            /* 90% of the title on every screen: 18px where the title is 20px */
-  line-height: 1.5;
-}
-
-.project__cta {
-  grid-column: 22 / -1;
-  grid-row: 2 / 4;
-  align-self: center;
-  justify-self: end;
-  font-size: 1.25rem;
-  line-height: 1;
-}
-
-.project__cta .arrow { transition: none; }
-
-/* Each part of a row reacts only when the pointer is on that part (keyboard focus on the row
-   shows the title's and the arrow's): the logo grows and tilts (below); the title gets the
-   header's black box, fading in behind white text over 0.9s and snapping back instantly; and the
-   → on the right nudges a little to the left and glides smoothly back. */
-
-/* Logo thumbnails (a logo or mockup on a transparent background) ignore hovering the row. Only
-   pointing at the logo itself makes it grow and tilt to the right. The hit area is an invisible
-   box over the logo's own bounds: --logo-inset (and --logo-radius for a round logo), set on the
-   thumbnail when its logo has a different shape (the default fits the dōTERRA mark). The rest of the square lets the pointer
-   through to the row's link. */
-.project__thumb--logo {
-  position: relative;
-  pointer-events: none;
-  transform: scale(1.1);       /* the logos 10% bigger, hit area included, without moving the row */
-}
-.project__thumb--logo::after {
-  content: "";
-  position: absolute;
-  inset: var(--logo-inset, 21.4% 30.1%);
-  border-radius: var(--logo-radius, 0);   /* 50% for a round logo, so its corners don't count */
-  pointer-events: auto;
-}
-.project__thumb--logo:hover img { transform: scale(1.12) rotate(15deg); }
-
-a.project__link .project__name:hover,
-.project__link:focus-visible .project__name {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-
-.project__cta:hover .arrow,
-.project__link:focus-visible .project__cta .arrow {
-  animation: project-arrow-nudge 0.9s 0.04s both;
-}
-
-@keyframes project-arrow-nudge {
-  0% {
-    transform: translateX(0);
-    animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);    /* quick out to the left… */
-  }
-  35% {
-    transform: translateX(-0.3em);
-    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);  /* …then a smooth glide back */
-  }
-  100% { transform: translateX(0); }
-}
-
-/* Rows that aren't links ("Coming soon", or a project whose case study isn't written yet): no
-   arrow, and neither the title nor a logo reacts to hovering. A row without a logo keeps an empty
-   thumbnail space, so its text lines up with the other rows. */
-.project--soon .project__link { cursor: default; }
-.project--soon .project__thumb--logo::after { pointer-events: none; }
-
-@media (max-width: 767px) {
-  .list-head h2 { grid-column: 1 / -1; }
-  .list-head__meta { grid-column: 1 / -1; justify-self: start; margin-top: 0.5rem; }
-
-  .project {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
-    grid-template-rows: 1.25rem auto auto auto 1.25rem;
-  }
-  .project__thumb { grid-column: 1 / 3; grid-row: 2; margin-bottom: 1rem; }
-  .project__text { grid-column: 1 / 7; grid-row: 3; }
-  .project__desc { grid-column: 1 / 7; grid-row: 4; }
-  .project--soon .project__thumb:empty { display: none; }   /* on phones the thumbnail has its own line, so drop an empty one */
-  .project__cta { grid-column: 7 / -1; grid-row: 3 / 5; }
 }
 
 /* ---------- About ---------- */
@@ -1907,6 +1902,13 @@ a.project__link .project__name:hover,
   .case-media--pair .case-media__panel > :not(:first-child) img { margin: -12% 0 0; }
 }
 
+/* The ← of the old back links and previous/next links: a quick nudge to the left, then a glide back */
+@keyframes project-arrow-nudge {
+  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  35% { transform: translateX(-0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
+  100% { transform: translateX(0); }
+}
+
 /* ---------- Scroll-in fade animation ---------- */
 .js .reveal {
   opacity: 0;
@@ -1926,10 +1928,6 @@ a.project__link .project__name:hover,
 /* Home and About heroes: play on load, starting after 0.4s. Plain CSS, so they play without JS too.
    Big titles move a quarter of their own size; the photo rises further, like mobbin.com's hero images. */
 .hero-in { animation: blur-in 0.8s 0.4s var(--ease) backwards; }
-.hero__title.hero-in { --blur-in-y: 0.25em; animation-delay: 0.5s; }
-.hero__status .hero-in:nth-child(1) { animation-delay: 0.6s; }
-.hero__status .hero-in:nth-child(2) { animation-delay: 0.7s; }
-.hero__status .hero-in:nth-child(3) { animation-delay: 0.8s; }
 .about-hero__name.hero-in { --blur-in-y: 0.25em; }
 .about-hero__bio.hero-in { animation-delay: 0.5s; }
 .about-hero__media.hero-in { --blur-in-y: 40px; animation-delay: 0.6s; }
@@ -1975,7 +1973,8 @@ a.project__link .project__name:hover,
   object-fit: contain;
 }
 .js .reveal.is-arriving,
-.js .blur-in.is-arriving {
+.js .blur-in.is-arriving,
+.js .drop-in.is-arriving {
   opacity: 1;
   transform: none;
   transition: none;

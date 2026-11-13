@@ -1,16 +1,22 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/home/Hero.astro';
-import ProjectRow from '../components/home/ProjectRow.astro';
+import ProjectCard from '../components/home/ProjectCard.astro';
+import Section from '../components/board/Section.astro';
+import Stamp from '../components/board/Stamp.astro';
+import Connector from '../components/board/Connector.astro';
+import Cursor from '../components/board/Cursor.astro';
 import { getImage } from 'astro:assets';
 import { getProjects, projectUrl } from '../data/projects';
 import { getImageFile } from '../data/images';
 import { site } from '../data/site';
 
 // Every case study in src/content/projects/, in order. Published ones link to their page;
-// the others show as "coming soon" rows until they're published. To add a project, add a file
+// the others show as "coming soon" cards until they're published. To add a project, add a file
 // there (start from _template.mdx).
 const projects = await getProjects();
+// The slight turns of the "coming soon" stickies on the canvas
+const tilts = [-1.3, 0.8, -0.7, 1.2];
 
 // Who the site is about, for search engines (schema.org "Person"). Visitors don't see it.
 // Keep it in step with the hero and the About page when your job or city changes.
@@ -28,28 +34,37 @@ const person = {
   sameAs: [site.linkedinUrl, site.githubUrl],
 };
 ---
-<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/">
+<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" board="canvas" page="home">
 
   <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(person)}></script>
 
   <Hero />
 
-  {/* ===== My works (main projects first, then side projects) ===== */}
-  <section class="section section--works container" id="work" aria-labelledby="work-title">
-    <div class="grid list-head">
-      <h2 id="work-title" class="h3 blur-in">My works</h2>
-      <p class="list-head__meta kv blur-in">Years of experience <span class="arrow">→</span> <strong>3+</strong></p>
-    </div>
+  {/* ===== My works (main projects first, then side projects) =====
+      The section's tab is its heading. */}
+  <Section class="works" color="blue" id="work" labelledby="work-title">
+    <h2 slot="tab" id="work-title" class="board-section__tab">My works</h2>
+    <p class="works__meta drop-in">Years of experience <span class="arrow">→</span> <strong>3+</strong></p>
+    {/* The same fact as a sticker, for show: the line above is the one that's read out */}
+    <Stamp color="green" tilt={10} decorative class="works__stamp drop-in">3+ yrs</Stamp>
 
-    <ul class="project-list">
-      {projects.map((project) => (
-        <ProjectRow href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
+    <ul class="works__list">
+      {projects.map((project, i) => (
+        <ProjectCard href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
           desc={project.data.listDescription} thumb={project.data.thumb}
-          logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} />
+          logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[i % tilts.length]} />
       ))}
       {/* The Focal tile, with the same margin as the other logos; the hit area matches its rounded corners */}
-      <ProjectRow name="Coming soon" desc="Building Focal" thumb="focal-logo.png" logoInset="21.4% 22%" logoRadius="16%" />
+      <ProjectCard name="Coming soon" desc="Building Focal" thumb="focal-logo.png" logoInset="21.4% 22%" logoRadius="16%" tilt={1.1} />
     </ul>
-  </section>
+  </Section>
+
+  {/* ===== Decoration, hidden from screen readers =====
+      Lines from the intro's stickies to the works, and from the works on to the footer; and two
+      made-up visitors' cursors drifting about, on the canvas only. */}
+  <Connector from="intro-notes" to="work" fromSide="bottom" toSide="top" color="violet" label="see my work" />
+  <Connector from="work" to="footer" fromSide="bottom" toSide="top" color="gray" class="canvas-only" />
+  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor home-cursor--a canvas-only" />
+  <Cursor name="Recruiter?" color="green" route="b" class="home-cursor home-cursor--b canvas-only" />
 
 </BaseLayout>
