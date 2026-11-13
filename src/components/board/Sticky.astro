@@ -1,0 +1,23 @@
+---
+// A sticky note: 240px square, or 416px wide with `wide`, growing taller with its text. The text
+// is always Charcoal. Keep it short: anything over about 40 words belongs in a text block instead.
+// <Sticky color="green" author="Denis">…</Sticky>
+// tilt: a slight turn in degrees (keep it within -1.5 to 1.5). It only shows on a page laid out
+// as a canvas, and not for visitors who have turned on reduced motion.
+interface Props {
+  color?: 'yellow' | 'orange' | 'red' | 'pink' | 'violet' | 'blue' | 'teal' | 'green' | 'gray' | 'white';
+  wide?: boolean;
+  // A small name at the bottom, like the author of a sticky on a shared board
+  author?: string;
+  tilt?: number;
+  as?: 'div' | 'li' | 'figure' | 'p';
+  id?: string;
+  dropIn?: boolean;
+  class?: string;
+}
+const { color = 'yellow', wide = false, author, tilt, as: Tag = 'div', id, dropIn = false, class: className } = Astro.props;
+---
+<Tag class:list={['sticky', `sticky--${color}`, { 'sticky--wide': wide, 'drop-in': dropIn }, className]} id={id} style={tilt ? `--tilt: ${tilt}deg` : undefined}>
+  <div class="sticky__text"><slot /></div>
+  {author && <p class="sticky__author">{author}</p>}
+</Tag>

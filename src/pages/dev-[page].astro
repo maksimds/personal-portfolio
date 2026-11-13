@@ -1,0 +1,178 @@
+---
+// /dev-board: every board object and its states on one page, for looking at them while working on
+// the design. It only exists with `npm run dev`: for a build getStaticPaths returns no pages, so
+// it's never on the live site or in the sitemap.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Img from '../components/Img.astro';
+import Section from '../components/board/Section.astro';
+import Sticky from '../components/board/Sticky.astro';
+import Shape from '../components/board/Shape.astro';
+import Stamp from '../components/board/Stamp.astro';
+import WashiTape from '../components/board/WashiTape.astro';
+import Table from '../components/board/Table.astro';
+import Connector from '../components/board/Connector.astro';
+import Cursor from '../components/board/Cursor.astro';
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { page: 'board' } }] : [];
+}
+
+const sectionColors = ['blue', 'violet', 'green', 'yellow', 'pink', 'gray'] as const;
+const stickyColors = ['yellow', 'orange', 'red', 'pink', 'violet', 'blue', 'teal', 'green', 'gray', 'white'] as const;
+const shapeColors = ['white', 'black', 'blue', 'violet', 'green', 'orange', 'gray'] as const;
+const shapeKinds = ['rect', 'rounded', 'ellipse', 'diamond'] as const;
+const tapeColors = ['yellow', 'pink', 'violet', 'blue', 'green'] as const;
+// Within the -1.5° to 1.5° a sticky may turn
+const tilts = [-1.5, 0.8, -0.6, 1.4, -1, 0.5, 1.2, -1.3, 0.9, -0.4];
+---
+<BaseLayout title="Board objects — Denis Maksimov" noindex>
+  <div class="dev-board">
+    <h1>Board objects</h1>
+    <p>Every object in <code>src/components/board/</code>, in every colour and state. This page is only here with <code>npm run dev</code>.</p>
+
+    <h2>Section</h2>
+    <div class="dev-board__row dev-board__row--sections">
+      {sectionColors.map((color) => (
+        <Section name={color} color={color}><p>A section in {color}, with its name in the tab.</p></Section>
+      ))}
+      <Section color="blue" tabAs="h3" tabId="dev-heading-tab" name="A heading as the tab"><p>Labelled by its tab for screen readers.</p></Section>
+      <Section color="violet" name="A very long section name that has to be cut short with an ellipsis"><p>A long name is cut short.</p></Section>
+      <Section color="green" dropIn name="Drops in"><p>With dropIn, it settles into place as it comes into view.</p></Section>
+    </div>
+
+    <h2>Sticky</h2>
+    <ul class="sticky-grid">
+      {stickyColors.map((color, i) => (
+        <Sticky as="li" color={color} tilt={tilts[i]}>{color}</Sticky>
+      ))}
+    </ul>
+    <div class="sticky-grid dev-board__gap">
+      <Sticky wide color="yellow" author="Denis">A wide sticky, 416px, with an author at the bottom.</Sticky>
+      <Sticky color="green" author="Denis">A square one with an author.</Sticky>
+      <Sticky color="blue">A sticky grows taller when its text needs more room than the square gives it. This one runs on for a few lines to show that, about as long as a sticky should ever get: forty words or so. Anything longer belongs in a text block.</Sticky>
+      <Sticky color="pink" dropIn><p>Two paragraphs.</p><p>And it drops in.</p></Sticky>
+    </div>
+    <p>On a canvas page the stickies sit at a slight angle (not with reduced motion). On phones they go two to a row, or one with <code>sticky-grid--stack</code>:</p>
+    <div class="sticky-grid sticky-grid--stack dev-board__gap">
+      <Sticky color="violet">Stacked on phones.</Sticky>
+      <Sticky color="teal">Stacked on phones.</Sticky>
+    </div>
+
+    <h2>Shape</h2>
+    {shapeKinds.map((kind) => (
+      <div class="dev-board__row">
+        {shapeColors.map((color) => <Shape kind={kind} color={color}>{kind}, {color}</Shape>)}
+      </div>
+    ))}
+    <div class="dev-board__row">
+      <Shape kind="rounded" color="blue" href="#dev-links">← A link</Shape>
+      <Shape kind="rect" color="white" href="#dev-links">A link →</Shape>
+      <Shape kind="ellipse" color="violet" href="#dev-links">A link</Shape>
+      <Shape kind="diamond" color="green" href="#dev-links">A link</Shape>
+      <p id="dev-links">Shapes that are links lift when pointed at or focused.</p>
+    </div>
+
+    <h2>Stamp</h2>
+    <div class="dev-board__row">
+      <Stamp color="green" tilt={-10}>3+ yrs</Stamp>
+      <Stamp color="yellow" tilt={6}>+1</Stamp>
+      <Stamp color="violet" tilt={-4}>New</Stamp>
+      <Stamp color="white" tilt={8}>Done</Stamp>
+      <Stamp color="pink" small tilt={-12} decorative>⭐</Stamp>
+      <Stamp color="blue" small tilt={10} decorative>🎾</Stamp>
+      <Stamp color="orange" small tilt={-6} decorative>👍</Stamp>
+      {stickyColors.map((color, i) => <Stamp color={color} small tilt={tilts[i]! * 6} decorative>{i + 1}</Stamp>)}
+    </div>
+
+    <h2>Washi tape</h2>
+    <div class="dev-board__row dev-board__row--taped">
+      {tapeColors.map((color, i) => (
+        <figure class="taped taped--photo dev-board__photo">
+          <WashiTape color={color} tilt={tilts[i]! * 3} />
+          <Img src="denis-portrait.jpg" alt="" sizes="160px" />
+        </figure>
+      ))}
+      <figure class="taped taped--photo dev-board__photo">
+        <WashiTape color="blue" at="top-left" />
+        <WashiTape color="blue" at="bottom-right" />
+        <Img src="denis-portrait-2.jpg" alt="" sizes="160px" />
+      </figure>
+      <figure class="taped dev-board__photo">
+        <WashiTape color="pink" at="top-right" />
+        <WashiTape color="pink" at="bottom-left" />
+        <Img src="denis-portrait-3.jpg" alt="" sizes="160px" />
+      </figure>
+    </div>
+
+    <h2>Table</h2>
+    <Table items={[
+      { label: 'Product', value: 'tap.' },
+      { label: 'Role', value: 'Mobile App Product Manager Intern' },
+      { label: 'Timeline', value: 'May – Aug 2024' },
+      { label: 'Skills', value: 'User research, User flows, Behavioral analytics, Growth roadmap' },
+      { label: 'Team', value: '20+ across product, design and engineering', wide: true },
+    ]} />
+    <div class="dev-board__gap">
+      <Table items={[{ label: 'One', value: 'Two columns' }, { label: 'Two', value: 'and no wide row' }]} />
+    </div>
+
+    <h2>Connector</h2>
+    <p>Each line is drawn from the boxes of the two objects it joins, and again when they move.</p>
+    <div class="dev-board__connectors">
+      <Shape id="dev-a" color="blue" class="dev-board__at" >A</Shape>
+      <Shape id="dev-b" color="violet" class="dev-board__at">B</Shape>
+      <Shape id="dev-c" color="green" class="dev-board__at">C</Shape>
+      <Shape id="dev-d" color="orange" class="dev-board__at">D</Shape>
+      <Shape id="dev-e" color="gray" class="dev-board__at">E</Shape>
+      <Shape id="dev-f" color="white" class="dev-board__at">F</Shape>
+      <Connector from="dev-a" to="dev-b" color="blue" label="thin, elbowed" />
+      <Connector from="dev-b" to="dev-c" color="violet" thick label="thick" />
+      <Connector from="dev-a" to="dev-d" color="green" curved label="curved" />
+      <Connector from="dev-d" to="dev-e" color="orange" fromSide="right" toSide="top" label="one corner" />
+      <Connector from="dev-c" to="dev-e" color="gray" fromSide="bottom" toSide="right" />
+      <Connector from="dev-e" to="dev-f" color="black" label="black" />
+      <Connector from="dev-f" to="dev-d" color="black" fromSide="left" toSide="bottom" curved thick />
+    </div>
+
+    <h2>Cursor</h2>
+    <p>Cursors drift between a few stops, stop while off screen, and are gone with reduced motion.</p>
+    <div class="dev-board__cursors">
+      <Cursor name="Denis" color="violet" chat="Welcome to my board" class="dev-board__cursor-a" />
+      <Cursor name="Recruiter?" color="green" route="b" class="dev-board__cursor-b" />
+      <Cursor name="Blue" color="blue" class="dev-board__cursor-c" />
+      <Cursor name="Pink" color="pink" route="b" class="dev-board__cursor-d" />
+      <Cursor name="Yellow" color="yellow" class="dev-board__cursor-e" />
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  /* Only this page's own layout: the objects' styles are all in src/styles/styles.css. Global, so
+     it reaches the objects themselves, which are drawn by their own components. */
+  .dev-board { width: min(1152px, 100% - 32px); margin: 0 auto; }
+  .dev-board h2 { margin: 96px 0 40px; }
+  .dev-board > p { max-width: 40em; margin-top: 24px; }
+  .dev-board__row { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; margin-bottom: 24px; }
+  .dev-board__row--sections { align-items: stretch; gap: 48px 24px; }
+  .dev-board__row--sections > * { flex: 1 1 240px; max-width: 360px; }
+  .dev-board__row--taped { gap: 48px; }
+  .dev-board__gap { margin-top: 64px; }
+  .dev-board__photo { width: 160px; }
+  .dev-board__connectors { position: relative; height: 520px; }
+  .dev-board__at { position: absolute; }
+  #dev-a { left: 0; top: 0; }
+  #dev-b { left: 420px; top: 0; }
+  #dev-c { left: 840px; top: 90px; }
+  #dev-d { left: 60px; top: 240px; }
+  #dev-e { left: 620px; top: 330px; }
+  #dev-f { left: 380px; top: 440px; }
+  .dev-board__cursors { position: relative; height: 320px; }
+  .dev-board__cursor-a { left: 40px; top: 40px; }
+  .dev-board__cursor-b { left: 700px; top: 120px; }
+  .dev-board__cursor-c { left: 500px; top: 20px; animation-delay: -12s; }
+  .dev-board__cursor-d { left: 980px; top: 200px; animation-delay: -20s; }
+  .dev-board__cursor-e { left: 200px; top: 180px; animation-delay: -25s; }
+  /* The two demos above are laid out for a wide screen; on a narrow one they're cut off, not scrolled */
+  .dev-board__connectors,
+  .dev-board__cursors { overflow: clip; }
+</style>

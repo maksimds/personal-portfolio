@@ -1,0 +1,16 @@
+---
+// A shape with text in it: a rectangle, a rounded rectangle, an ellipse or a diamond. Each colour
+// is a set of three that go together: a light fill, a darker outline and Charcoal text ("black" is
+// the reverse: a Charcoal fill with white text). With href, the shape is a link.
+// <Shape kind="rounded" color="blue" href="/about.html">About</Shape>
+interface Props {
+  kind?: 'rect' | 'rounded' | 'ellipse' | 'diamond';
+  color?: 'white' | 'black' | 'blue' | 'violet' | 'green' | 'orange' | 'gray';
+  href?: string;
+  id?: string;
+  class?: string;
+}
+const { kind = 'rounded', color = 'white', href, id, class: className } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+<Tag class:list={['shape', `shape--${kind}`, `shape--${color}`, className]} href={href} id={id}><span class="shape__text"><slot /></span></Tag>

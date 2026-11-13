@@ -1,0 +1,17 @@
+---
+// A small round sticker with a white ring, stuck on at a slight angle: a "+1", a star, a short
+// badge. <Stamp color="green" tilt={-10}>3+ yrs</Stamp>
+// decorative: for a stamp that repeats text already on the page, or is only there for fun, so
+// screen readers skip it.
+interface Props {
+  color?: 'yellow' | 'orange' | 'red' | 'pink' | 'violet' | 'blue' | 'teal' | 'green' | 'gray' | 'white';
+  // Degrees; a few either way reads as hand-placed
+  tilt?: number;
+  // small: for a single emoji
+  small?: boolean;
+  decorative?: boolean;
+  class?: string;
+}
+const { color = 'yellow', tilt = -8, small = false, decorative = false, class: className } = Astro.props;
+---
+<span class:list={['stamp', `stamp--${color}`, { 'stamp--small': small }, className]} style={`--tilt: ${tilt}deg`} aria-hidden={decorative ? 'true' : undefined}><slot /></span>

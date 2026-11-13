@@ -1,0 +1,15 @@
+---
+// A strip of see-through tape that "sticks" a photo or image to the board. It goes inside the
+// element it holds, which needs class="taped" (so the tape can sit on its edge):
+// <figure class="taped"><WashiTape color="blue" /> <Img … /></figure>
+// at: across the middle of the top edge (the default), or diagonally over a corner.
+// It's decoration, so screen readers skip it.
+interface Props {
+  color?: 'yellow' | 'pink' | 'violet' | 'blue' | 'green';
+  at?: 'top' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+  // Degrees, for a strip across the top
+  tilt?: number;
+}
+const { color = 'yellow', at = 'top', tilt } = Astro.props;
+---
+<span class:list={['tape', `tape--${color}`, `tape--${at}`]} style={tilt !== undefined ? `--tilt: ${tilt}deg` : undefined} aria-hidden="true"></span>
