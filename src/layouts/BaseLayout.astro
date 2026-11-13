@@ -36,8 +36,8 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   {/* The fonts (set up in astro.config.mjs). Not preloaded: on a slow connection preloading them
       held up the page itself (Lighthouse, October 2026). To try it again, add
       preload={[{ subset: 'latin', style: 'normal' }]} to both. */}
-  <Font cssVariable="--font-syne" />
   <Font cssVariable="--font-inter" />
+  <Font cssVariable="--font-roboto-mono" />
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">

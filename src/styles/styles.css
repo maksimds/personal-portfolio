@@ -1,57 +1,83 @@
 /* ==========================================================================
    Personal portfolio — styles
-   Plain CSS, no build step. Layout is based on a 24-column grid on desktop
-   and an 8-column grid on phones, with a fluid side gutter.
+   Plain CSS, no build step. The site is drawn as a board: a light dotted canvas, white floating
+   panels around it (the "chrome": the pills in the corners and the toolbar), and coloured objects
+   on it (sections, stickies, shapes, stamps). Three rules keep the look together:
+   - saturated colour lives on board objects; the chrome stays white, with violet for the active tool
+   - blue (--select) is only for selection and keyboard focus, never decoration
+   - text on a sticky, shape or section is always Charcoal; panels have no borders, only shadows
    ========================================================================== */
 
 /* ---------- Design tokens ---------- */
 :root {
-  --color-bg: #e3ded3;          /* light beige page background */
-  --color-text: #0b0b0b;
-  --color-muted: #55564f;
-  --color-rule: #111111;
-  --color-accent: #3f578a;      /* hero glow blue (#2f4881 made 10% paler, like the glow in src/scripts/glow.ts) */
+  /* Canvas */
+  --board-bg: #f5f5f5;               /* light gray board */
+  --board-dot: #d9d9d9;              /* dot grid */
+  --board-dot-gap: 24px;
 
-  /* The fonts and their fallbacks are set up in astro.config.mjs */
+  /* Chrome (floating UI) */
+  --chrome-bg: #ffffff;
+  --chrome-text: rgb(0 0 0 / 0.9);
+  --chrome-text-2: rgb(0 0 0 / 0.6);  /* 60%, not a lighter 50%: at 13px, 50% black on white is 3.95:1, under AA */
+  --chrome-text-3: rgb(0 0 0 / 0.3);  /* dividers and decoration only, never text */
+  --chrome-border: #e6e6e6;
+  --accent: #9747ff;                 /* product accent: active tool, highlights */
+  --accent-2: #7c2bda;               /* hover/pressed */
+  --accent-3: #f1e5ff;               /* light wash */
+  --accent-text: #8638e5;
+  --select: #0d99ff;                 /* selection boxes and focus rings only */
+  --link: #0b6fd1;                   /* a shade darker than #007be5, which is 3.9:1 on the board */
+  --tooltip-bg: #1e1e1e;
+  --charcoal: #1e1e1e;               /* all text on board objects */
+
+  /* Elevation (hairline + soft drop, no visible borders) */
+  --shadow-panel: 0 0 0.5px rgb(0 0 0 / .3), 0 1px 3px rgb(0 0 0 / .15);
+  --shadow-float: 0 0 0.5px rgb(0 0 0 / .18), 0 3px 8px rgb(0 0 0 / .1), 0 1px 3px rgb(0 0 0 / .1);
+  --shadow-tooltip: 0 0 0.5px rgb(0 0 0 / .15), 0 5px 12px rgb(0 0 0 / .13), 0 1px 3px rgb(0 0 0 / .1);
+  --shadow-sticky: 0 1px 2px rgb(0 0 0 / .08), 0 4px 10px rgb(0 0 0 / .06);
+
+  /* Radii */
+  --r-xs: 2px; --r-sm: 5px; --r-tile: 8px; --r-panel: 13px; --r-pill: 999px;
+
+  /* Sticky fills */
+  --sticky-yellow: #ffe299; --sticky-orange: #ffd3a8; --sticky-red: #ffb8a8;
+  --sticky-pink: #ffa8db;   --sticky-violet: #d3bdff; --sticky-blue: #a8daff;
+  --sticky-teal: #b3f4ef;   --sticky-green: #b3efbd;  --sticky-gray: #e6e6e6; --sticky-white: #ffffff;
+
+  /* Section fills (light tints) */
+  --section-blue: #f5fbff; --section-violet: #f8f5ff; --section-green: #ebffee;
+  --section-yellow: #fffbf0; --section-pink: #fff0fa; --section-gray: #f9f9f9;
+
+  /* Section name tabs: a darker shade of each section's hue. White 13px text on the bright
+     connector colours below is as low as 1.9:1; on these it's at least 4.8:1. */
+  --tab-blue: #0b6fd1; --tab-violet: #7c3aed; --tab-green: #1a7f37;
+  --tab-yellow: #9a6700; --tab-pink: #c2298a; --tab-gray: #666666;
+
+  /* Connector / shape strokes */
+  --line-black: #1e1e1e; --line-blue: #3dadff; --line-violet: #874fff;
+  --line-green: #66d575; --line-orange: #ff9e42; --line-gray: #b3b3b3;
+
+  /* Type. The fonts and their fallbacks are set up in astro.config.mjs. Board text is Inter;
+     "technical" labels (facts, metadata, the clock) are Roboto Mono. */
   --font-sans: var(--font-inter);
-  --font-display: var(--font-syne), var(--font-inter);
+  --font-mono: var(--font-roboto-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --fs-h1: clamp(2.5rem, 4.2vw + 1rem, 4rem);         /* 64px on a desktop */
+  --fs-h2: clamp(1.75rem, 2vw + 1rem, 2.5rem);        /* 40px */
+  --fs-h3: clamp(1.25rem, 0.5vw + 1.1rem, 1.5rem);    /* 24px */
+  --fs-body: clamp(1rem, 0.25vw + 0.95rem, 1.125rem); /* 16 to 18px */
+  --fs-small: 0.8125rem;                              /* 13px: the chrome, labels, captions */
+  --lh-chrome: 1.125rem;                              /* 18px */
 
-  --max-width: 2000px;
-  --gutter: 12vw;               /* side margin on desktop */
-  --gap: 11px;                  /* grid column/row gap */
-  --row: calc(76vw * 0.0215);   /* one "grid row" of vertical rhythm */
-  --rule-weight: 2px;
-  /* A 1.275px line drawn as a background in a 2px-tall space (see .hero .rule) */
-  --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
-
-  --header-pad-y: 1vw;
-  --header-height: 65px;        /* updated by JS */
-  --header-solid-bg: var(--color-bg);   /* header background once content scrolls under it (the page beige) */
-  /* thin ↗ used by the header hover effect (a 12-unit square, 1.35-unit stroke) */
-  --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
+  /* Layout */
+  --chrome-inset: 12px;         /* the pills' distance from the screen's edges */
+  --chrome-h: 48px;             /* the height of every pill */
+  --space: 8px;                 /* the chrome's spacing grid */
+  --object-gap: 64px;           /* between stickies in a grid */
+  --section-pad: 32px;          /* inside a section */
+  --column: 880px;              /* the reading column of a page shown as a document */
 
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --dur: 0.9s;
-
-  /* Type scale: (size - 1) * 1.2vw + 1rem, capped on very small and very large screens */
-  --fs-text: clamp(1.0625rem, 0.55vw + 1rem, 1.9rem);      /* hero lines, lists, footer */
-  --fs-body: clamp(1rem, 0.3vw + 1rem, 1.5rem);             /* long-form paragraphs */
-  --fs-small: 0.875rem;
-  --fs-nav: 1rem;           /* 16px */
-  --fs-title: 1.25rem;      /* 20px */
-  --fs-h1: clamp(2.6rem, 4.6vw + 1rem, 8rem);
-  --fs-text-sm: max(1rem, calc(var(--fs-text) - 4px));   /* hero and My works text: 4px under body text, never below 16px */
-  --fs-works-title: max(1.125rem, calc(var(--fs-h3) - 10px));   /* "My works": 10px under the h3 size, never below 18px */
-  --fs-h2: clamp(2rem, 3.3vw + 1rem, 6rem);
-  --fs-h3: clamp(1.5rem, 1.6vw + 1rem, 3.25rem);
-}
-
-@media (max-width: 767px) {
-  :root {
-    --gutter: 6vw;
-    --header-pad-y: 6vw;
-    --row: 24px;
-  }
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 /* ---------- Reset / base ---------- */
@@ -62,16 +88,22 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* A section scrolled to by a link (/#work) stops below the top pills, not under them */
+  scroll-padding-top: calc(var(--chrome-h) + var(--chrome-inset) * 2 + 28px);
 }
 
+/* The board: light gray with a dot every 24px. On a page shown as a canvas (home and About on a
+   desktop), src/scripts/board.ts moves and scales the dots with the board (--board-x, -y, -zoom). */
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--board-bg);
+  background-image: radial-gradient(var(--board-dot) 1px, transparent 1.2px);
+  background-size: var(--board-dot-gap) var(--board-dot-gap);
+  color: var(--charcoal);
   font-family: var(--font-sans);
   font-size: var(--fs-body);
-  line-height: 1.6;
-  letter-spacing: 0.01em;
+  font-weight: 450;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -90,67 +122,108 @@ a { color: inherit; text-decoration: none; }
 p { margin: 0 0 1em; }
 p:last-child { margin-bottom: 0; }
 
-strong { font-weight: 700; }
+strong { font-weight: 650; }
 
+/* Hierarchy comes from size and weight, never from gray text */
 h1, h2, h3 {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.12;
 }
 
-h1 { font-size: var(--fs-h1); letter-spacing: -0.035em; line-height: 1.08; }
-h2 { font-size: var(--fs-h2); letter-spacing: -0.03em; }
+h1 { font-size: var(--fs-h1); letter-spacing: -0.03em; line-height: 1.06; }
+h2 { font-size: var(--fs-h2); letter-spacing: -0.025em; }
 h3 { font-size: var(--fs-h3); }
 
-/* Size utility, so a semantic heading level can keep the visual scale */
-.h3 { font-size: var(--fs-h3); letter-spacing: -0.02em; line-height: 1.1; }
+hr { border: 0; margin: 0; }
 
-hr,
-.rule {
-  border: 0;
-  border-top: var(--rule-weight) solid var(--color-rule);
-  margin: 0;
-  width: 100%;
+/* For screen readers only */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .skip-link {
-  position: absolute;
-  left: var(--gutter);
+  position: fixed;
+  left: var(--chrome-inset);
   top: -100px;
   z-index: 1000;
-  padding: 0.5em 1em;
-  background: var(--color-text);
-  color: var(--color-bg);
-}
-.skip-link:focus { top: 1rem; }
-
-:focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 3px;
-}
-
-/* Selected text (e.g. when copying): dark grey highlight with white text, as on the original */
-::selection {
-  background-color: #333;
+  padding: 0.6em 1em;
+  border-radius: var(--r-panel);
+  background: var(--tooltip-bg);
   color: #fff;
+  font-size: var(--fs-small);
+  font-weight: 550;
+}
+.skip-link:focus { top: var(--chrome-inset); }
+
+/* Keyboard focus: the board's selection blue, and nothing else is ever that blue */
+:focus-visible {
+  outline: 2px solid var(--select);
+  outline-offset: 2px;
 }
 
-/* Text link with an underline that grows on hover */
+/* Selected text: a light wash of the selection blue */
+::selection {
+  background-color: rgb(13 153 255 / 0.25);
+  color: var(--charcoal);
+}
+
+/* A link in running text: underlined from the start, so it reads as a link without colour alone */
 .link {
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 0% 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 0.4s var(--ease);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  transition: color 0.2s var(--ease);
 }
 .link:hover,
-.link:focus-visible { background-size: 100% 1px; }
+.link:focus-visible { color: var(--link); }
 
 .arrow { display: inline-block; font-weight: 500; transition: transform 0.35s var(--ease); }
 
-/* "Label → value" lines */
+/* "Technical" text: labels, facts and the clock */
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* ---------- Legacy (the old design's tokens and layout, removed as each page is redesigned) ---------- */
+:root {
+  --color-bg: var(--board-bg);
+  --color-text: var(--charcoal);
+  --color-muted: var(--charcoal);
+  --color-rule: var(--chrome-border);
+  --color-accent: var(--accent);
+  --font-display: var(--font-inter);
+  --max-width: 2000px;
+  --gutter: 12vw;
+  --gap: 11px;
+  --row: calc(76vw * 0.0215);
+  --rule-weight: 2px;
+  --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
+  --header-pad-y: 1vw;
+  --header-height: 65px;
+  --header-solid-bg: var(--color-bg);
+  --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
+  --dur: 0.9s;
+  --fs-text: var(--fs-body);
+  --fs-nav: 1rem;
+  --fs-title: 1.25rem;
+  --fs-text-sm: var(--fs-body);
+  --fs-works-title: var(--fs-h3);
+}
+@media (max-width: 767px) {
+  :root { --gutter: 6vw; --header-pad-y: 6vw; --row: 24px; }
+}
+.h3 { font-size: var(--fs-h3); letter-spacing: -0.02em; line-height: 1.1; }
+.rule { border: 0; border-top: var(--rule-weight) solid var(--color-rule); margin: 0; width: 100%; }
 .kv { font-size: var(--fs-text); line-height: 2; }
 .kv p { margin: 0; }
 
