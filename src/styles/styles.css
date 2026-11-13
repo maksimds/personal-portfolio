@@ -187,6 +187,9 @@ hr { border: 0; margin: 0; }
 
 .arrow { display: inline-block; font-weight: 500; transition: transform 0.35s var(--ease); }
 
+/* Words that must stay on one line together ("May ’27"), wherever the text around them wraps */
+.nowrap { white-space: nowrap; }
+
 /* "Technical" text: labels, facts and the clock */
 .mono {
   font-family: var(--font-mono);
