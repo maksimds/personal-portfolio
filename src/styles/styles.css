@@ -1134,7 +1134,8 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
    sits on one layer the size of the board (--board-w by --board-h, set per page), which
    src/scripts/board.ts moves and scales. Until that script takes over, the layer is already drawn
    at the same starting place: the board's point (--start-x, --start-y) in the middle of the
-   screen, a little above its centre. The dots are the board's own here, so they can move with it. */
+   screen, a little above its centre, at the page's starting zoom (--start-zoom, set by `zoom` on
+   the layout; 1 when it isn't). The dots are the board's own here, so they can move and scale with it. */
 html.is-canvas,
 .is-canvas body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .is-canvas .board {
@@ -1142,7 +1143,9 @@ html.is-canvas,
   inset: 0;
   overflow: hidden;            /* for browsers without the next line */
   overflow: clip;              /* never scrolled, not even by a link to a section: the script moves the layer instead */
-  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px) calc(50vw - var(--start-x)) calc(46vh - var(--start-y)) / var(--board-dot-gap) var(--board-dot-gap);
+  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px)
+    calc(50vw - var(--start-x) * var(--start-zoom, 1)) calc(46vh - var(--start-y) * var(--start-zoom, 1)) /
+    calc(var(--board-dot-gap) * var(--start-zoom, 1)) calc(var(--board-dot-gap) * var(--start-zoom, 1));
   touch-action: none;          /* a finger pans and pinches the board, not the page */
 }
 .is-canvas .board__layer {
@@ -1152,7 +1155,7 @@ html.is-canvas,
   width: var(--board-w);
   height: var(--board-h);
   padding: 0;
-  transform: translate(calc(50vw - var(--start-x)), calc(46vh - var(--start-y)));
+  transform: translate(calc(50vw - var(--start-x) * var(--start-zoom, 1)), calc(46vh - var(--start-y) * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
   transform-origin: 0 0;
 }
 /* Only while it's moving: left on, the browser would keep the text as drawn at the old zoom, and it would blur */

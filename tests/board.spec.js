@@ -8,6 +8,14 @@ const layer = (page) => page.locator('.board__layer').evaluate((el) => {
   const m = new DOMMatrix(getComputedStyle(el).transform);
   return { x: Math.round(m.e), y: Math.round(m.f), zoom: Math.round(m.a * 100) / 100 };
 });
+// Where the CSS alone draws the layer (as it does before the script runs)
+const drawnByCss = (page) => page.locator('.board__layer').evaluate((el) => {
+  const set = el.style.transform;
+  el.style.transform = '';
+  const m = new DOMMatrix(getComputedStyle(el).transform);
+  el.style.transform = set;
+  return { x: Math.round(m.e), y: Math.round(m.f), zoom: Math.round(m.a * 100) / 100 };
+});
 const isCanvas = (page) => page.evaluate(() => document.documentElement.classList.contains('is-canvas'));
 const zoomLabel = (page) => page.locator('[data-zoom-value]');
 
@@ -19,6 +27,8 @@ test.describe('the home page on a desktop', () => {
 
   test('is a canvas that starts on the intro and does not scroll', async ({ page }) => {
     expect(await isCanvas(page)).toBe(true);
+    await expect(zoomLabel(page)).toHaveText('100%');
+    expect(await drawnByCss(page)).toEqual(await layer(page));
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
     await expect(page.locator('.zoom')).toBeVisible();
     await expect(page.locator('[data-tool="hand"]')).toBeVisible();
@@ -139,18 +149,23 @@ test.describe('the About page on a desktop', () => {
     await expect(page.locator('#about-title')).toBeInViewport();
   });
 
-  test('is a canvas that starts on the name and the photo', async ({ page }) => {
+  test('is a canvas that starts on the name and the photo, at 80%', async ({ page }) => {
     expect(await isCanvas(page)).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
     await expect(page.locator('.about-photo')).toBeInViewport({ ratio: 1 });
     await expect(page.locator('.zoom')).toBeVisible();
+    await expect(zoomLabel(page)).toHaveText('80%');
+    expect((await layer(page)).zoom).toBe(0.8);
+    // The CSS draws the board in the same place and at the same size as the script, so nothing jumps
+    // when the script takes over
+    expect(await drawnByCss(page)).toEqual(await layer(page));
   });
 
   test('scrolling pans the board', async ({ page }) => {
     const before = await layer(page);
     await page.mouse.move(700, 450);
     await page.mouse.wheel(0, 300);
-    await expect.poll(() => layer(page)).toEqual({ x: before.x, y: before.y - 300, zoom: 1 });
+    await expect.poll(() => layer(page)).toEqual({ x: before.x, y: before.y - 300, zoom: 0.8 });
   });
 
   test('the dots under the photo switch between the photos', async ({ page }) => {
@@ -174,12 +189,17 @@ test.describe('the About page on a desktop', () => {
     await expect(link).toBeInViewport({ ratio: 1 });
   });
 
-  test('"View as list" turns it into a page that scrolls', async ({ page }) => {
+  test('"View as list" turns it into a page that scrolls; back on the canvas, it opens at 80% again', async ({ page }) => {
     await page.locator('#help-button').click();
     await page.locator('[data-pref="list"]').click();
     expect(await isCanvas(page)).toBe(false);
     expect(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)).toBe(true);
     await expect(page.locator('#about-title')).toBeInViewport();
+
+    await page.locator('[data-pref="list"]').click();
+    expect(await isCanvas(page)).toBe(true);
+    await expect(zoomLabel(page)).toHaveText('80%');
+    expect((await layer(page)).zoom).toBe(0.8);
   });
 });
 

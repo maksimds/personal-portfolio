@@ -176,8 +176,9 @@ test.describe('the About page on a desktop', () => {
 
   test('the photo moves and comes to the front, and its dots still switch the photos', async ({ page }) => {
     const photo = page.locator('[data-drag="photo"]');
+    // The page opens at 80%, so 300px on the screen is 375px on the board
     await drag(page, photo.locator('.about-photos__frame'), -300, 120);
-    await expect.poll(() => moved(page, 'photo')).toEqual({ x: -300, y: 120 });
+    await expect.poll(() => moved(page, 'photo')).toEqual({ x: -375, y: 150 });
     expect(Number(await photo.evaluate((el) => getComputedStyle(el).zIndex)))
       .toBeGreaterThan(Number(await page.locator('[data-drag="about"]').evaluate((el) => getComputedStyle(el).zIndex)));
 
@@ -197,9 +198,9 @@ test.describe('the About page on a desktop', () => {
       const now = await el.boundingBox();
       await page.mouse.move(now.x + 30, now.y + 20);
       await page.mouse.down();
-      await page.mouse.move(now.x + 70, now.y + 50, { steps: 5 });
+      await page.mouse.move(now.x + 70, now.y + 52, { steps: 5 });
       await page.mouse.up();
-      await expect.poll(() => moved(page, name), name).toEqual({ x: 40, y: 30 });
+      await expect.poll(() => moved(page, name), name).toEqual({ x: 50, y: 40 });   // at 80%
     }
   });
 });

@@ -11,7 +11,8 @@
    same page is an ordinary scrolling one.
 
    The script in the <head> of BaseLayout.astro adds the "is-canvas" class before the page is
-   drawn, and the CSS puts the layer at its starting place by itself (--start-x and --start-y,
+   drawn, and the CSS puts the layer at its starting place and zoom by itself (--start-x, --start-y
+   and --start-zoom,
    see "Canvas" in styles.css), so nothing jumps when this takes over a moment later. */
 import { updateConnectors } from './connectors';
 import { showAllDropIns } from './reveal';
@@ -176,11 +177,12 @@ export function initBoard(): BoardView | null {
   }
 
   function enter(): void {
-    // Pick up from where the CSS has drawn the layer, then go to where the address says
+    // Pick up from where and how big the CSS has drawn the layer (the page's starting zoom: 80% on
+    // About), then go to where the address says
     const drawn = new DOMMatrix(getComputedStyle(layer!).transform);
     x = drawn.e;
     y = drawn.f;
-    zoom = 1;
+    zoom = clampZoom(drawn.a || 1);
     goTo(location.hash, false);
     cancelAnimationFrame(frame);
     draw();
