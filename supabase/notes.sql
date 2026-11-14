@@ -6,6 +6,7 @@
 -- Anyone can leave a note; it stays hidden until it's approved in Supabase's Table Editor.
 -- The site uses the project's publishable key, which acts as the "anon" role below: it can read
 -- approved notes and add a name and a message, nothing else. The dashboard isn't held by these rules.
+-- How many notes one visitor can send (3, then a 60-minute pause) is in notes-limit.sql.
 begin;
 
 create table public.notes (

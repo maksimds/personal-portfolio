@@ -8,8 +8,10 @@
      on it and can't post to it; there the section says where the notes are.
    - Visitors' words and names go on the page as plain text, never as markup.
    - A note is sent with `Prefer: return=minimal`: the database won't hand back a note it hasn't
-     approved, so asking for it back would fail the whole post (see supabase/notes.sql). */
-import { notesApi, notesKey, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
+     approved, so asking for it back would fail the whole post (see supabase/notes.sql).
+   - After 3 notes the database pauses a visitor for 60 minutes (supabase/notes-limit.sql) and turns
+     the next one away with 429, saying how many seconds are left; the form says so in minutes. */
+import { notesApi, notesKey, NOTES_IN_A_ROW, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
 
 interface Note { id: string; author_name: string; message: string; color: string; }
 
@@ -179,6 +181,14 @@ export function initNotes(): void {
         headers: { apikey: notesKey, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
         body: JSON.stringify(note),
       });
+      if (res.status === 429) {
+        // Paused: `details` is the seconds left. If it's missing, the whole pause (60 minutes)
+        const { details } = await res.json().catch(() => ({ details: '' }));
+        const minutes = Math.max(1, Math.ceil(Number(details) / 60) || 60);
+        busy(false);
+        status.textContent = `That’s the limit of ${NOTES_IN_A_ROW} notes for now. You can post another in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
+        return;
+      }
       if (!res.ok) throw new Error(`status ${res.status}`);
       form.reset();
       busy(false);
