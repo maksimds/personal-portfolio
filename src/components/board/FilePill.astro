@@ -11,8 +11,9 @@ import Icon from '../icons/Icon.astro';
 
 const pages = await getPages();
 const current = pages.find((page) => isCurrentPage(page.href, Astro.url.pathname));
-// A page that isn't in the list (the 404 page) is named by its number
-const pageName = current?.title ?? '404';
+// A page that isn't in the list is named by its number (the 404 page), or "Draft" (a case study
+// that isn't published yet, previewed with `npm run dev`)
+const pageName = current?.title ?? (Astro.url.pathname.startsWith('/projects/') ? 'Draft' : '404');
 ---
 <div class="pill file-pill">
   <button class="pill-button file-pill__mark" type="button" popovertarget="file-menu" aria-label="Menu">

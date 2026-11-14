@@ -1,6 +1,7 @@
 // The site's pages, as the page switcher in the top-left pill and the phone menu list them:
-// Home, About, then every case study that has a page.
-import { getBuiltProjects, projectUrl } from './projects';
+// Home, About, then every published case study. A draft is left out even under `npm run dev`,
+// which still serves its page at its address for previewing.
+import { getProjects, projectUrl } from './projects';
 
 export interface PageLink { href: string; title: string; }
 
@@ -8,7 +9,7 @@ export async function getPages(): Promise<PageLink[]> {
   return [
     { href: '/', title: 'Home' },
     { href: '/about.html', title: 'About' },
-    ...(await getBuiltProjects()).map((p) => ({ href: projectUrl(p), title: p.data.title })),
+    ...(await getProjects()).filter((p) => p.data.published).map((p) => ({ href: projectUrl(p), title: p.data.title })),
   ];
 }
 
