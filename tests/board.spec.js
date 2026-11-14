@@ -1,6 +1,6 @@
-// Checks the home page as a canvas (src/scripts/board.ts): on a desktop it's a board you pan and zoom
-// instead of scrolling; the keyboard, links to a section and "View as list" all still get you
-// everywhere; and on a phone, or without JavaScript, it's an ordinary page.
+// Checks the home page and the About page as canvases (src/scripts/board.ts): on a desktop each is a
+// board you pan and zoom instead of scrolling; the keyboard, links to a section and "View as list"
+// all still get you everywhere; and on a phone, or without JavaScript, they're ordinary pages.
 const { test, expect } = require('@playwright/test');
 
 // Where the board's layer is drawn: its offset on screen and its zoom
@@ -133,6 +133,56 @@ test('opening /#work starts the canvas on the works', async ({ page }) => {
   await expect.poll(() => page.locator('#work').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(120);
 });
 
+test.describe('the About page on a desktop', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('about.html');
+    await expect(page.locator('#about-title')).toBeInViewport();
+  });
+
+  test('is a canvas that starts on the name and the photo', async ({ page }) => {
+    expect(await isCanvas(page)).toBe(true);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
+    await expect(page.locator('.about-photo')).toBeInViewport({ ratio: 1 });
+    await expect(page.locator('.zoom')).toBeVisible();
+  });
+
+  test('scrolling pans the board', async ({ page }) => {
+    const before = await layer(page);
+    await page.mouse.move(700, 450);
+    await page.mouse.wheel(0, 300);
+    await expect.poll(() => layer(page)).toEqual({ x: before.x, y: before.y - 300, zoom: 1 });
+  });
+
+  test('the dots under the photo switch between the photos', async ({ page }) => {
+    const slides = page.locator('.about-photos__slide');
+    const dots = page.locator('.about-photos__dots button');
+    await expect(slides).toHaveCount(3);
+    await dots.nth(1).click();
+    await expect(slides.nth(1)).toHaveClass(/\bis-current\b/);
+    await expect(slides.nth(1)).not.toHaveAttribute('aria-hidden');
+    await expect(slides.nth(1)).toHaveCSS('opacity', '1');
+    await expect(slides.nth(0)).toHaveAttribute('aria-hidden', 'true');
+    await expect(dots.nth(1)).toHaveAttribute('aria-current', 'true');
+    await expect(dots.nth(0)).toHaveAttribute('aria-current', 'false');
+  });
+
+  test('tabbing to the playlist link brings it into view', async ({ page }) => {
+    const link = page.locator('.playlist-link');
+    await expect(link).not.toBeInViewport();
+    for (let i = 0; i < 60 && !(await link.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab');
+    await expect(link).toBeFocused();
+    await expect(link).toBeInViewport({ ratio: 1 });
+  });
+
+  test('"View as list" turns it into a page that scrolls', async ({ page }) => {
+    await page.locator('#help-button').click();
+    await page.locator('[data-pref="list"]').click();
+    expect(await isCanvas(page)).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)).toBe(true);
+    await expect(page.locator('#about-title')).toBeInViewport();
+  });
+});
+
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
@@ -145,6 +195,15 @@ test.describe('on a phone', () => {
     // Nothing is wider than the screen
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   });
+
+  test('the About page is an ordinary page too, with nothing wider than the screen', async ({ page }) => {
+    await page.goto('about.html');
+    expect(await isCanvas(page)).toBe(false);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight > innerHeight)).toBe(true);
+    await expect(page.locator('.zoom')).toBeHidden();
+    await expect(page.locator('.about-photo')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  });
 });
 
 test.describe('without JavaScript', () => {
@@ -155,5 +214,14 @@ test.describe('without JavaScript', () => {
     expect(await isCanvas(page)).toBe(false);
     await expect(page.locator('.intro__title')).toBeVisible();
     await expect(page.locator('a.work-card__link').first()).toBeVisible();
+  });
+
+  test('the About page is an ordinary page: the first photo shows, without the dots', async ({ page }) => {
+    await page.goto('about.html');
+    expect(await isCanvas(page)).toBe(false);
+    await expect(page.locator('#about-title')).toBeVisible();
+    await expect(page.locator('.about-photos__slide.is-current img')).toBeVisible();
+    await expect(page.locator('.about-photos__dots')).toBeHidden();
+    await expect(page.locator('.playlist-link')).toBeVisible();
   });
 });
