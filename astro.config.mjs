@@ -41,19 +41,20 @@ export default defineConfig({
   // The AVIF copies of the images (see src/components/Img.astro) at quality 65 instead of the default
   // 50, which visibly softens fine detail in the screenshots and photos.
   image: { service: sharpImageService({ avif: { quality: 65 } }) },
-  // Syne and Inter, downloaded from Google Fonts at build time and served from the site itself,
-  // with the same weights and axes as the old Google Fonts link. latin-ext covers the ō in dōTERRA
-  // and the ₽; the browser only downloads it on pages that use one of those. Astro gives each font
-  // its own name (Inter-1a2b3c…), so the CSS uses the variables (--font-sans in styles.css).
+  // Inter and Roboto Mono, downloaded from Google Fonts at build time and served from the site
+  // itself. Inter is all the board's text; Roboto Mono is the "technical" labels (facts, metadata,
+  // the clock). latin-ext covers the ō in dōTERRA and the ₽; the browser only downloads it on pages
+  // that use one of those. Astro gives each font its own name (Inter-1a2b3c…), so the CSS uses the
+  // variables (--font-sans and --font-mono in styles.css).
   fonts: [
     {
       provider: fontProviders.google(),
-      name: 'Syne',
-      cssVariable: '--font-syne',
-      weights: ['400 800'],
+      name: 'Roboto Mono',
+      cssVariable: '--font-roboto-mono',
+      weights: ['400 600'],
       styles: ['normal'],
       subsets: ['latin', 'latin-ext'],
-      fallbacks: [],             // falls back to Inter, in --font-display in styles.css
+      fallbacks: [],             // falls back to the system's monospace font, in --font-mono in styles.css
     },
     {
       provider: fontProviders.google(),

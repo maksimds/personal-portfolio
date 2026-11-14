@@ -1,12 +1,14 @@
 ---
-// Images on a light grey panel. variant adds case-media--<name> for each name in it:
+// Images on a widget card: a white panel with a slim strip across its top. variant adds
+// case-media--<name> for each name in it:
 //   card    a small image at its own size (with retina: a 2x image shown at half its pixel size)
 //   screen  a phone screen; "screen pair" puts two side by side, overlapping
 //   phone   a narrow phone-sized image
 //   stack   several images one under the other
-// reveal: fades in by itself (leave it off inside a CaseDetail, which already does).
+// reveal: drops in by itself (leave it off inside a CaseDetail, which already does).
 // src is a file name in src/assets/images/; the width and height come from the file.
 import Img from '../Img.astro';
+import Widget from '../board/Widget.astro';
 
 export interface MediaImage {
   src: string;
@@ -26,12 +28,12 @@ const variants = names.map((v) => `case-media--${v}`);
 // How wide each image shows (see .case-media in styles.css), so phones get smaller files.
 // A card keeps its own size.
 const sizes = names.includes('card') ? undefined
-  : names.includes('pair') ? '(max-width: 767px) min(26rem, 80vw), min(27vw, 26rem)'
+  : names.includes('pair') ? '(max-width: 767px) min(26rem, 80vw), 26rem'
   : names.includes('screen') ? 'min(26rem, 80vw)'
   : names.includes('phone') ? 'min(15rem, 80vw)'
-  : '(max-width: 767px) 80vw, min(50vw, 1380px)';
+  : '(max-width: 911px) 90vw, 832px';
 ---
-<figure class:list={['case-media', ...variants, { reveal }]}>
-  <div class="case-media__panel">{images.map((img) => <Img src={img.src} alt={img.alt} sizes={sizes} retina={img.retina} />)}</div>
+<figure class:list={['case-media', ...variants, { 'drop-in': reveal }]}>
+  <Widget><div class="case-media__panel">{images.map((img) => <Img src={img.src} alt={img.alt} sizes={sizes} retina={img.retina} />)}</div></Widget>
   {caption && <figcaption>{caption}</figcaption>}
 </figure>

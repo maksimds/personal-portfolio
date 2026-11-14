@@ -2,68 +2,78 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Img from '../components/Img.astro';
 import Spotify from '../components/icons/Spotify.astro';
+import Section from '../components/board/Section.astro';
+import Stamp from '../components/board/Stamp.astro';
+import WashiTape from '../components/board/WashiTape.astro';
+import Widget from '../components/board/Widget.astro';
+import Connector from '../components/board/Connector.astro';
+import { playlistUrl } from '../data/links';
+
+// How wide the photo print's picture is drawn: on the canvas, on a tablet, on a phone
+const photoSizes = '(min-width: 1024px) 296px, (min-width: 768px) 224px, 216px';
 ---
-<BaseLayout title="About — Denis Maksimov" description="Denis Maksimov, Product Designer at dōTERRA based in Cincinnati, OH, designing mobile apps, websites, platforms and design systems." canonicalPath="/about.html" hasHero glow="page">
+<BaseLayout title="About — Denis Maksimov" description="Denis Maksimov, Product Designer at dōTERRA based in Cincinnati, OH, designing mobile apps, websites, platforms and design systems." canonicalPath="/about.html" board="canvas" page="about">
 
-  {/* ===== Hero: name, short bio and photo, in the middle of the screen ===== */}
-  <section class="about-hero container" aria-labelledby="about-title">
-    <div class="grid about-hero__grid">
-      <div class="about-hero__text">
-        <h1 id="about-title" class="about-hero__name hero-in">Denis Maksimov</h1>
-        <p class="about-hero__bio hero-in">Product Designer at dōTERRA, based in Cincinnati, OH. I design mobile apps, websites, platforms and design systems, and I’m looking for design roles after graduating in May ’27.</p>
+  {/* ===== The name and a short bio ===== */}
+  <Section class="about-intro" color="violet" name="About" id="about" labelledby="about-title">
+    <h1 id="about-title" class="about-intro__name drop-in">Denis Maksimov</h1>
+    <p class="about-intro__bio drop-in">Product Designer at dōTERRA, based in Cincinnati, OH. I design mobile apps, websites, platforms and design systems, and I’m looking for design roles after graduating in May ’27.</p>
+  </Section>
+
+  {/* ===== The photo: a print taped to the board beside the name =====
+      It holds three photos; the dots in the white strip under them switch between them
+      (src/scripts/photos.ts), the current one's dot white with an outline. */}
+  <figure class="about-photo taped drop-in">
+    <WashiTape color="yellow" tilt={-4} />
+    <div class="about-photos">
+      <div class="about-photos__frame">
+        <div class="about-photos__slide is-current">
+          <Img src="denis-portrait.jpg" alt="Portrait of Denis Maksimov" sizes={photoSizes} loading="eager" fetchpriority="high" />
+        </div>
+        <div class="about-photos__slide" aria-hidden="true">
+          <Img src="denis-portrait-2.jpg" alt="Denis Maksimov in sunglasses on a terrace above a city at sunset" sizes={photoSizes} />
+        </div>
+        <div class="about-photos__slide" aria-hidden="true">
+          <Img src="denis-portrait-3.jpg" alt="Black-and-white photo of Denis Maksimov leaning on a stone wall by the sea" sizes={photoSizes} />
+        </div>
       </div>
-      {/* A thin-lined rectangle frames the photo; on hover both grow together. Three dots in the mat
-          under it switch between three photos (src/scripts/photos.ts); the current one's is white, outlined. */}
-      <div class="about-hero__media hero-in">
-        <figure class="about-hero__photo">
-          <div class="about-hero__photos">
-            <div class="about-hero__slide is-current">
-              <Img src="denis-portrait.jpg" alt="Portrait of Denis Maksimov" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" loading="eager" fetchpriority="high" />
-            </div>
-            <div class="about-hero__slide" aria-hidden="true">
-              <Img src="denis-portrait-2.jpg" alt="Denis Maksimov in sunglasses on a terrace above a city at sunset" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" />
-            </div>
-            <div class="about-hero__slide" aria-hidden="true">
-              <Img src="denis-portrait-3.jpg" alt="Black-and-white photo of Denis Maksimov leaning on a stone wall by the sea" sizes="(max-width: 767px) 56vw, max(11.25rem, min(18.6vw, 19.5rem))" />
-            </div>
-            <div class="about-hero__dots" role="group" aria-label="Photos">
-              <button type="button" aria-label="Photo 1" aria-current="true"></button>
-              <button type="button" aria-label="Photo 2" aria-current="false"></button>
-              <button type="button" aria-label="Photo 3" aria-current="false"></button>
-            </div>
-          </div>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  {/* ===== Who I am / What I do / What I believe in, separated by short lines =====
-      data-glow-block: the glow stays pale anywhere over a section's heading and paragraph, the gap
-      between them included (src/scripts/glow.ts) */}
-  <div class="about-sections container">
-    <div class="grid">
-      <div class="about-sections__col">
-        <hr class="about-divider blur-in">
-        <section class="about-section" data-glow-block aria-labelledby="who-i-am">
-          <h2 id="who-i-am" class="blur-in">Who I am</h2>
-          <p class="blur-in">Born and raised in Moscow, Russia, I moved to the United States at the age of 17 to pursue my dreams. Almost 5 years have flown by since then, and now I’m a senior at the University of Cincinnati majoring in IT/Software Development, graduating (hopefully) in May 2027. My adventure in technology and design began a while before that, when I was 15 and got my hands on Figma for the first time. I fell in love with the concept of digital design and started learning the basics of UI/UX, typography, colors, and other topics in this area, which then led me to land my first freelance project at 16. I also realized shortly after that I have a technical side apart from my creative side, which influenced my decision to major in information technology. Some of personal hobbies include tennis, chess, reading, and travel.</p>
-        </section>
-
-        <hr class="about-divider blur-in">
-        <section class="about-section" data-glow-block aria-labelledby="what-i-do">
-          <h2 id="what-i-do" class="blur-in">What I do</h2>
-          <p class="blur-in">Product design is what clicks for me the most. I design websites, apps, and platforms, but I also go beyond that. I like owning the whole process, from ideation to the final prototypes, and making sure what users need and what the business needs end up in the same product.</p>
-        </section>
-
-        <hr class="about-divider blur-in">
-        <section class="about-section" data-glow-block aria-labelledby="what-i-believe-in">
-          <h2 id="what-i-believe-in" class="blur-in">What I believe in</h2>
-          <p class="blur-in">I have strong principles in everything I design. I believe that the design of a product should come from the target users’ preferences. I believe that design should be eye-catching and polished yet simple and seamless. I believe that having a system is as important as other parts of design to make sure that there are no inconsistencies. I also believe that great design must tell a story and deliver positive emotions.</p>
-        </section>
-
-        {/* In the middle of the space between the last paragraph and the footer. */}
-        <p class="about-playlist"><a class="playlist-link blur-in" href="https://open.spotify.com/playlist/78eraksErZ72KlZe62RBy9?si=JUrINZ19Qeq29-6UCzZkAg" target="_blank" rel="noopener"><Spotify /> Check out my playlist</a></p>
+      <div class="about-photos__dots" role="group" aria-label="Photos">
+        <button type="button" aria-label="Photo 1" aria-current="true"></button>
+        <button type="button" aria-label="Photo 2" aria-current="false"></button>
+        <button type="button" aria-label="Photo 3" aria-current="false"></button>
       </div>
     </div>
-  </div>
+  </figure>
+
+  {/* ===== Who I am / What I do / What I believe in: a section each, its heading in the tab ===== */}
+  <Section class="about-block about-block--who" color="yellow" id="who" tabAs="h2" tabId="who-i-am" name="Who I am" dropIn>
+    <p class="text-block">Born and raised in Moscow, Russia, I moved to the United States at the age of 17 to pursue my dreams. Almost 5 years have flown by since then, and now I’m a senior at the University of Cincinnati majoring in IT/Software Development, graduating (hopefully) in May 2027. My adventure in technology and design began a while before that, when I was 15 and got my hands on Figma for the first time. I fell in love with the concept of digital design and started learning the basics of UI/UX, typography, colors, and other topics in this area, which then led me to land my first freelance project at 16. I also realized shortly after that I have a technical side apart from my creative side, which influenced my decision to major in information technology. Some of personal hobbies include tennis, chess, reading, and travel.</p>
+    {/* The four hobbies again as stickers, for show: the sentence above is the one that's read out */}
+    <div class="about-hobbies" aria-hidden="true">
+      <Stamp small color="green" tilt={-9} decorative>🎾</Stamp>
+      <Stamp small color="violet" tilt={6} decorative>♟️</Stamp>
+      <Stamp small color="orange" tilt={-5} decorative>📚</Stamp>
+      <Stamp small color="blue" tilt={10} decorative>✈️</Stamp>
+    </div>
+  </Section>
+
+  <Section class="about-block about-block--do" color="blue" id="do" tabAs="h2" tabId="what-i-do" name="What I do" dropIn>
+    <p class="text-block">Product design is what clicks for me the most. I design websites, apps, and platforms, but I also go beyond that. I like owning the whole process, from ideation to the final prototypes, and making sure what users need and what the business needs end up in the same product.</p>
+  </Section>
+
+  <Section class="about-block about-block--believe" color="pink" id="believe" tabAs="h2" tabId="what-i-believe-in" name="What I believe in" dropIn>
+    <p class="text-block">I have strong principles in everything I design. I believe that the design of a product should come from the target users’ preferences. I believe that design should be eye-catching and polished yet simple and seamless. I believe that having a system is as important as other parts of design to make sure that there are no inconsistencies. I also believe that great design must tell a story and deliver positive emotions.</p>
+  </Section>
+
+  {/* ===== The playlist: a link out, on a widget card ===== */}
+  <Widget class="about-playlist" name="Playlist" dropIn>
+    <p><a class="playlist-link" href={playlistUrl} target="_blank" rel="noopener"><Spotify /> Check out my playlist</a></p>
+  </Widget>
+
+  {/* ===== Decoration, hidden from screen readers =====
+      Lines that lead from one section to the next. */}
+  <Connector from="about" to="who" color="violet" />
+  <Connector from="who" to="do" color="orange" />
+  <Connector from="do" to="believe" color="blue" />
+
 </BaseLayout>

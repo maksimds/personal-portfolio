@@ -1,9 +1,10 @@
 ---
-// A smaller block with an h3: a feature deep dive or a step
+// A smaller block with an h3: a feature deep dive or a step. A gray section of its own, with the
+// heading inside it.
 interface Props { title: string; }
 const { title } = Astro.props;
 ---
-<section class="case-detail reveal">
+<section class="board-section case-detail drop-in">
   <h3>{title}</h3>
   <slot />
 </section>

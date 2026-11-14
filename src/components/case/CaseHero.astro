@@ -1,7 +1,9 @@
 ---
-// The big image under the heading. A logo sits on the page background, sized with --logo-width
-// and --logo-trim; anything else is a full-width image. src is a file name in src/assets/images/.
+// The image at the top, taped to the board. A logo sits on a white card beside the title, sized
+// with --logo-width and --logo-trim; anything else is a print as wide as the column, under the
+// title. src is a file name in src/assets/images/.
 import Img from '../Img.astro';
+import WashiTape from '../board/WashiTape.astro';
 
 interface Props {
   src: string;
@@ -13,12 +15,11 @@ const { src, logo = false, logoWidth, logoTrim } = Astro.props;
 const style = [logoWidth && `--logo-width: ${logoWidth}`, logoTrim !== undefined && `--logo-trim: ${logoTrim}`]
   .filter(Boolean).join('; ') || undefined;
 
-// How wide the image shows. A logo's width is a share of the page's content area, which is 76% of
-// the window on desktop and 88% on phones (the side margins in styles.css), so "36%" becomes 27.36vw.
-const width = logoWidth ?? 'min(36%, 24rem)';
-const inVw = (share: number) => width.replace(/([\d.]+)%/g, (_, n) => `${+(n * share).toFixed(2)}vw`);
-const sizes = logo ? `(max-width: 767px) ${inVw(0.88)}, ${inVw(0.76)}` : '(max-width: 767px) 88vw, min(76vw, 2000px)';
+// How wide the image shows (see .case-hero in styles.css): a logo fills at most the card, which
+// is 320px wide; a picture fills the column.
+const sizes = logo ? '(max-width: 767px) 70vw, 272px' : '(max-width: 911px) 92vw, 864px';
 ---
-<figure class:list={['case-hero', { 'case-hero--logo': logo }, 'reveal']} style={style}>
+<figure class:list={['case-hero', 'taped', logo ? 'case-hero--logo' : 'taped--photo', 'drop-in']} style={style}>
+  <WashiTape color={logo ? 'violet' : 'yellow'} tilt={logo ? 4 : -2} />
   <Img src={src} alt="" sizes={sizes} loading="eager" />
 </figure>

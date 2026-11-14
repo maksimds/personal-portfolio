@@ -1,0 +1,29 @@
+---
+// A line with an arrowhead from one object on the board to another, named by their ids:
+// <Connector from="hero-notes" to="work" label="see my work" color="violet" />
+// It leaves the middle of one object's side and arrives at the middle of the other's, turning at
+// right angles (or in one curve with `curved`). The sides are picked from where the two objects
+// are, unless fromSide and toSide say otherwise. src/scripts/connectors.ts draws it from the
+// objects' boxes, and again whenever they move or change size. It's decoration (screen readers
+// skip it), it isn't drawn on phones, and without JavaScript it doesn't show.
+type Side = 'top' | 'right' | 'bottom' | 'left';
+interface Props {
+  from: string;
+  to: string;
+  fromSide?: Side;
+  toSide?: Side;
+  // A small pill on the middle of the line, in the line's colour
+  label?: string;
+  color?: 'black' | 'blue' | 'violet' | 'green' | 'orange' | 'gray';
+  // 4px instead of 2px
+  thick?: boolean;
+  curved?: boolean;
+  class?: string;
+}
+const { from, to, fromSide, toSide, label, color = 'black', thick = false, curved = false, class: className } = Astro.props;
+---
+<div class:list={['connector', `connector--${color}`, { 'connector--thick': thick }, className]} aria-hidden="true"
+  data-connector data-from={from} data-to={to} data-from-side={fromSide} data-to-side={toSide} data-curved={curved ? '' : undefined}>
+  <svg class="connector__svg" focusable="false"><path class="connector__line" /><path class="connector__head" /></svg>
+  {label && <span class="connector__label">{label}</span>}
+</div>

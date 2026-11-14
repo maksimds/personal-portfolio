@@ -1,11 +1,16 @@
 ---
-// Every page: the <head>, the skip link, header, mobile menu, footer and scripts around the page's own content.
+// Every page: the <head>, the skip link, the floating chrome (the two pills at the top, the toolbar
+// and the zoom pill at the bottom), the phone menu, and the board that holds the page's own content
+// and the footer.
 import { Font } from 'astro:assets';
 import '../styles/styles.css';
-import SiteHeader from '../components/SiteHeader.astro';
+import FilePill from '../components/board/FilePill.astro';
+import CollabPill from '../components/board/CollabPill.astro';
+import Toolbar from '../components/board/Toolbar.astro';
+import ZoomPill from '../components/board/ZoomPill.astro';
 import MobileMenu from '../components/MobileMenu.astro';
+import UserCursor from '../components/board/UserCursor.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import Glow from '../components/Glow.astro';
 
 interface Props {
   title: string;
@@ -14,18 +19,18 @@ interface Props {
   canonicalPath?: string;
   // Keeps search engines from listing the page (the 404 page)
   noindex?: boolean;
-  // The page starts with a full-screen hero (adds class="has-hero" to <main>)
-  hasHero?: boolean;
-  // Where the cursor-following glow goes besides the hero: behind the footer, or behind the
-  // whole page (About). With 'page', the footer has no glow of its own; the page's shows through.
-  glow?: 'footer' | 'page';
+  // 'canvas': on a wide screen the page is a board you pan and zoom (src/scripts/board.ts), with
+  // its content placed by the page's own rules in styles.css. 'document': it scrolls as usual.
+  board?: 'canvas' | 'document';
+  // A name for the page's own rules in styles.css (html[data-page="home"])
+  page?: string;
 }
 
-const { title, description, canonicalPath, noindex = false, hasHero = false, glow = 'footer' } = Astro.props;
+const { title, description, canonicalPath, noindex = false, board = 'document', page } = Astro.props;
 const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-board={board} data-page={page}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,11 +41,26 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   {/* The fonts (set up in astro.config.mjs). Not preloaded: on a slow connection preloading them
       held up the page itself (Lighthouse, October 2026). To try it again, add
       preload={[{ subset: 'latin', style: 'normal' }]} to both. */}
-  <Font cssVariable="--font-syne" />
   <Font cssVariable="--font-inter" />
+  <Font cssVariable="--font-roboto-mono" />
   <link rel="icon" href="/images/favicon.png" type="image/png">
   <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  {/* Runs before anything is drawn: marks the page as having JavaScript (the CSS then hides the
+      objects that drop in, and shows the tools that need it), remembers a visitor who turned the
+      single-key shortcuts off, and decides whether the page is a canvas: only a page that asks to
+      be (data-board), on a screen at least 1024px wide, for a visitor who hasn't chosen "View as
+      list". src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
+  <script is:inline>
+    (function () {
+      var root = document.documentElement;
+      var saved = function (key) { try { return localStorage.getItem(key); } catch (e) { return null; } };
+      root.classList.add('js');
+      if (saved('shortcuts') === 'off') root.classList.add('no-shortcuts');
+      if (root.dataset.board === 'canvas' && saved('view') !== 'list' && matchMedia('(min-width: 1024px)').matches) root.classList.add('is-canvas');
+    })();
+  </script>
   {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
   <script is:inline src="/js/analytics.js" async></script>
 
@@ -63,8 +83,8 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
       function image(slug) {
         if (!slug) return null;
         if (isHome(location.href)) {
-          var link = document.querySelector('.project__link[href="/projects/' + slug + '-case-study.html"]');
-          return link && link.querySelector('.project__thumb img');
+          var link = document.querySelector('.work-card__link[href="/projects/' + slug + '-case-study.html"]');
+          return link && link.querySelector('.work-card__thumb img');
         }
         return caseSlug(location.href) === slug ? document.querySelector('.case-hero img') : null;
       }
@@ -82,14 +102,14 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
         if (box && box.bottom > 0 && box.top < innerHeight) name(el, e.viewTransition);
       });
 
-      // Arriving: the image lands fully visible, without its usual fade-in or blur-in
+      // Arriving: the image lands fully visible, without its usual drop-in or fade-in
       addEventListener('pagereveal', function (e) {
         var from = window.navigation && navigation.activation && navigation.activation.from;
         if (!e.viewTransition || !from) return;
         var el = image(project(from.url, location.href));
         if (!el) return;
         name(el, e.viewTransition);
-        var line = el.closest('.reveal, .blur-in');
+        var line = el.closest('.reveal, .drop-in');
         if (line) line.classList.add('is-arriving');
       });
     })();
@@ -101,31 +121,31 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  {glow === 'page' && (
-    // Fixed to the screen, so it follows the cursor wherever you scroll
-    <div class="page-glow glow" aria-hidden="true"><Glow hidden={false} /></div>
-  )}
-
-  <SiteHeader />
+  <header class="chrome chrome--top">
+    <FilePill />
+    <CollabPill />
+  </header>
   <MobileMenu />
 
-  <main id="main" class={hasHero ? 'has-hero' : undefined}>
-    <slot />
-  </main>
+  {/* The board. Everything on it is in reading order: the page's content, then the footer. */}
+  <div class="board">
+    <div class="board__layer">
+      <main id="main">
+        <slot />
+      </main>
 
-  <SiteFooter glow={glow === 'footer'} />
+      <SiteFooter />
+    </div>
+  </div>
 
-  {/* Runs right away, where js/main.js used to, before anything is drawn: marks the page as having
-      JavaScript (the CSS then hides the lines that animate in) and sets the header height the
-      layout depends on. src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
-  <script is:inline>
-    (function () {
-      var root = document.documentElement;
-      var header = document.querySelector('.site-header');
-      root.classList.add('js');
-      if (header) root.style.setProperty('--header-height', header.getBoundingClientRect().height + 'px');
-    })();
-  </script>
+  <div class="chrome chrome--bottom">
+    <Toolbar />
+    <ZoomPill />
+  </div>
+
+  {/* The visitor's own pointer: an arrow with "Me", following the mouse */}
+  <UserCursor />
+
   <script src="../scripts/main.ts"></script>
 </body>
 </html>

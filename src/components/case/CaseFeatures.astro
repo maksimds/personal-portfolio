@@ -1,8 +1,10 @@
 ---
-// Key features, in a two-column list. reveal={false} inside a section that already fades in.
+// Key features, two by two, each a rounded shape in its own colour. reveal={false} inside a
+// section that already drops in.
 interface Props { items: string[]; reveal?: boolean; }
 const { items, reveal = true } = Astro.props;
+const colors = ['blue', 'violet', 'green', 'orange'];
 ---
-<ul class:list={['case-features', { reveal }]}>
-  {items.map((item) => <li>{item}</li>)}
+<ul class:list={['case-features', { 'drop-in': reveal }]}>
+  {items.map((item, i) => <li class:list={['shape', 'shape--rounded', `shape--${colors[i % colors.length]}`]}><span class="shape__text">{item}</span></li>)}
 </ul>

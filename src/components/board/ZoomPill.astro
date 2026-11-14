@@ -1,0 +1,42 @@
+---
+// Bottom-right: the zoom pill (minus, the percentage, plus), on a page shown as a canvas only,
+// and the round "?" button, which opens the list of keyboard shortcuts and two switches. "View as
+// list" turns a canvas page into an ordinary scrolling one (it only shows on those pages, on a
+// screen wide enough to be a canvas). "Single-key shortcuts" turns the single-letter ones off:
+// some people's assistive tools type letters for them, so they need to be able to. The zoom
+// buttons and "View as list" are wired up in src/scripts/board.ts, the other switch in
+// src/scripts/chrome.ts.
+import Icon from '../icons/Icon.astro';
+---
+<div class="corner-tools">
+  <div class="pill pill--round zoom canvas-only" role="group" aria-label="Zoom">
+    <button class="icon-button" type="button" data-zoom="out" aria-label="Zoom out"><Icon name="minus" /></button>
+    <button class="zoom__value" type="button" data-zoom="reset"><span data-zoom-value>100%</span><span class="visually-hidden">, reset zoom</span></button>
+    <button class="icon-button" type="button" data-zoom="in" aria-label="Zoom in"><Icon name="plus" /></button>
+  </div>
+  <button class="help-button" id="help-button" type="button" popovertarget="help" data-shortcut="?" aria-label="Keyboard shortcuts" aria-keyshortcuts="?">?</button>
+</div>
+
+<div class="menu menu--above-end help" id="help" popover data-anchor="#help-button">
+  <h2 class="help__title">Keyboard shortcuts</h2>
+  <dl class="help__keys">
+    <div class="canvas-only"><dt>Select</dt><dd><kbd>V</kbd></dd></div>
+    <div class="canvas-only"><dt>Hand</dt><dd><kbd>H</kbd> or hold <kbd>Space</kbd></dd></div>
+    <div class="canvas-only"><dt>Move around</dt><dd><kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> <kbd>→</kbd></dd></div>
+    <div class="canvas-only"><dt>Back to the start</dt><dd><kbd>Home</kbd></dd></div>
+    <div class="canvas-only"><dt>Zoom</dt><dd><kbd>Ctrl</kbd> or <kbd>⌘</kbd> + scroll</dd></div>
+    <div><dt>Work</dt><dd><kbd>W</kbd></dd></div>
+    <div><dt>About</dt><dd><kbd>A</kbd></dd></div>
+    <div><dt>Resume</dt><dd><kbd>R</kbd></dd></div>
+    <div><dt>Email</dt><dd><kbd>C</kbd></dd></div>
+    <div class="help__stamp"><dt>Stamp</dt><dd><kbd>E</kbd></dd></div>
+    <div><dt>More</dt><dd><kbd>I</kbd></dd></div>
+    <div><dt>This list</dt><dd><kbd>?</kbd></dd></div>
+  </dl>
+  {/* The switches need JavaScript, so they only show with it */}
+  <div class="help__prefs">
+    <hr class="menu__rule">
+    <button class="menu__item switch" type="button" role="switch" aria-checked="false" data-pref="list">View as list <span class="switch__track" aria-hidden="true"></span></button>
+    <button class="menu__item switch" type="button" role="switch" aria-checked="true" data-pref="shortcuts">Single-key shortcuts <span class="switch__track" aria-hidden="true"></span></button>
+  </div>
+</div>

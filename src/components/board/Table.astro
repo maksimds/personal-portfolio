@@ -1,0 +1,17 @@
+---
+// A board table of labelled facts: a header row of labels in small technical type over a row of
+// values, with a thin grid between the white cells. An item with wide: true gets a full-width
+// header and cell of its own under the others. On phones each item is stacked, label over value.
+// <Table items={[{ label: 'Timeline', value: 'May – Aug 2024' }]} />
+interface Props {
+  items: { label: string; value: string; wide?: boolean }[];
+  dropIn?: boolean;
+  class?: string;
+}
+const { items, dropIn = false, class: className } = Astro.props;
+// One column for each item that isn't wide
+const columns = items.filter((item) => !item.wide).length || 1;
+---
+<dl class:list={['board-table', { 'drop-in': dropIn }, className]} style={`--columns: ${columns}`}>
+  {items.map((item) => <div class={item.wide ? 'board-table__wide' : undefined}><dt>{item.label}</dt><dd>{item.value}</dd></div>)}
+</dl>

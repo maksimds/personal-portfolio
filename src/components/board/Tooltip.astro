@@ -1,0 +1,16 @@
+---
+// The dark label that shows over a toolbar button on hover and on keyboard focus: its name, then
+// its shortcut key in a paler white. It goes right after the button, inside an element with class
+// "tool"; the button points at it with aria-describedby={id}. decorative: for a button whose own
+// label already says the same thing, so screen readers don't hear it twice.
+// Escape hides it (src/scripts/chrome.ts).
+interface Props {
+  id?: string;
+  name: string;
+  keys?: string;
+  below?: boolean;
+  decorative?: boolean;
+}
+const { id, name, keys, below = false, decorative = false } = Astro.props;
+---
+<span class:list={['tooltip', { 'tooltip--below': below }]} role={decorative ? undefined : 'tooltip'} id={id} aria-hidden={decorative ? 'true' : undefined}>{name}{keys && <kbd>{keys}</kbd>}</span>

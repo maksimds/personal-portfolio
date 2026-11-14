@@ -1,32 +1,38 @@
 /* ==========================================================================
    Personal portfolio — scripts (loaded on every page by src/layouts/BaseLayout.astro)
-   - header height and the "scroll back" header (hides on scroll down, shows on scroll up)
-   - mobile menu toggle
-   - live local clock in the hero
-   - fade-in on scroll, and blur-in on scroll (My works, About, footer)
-   - cursor-following glow behind the hero and footers
+   - the chrome: menus, tooltips, single-key shortcuts and the stamp
+   - the board as a canvas: panning and zooming the home page on a wide screen
+   - the phone menu
+   - live clocks (the top-right pill and the hero)
+   - objects dropping in as they come into view
+   - the board's connectors (lines between objects), its drifting cursors, and the visitor's own
+     cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - the dots that switch the photo on the About page
-   The inline script at the end of BaseLayout adds the "js" class to <html> before the page is
-   drawn; everything here runs a moment later, in the same order as before.
+   The inline script in the <head> of BaseLayout adds the "js" class to <html> before the page is
+   drawn; everything here runs a moment later.
    ========================================================================== */
-import { initHeaderHeight, initScrollHeader } from './header';
+import { initChrome } from './chrome';
+import { initBoard } from './board';
 import { initMenu } from './menu';
 import { initClock } from './clock';
-import { initReveal, initBlurIn } from './reveal';
-import { initGlows } from './glow';
+import { initDropIn } from './reveal';
+import { initConnectors } from './connectors';
+import { initCursors } from './cursors';
+import { initUserCursor } from './user-cursor';
 import { initEmbeds } from './embeds';
 import { initBackLinks } from './back-links';
 import { initYear } from './year';
 import { initPhotoDots } from './photos';
 
-initHeaderHeight();
+initChrome();
 initMenu();
-initScrollHeader();
 initClock();
-initReveal();
-initBlurIn();
-initGlows();
+initDropIn();
+initConnectors();
+initCursors();
+initUserCursor();
+initBoard();
 initEmbeds();
 initBackLinks();
 initYear();
