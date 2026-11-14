@@ -7,6 +7,7 @@ import Stamp from '../components/board/Stamp.astro';
 import WashiTape from '../components/board/WashiTape.astro';
 import Widget from '../components/board/Widget.astro';
 import Connector from '../components/board/Connector.astro';
+import Notes from '../components/about/Notes.astro';
 import { playlistUrl } from '../data/links';
 
 // How wide the photo print's picture is drawn: on the canvas, on a tablet, on a phone
@@ -66,15 +67,23 @@ const photoSizes = '(min-width: 1024px) 296px, (min-width: 768px) 224px, 216px';
     <p class="text-block">I have strong principles in everything I design. I believe that the design of a product should come from the target users’ preferences. I believe that design should be eye-catching and polished yet simple and seamless. I believe that having a system is as important as other parts of design to make sure that there are no inconsistencies. I also believe that great design must tell a story and deliver positive emotions.</p>
   </Section>
 
+  {/* ===== The notes wall: visitors' notes on stickies, and a form for leaving one =====
+      After the three sections in the page's order; on the canvas, a column to the left of them. */}
+  <Notes />
+
   {/* ===== The playlist: a link out, on a widget card ===== */}
   <Widget class="about-playlist" name="Playlist" dropIn drag="playlist">
     <p><a class="playlist-link" href={playlistUrl} target="_blank" rel="noopener"><Spotify /> Check out my playlist</a></p>
   </Widget>
 
   {/* ===== Decoration, hidden from screen readers =====
-      Lines that lead from one section to the next. */}
+      Lines that lead from one section to the next, then on to the notes: from "Who I am" on the
+      canvas, where the notes are beside it, and from "What I believe in" on a page that scrolls,
+      where they come next. */}
   <Connector from="about" to="who" color="violet" />
   <Connector from="who" to="do" color="orange" />
   <Connector from="do" to="believe" color="blue" />
+  <Connector from="who" to="notes" color="green" class="canvas-only" />
+  <Connector from="believe" to="notes" color="green" class="document-only" />
 
 </BaseLayout>
