@@ -9,10 +9,10 @@
    - Only with a mouse, trackpad or pen: a finger pans the board. Not with the hand tool, Space or
      the stamp, and not on a page that scrolls (phones, tablets, "View as list"), where every
      object stays in the page's order.
-   - Each object's place is kept for this browser tab (sessionStorage), so it's still there after
-     going to another page and back. Reloading a page puts everything back where it started: the
-     script in the <head> of BaseLayout.astro forgets the places on a reload, and otherwise draws
-     the objects at them before the page shows, so nothing jumps.
+   - The places last only while the page is open: going to another page and coming back (by a
+     link or the Back button), or reloading, shows everything where it started. A page the browser
+     brings back from its back/forward cache still has its objects where they were left, so they're
+     put back as it's shown again.
    - A place is an offset from where the page's own layout puts the object (--drag-x, --drag-y),
      and --drag-z is the stacking order: see "Moving objects" in styles.css. */
 import type { BoardView } from './board';
@@ -22,21 +22,14 @@ const THRESHOLD = 4;   // how far the pointer moves (px) before a press becomes 
 const EDGE = 40;       // how close to the window's edge (px) the board starts to pan by itself
 const SPEED = 16;      // how fast it pans (px a frame) with the pointer right at the edge
 const MARGIN = 96;     // how close to the board's edge an object can be put
-const KEY = 'moved';   // sessionStorage: { page: { name: [x, y, z] } }
 
 type Spot = { x: number; y: number; z: number };
 type Point = { x: number; y: number };
-type Saved = Record<string, Record<string, [number, number, number]>>;
-
-function load(): Saved {
-  try { return JSON.parse(sessionStorage.getItem(KEY) ?? '{}') as Saved; } catch { return {}; }
-}
 
 export function initDrag(view: BoardView | null): void {
   const root = document.documentElement;
   const layer = document.querySelector<HTMLElement>('.board__layer');
-  const page = root.dataset.page;
-  if (!view || !layer || !page || !document.querySelector('[data-drag]')) return;
+  if (!view || !layer || !document.querySelector('[data-drag]')) return;
 
   // Where each object that has been moved is, by its name
   const spots = new Map<string, Spot>();
@@ -47,21 +40,14 @@ export function initDrag(view: BoardView | null): void {
     el.style.setProperty('--drag-z', String(spot.z));
   }
 
-  function save(): void {
-    const all = load();
-    all[page!] = Object.fromEntries(Array.from(spots, ([name, s]) => [name, [s.x, s.y, s.z]]));
-    try { sessionStorage.setItem(KEY, JSON.stringify(all)); } catch { /* private window: they stay until the page is left */ }
+  // Everything back where the page's layout puts it
+  function reset(): void {
+    spots.clear();
+    document.querySelectorAll<HTMLElement>('[data-drag]').forEach((el) => {
+      ['--drag-x', '--drag-y', '--drag-z'].forEach((name) => el.style.removeProperty(name));
+    });
+    updateConnectors();
   }
-
-  // The places from earlier in this tab (the <head> script has already drawn them with a
-  // stylesheet of its own; from here on they're on the objects themselves)
-  Object.entries(load()[page] ?? {}).forEach(([name, [x, y, z]]) => {
-    const el = document.querySelector<HTMLElement>(`[data-drag="${CSS.escape(name)}"]`);
-    if (!el || ![x, y, z].every(Number.isFinite)) return;
-    spots.set(name, { x, y, z });
-    draw(el, spots.get(name)!);
-  });
-  document.getElementById('moved-places')?.remove();
 
   // Puts this object on top: every moved object is stacked 2 and up in the order it was last
   // picked up; one that hasn't been moved stays at 1, under them all
@@ -146,7 +132,6 @@ export function initDrag(view: BoardView | null): void {
       held.el.classList.remove('is-dragged');
       root.classList.remove('is-dragging');
       updateConnectors();
-      save();
       dragged = true;
       setTimeout(() => { dragged = false; });   // only the click that ends this drag
     }
@@ -184,6 +169,13 @@ export function initDrag(view: BoardView | null): void {
   window.addEventListener('pointerup', release);
   window.addEventListener('pointercancel', release);
   window.addEventListener('blur', putDown);
+
+  // Back on the page from the back/forward cache: it starts afresh, like any other visit
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    putDown();
+    reset();
+  });
 
   // Shift pressed or let go while the pointer rests
   const shift = (e: KeyboardEvent): void => {

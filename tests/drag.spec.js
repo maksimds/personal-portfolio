@@ -1,7 +1,7 @@
 // Checks moving the board's objects (src/scripts/drag.ts): on a desktop canvas the intro, the works,
 // the About page's sections, photo and playlist, and the footer can be picked up with the pointer
-// tool and put somewhere else. A plain click still works, the lines follow, the places last while
-// you go to another page and back, and a reload puts everything back.
+// tool and put somewhere else. A plain click still works and the lines follow. The places last only
+// while the page is open: coming back to it, or reloading it, shows everything where it started.
 const { test, expect } = require('@playwright/test');
 
 // How far an object has been moved from its place in the layout (its left and top, in board pixels)
@@ -96,27 +96,42 @@ test.describe('the home page on a desktop', () => {
     await expect(page).toHaveURL(/\/projects\/.+-case-study\.html$/);
   });
 
-  test('the places last while you go to another page and back, and a reload puts everything back', async ({ page }) => {
-    await drag(page, page.locator('.intro__title'), 100, 60);
-    await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
+  test('coming back to the page, by a link, the Back button or a reload, puts everything back', async ({ page }) => {
+    // The address ends in #work after the Work link, so the board may start on the works: Home
+    // brings it back to where it started first (and the drag waits until it's there)
+    const start = await layer(page);
+    const moveIntro = async () => {
+      await page.keyboard.press('Home');
+      await expect.poll(() => layer(page)).toEqual(start);
+      await drag(page, page.locator('.intro__title'), 100, 60);
+      await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
+    };
 
-    // Back on the page, the intro has its new place before the page's script runs (set by the
-    // <head> script; the stylesheet, which the page waits for before it's drawn, then applies it)
-    await page.addInitScript(() => {
-      document.addEventListener('readystatechange', () => {
-        if (document.readyState === 'interactive') window.earlyLeft = getComputedStyle(document.querySelector('[data-drag="intro"]')).getPropertyValue('--drag-x');
-      });
-    });
-    await page.goto('about.html');
-    await page.goto('index.html');
-    expect(await moved(page, 'intro')).toEqual({ x: 100, y: 60 });
-    expect(await page.evaluate(() => window.earlyLeft)).toBe('100px');
-    expect(await moved(page, 'work')).toEqual({ x: 0, y: 0 });
+    // A link to another page, then a link back
+    await moveIntro();
+    await page.locator('.toolbar [data-shortcut="a"]').click();
+    await expect(page).toHaveURL(/about\.html$/);
+    await page.locator('.toolbar [data-shortcut="w"]').click();
+    await expect(page.locator('#work-title')).toBeInViewport();
+    expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
 
+    // A reload
+    await moveIntro();
     await page.reload();
     expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
+
+    // The Back button. A browser can keep the page as it was left (the back/forward cache, which
+    // the test browser has turned off) and show it again with the "pageshow" event; that's
+    // played here on the page itself.
+    await moveIntro();
+    await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
+    expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
+    expect(await page.locator('[data-drag="intro"]').evaluate((el) => getComputedStyle(el).zIndex)).toBe('1');
+    // ...and without the cache, Back loads the page afresh
+    await moveIntro();
     await page.goto('about.html');
-    await page.goto('index.html');
+    await page.goBack();
+    await expect(page.locator('#work-title')).toBeInViewport();   // the address still ends in #work
     expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
   });
 
@@ -187,16 +202,4 @@ test.describe('the About page on a desktop', () => {
       await expect.poll(() => moved(page, name), name).toEqual({ x: 40, y: 30 });
     }
   });
-});
-
-test('on a phone the objects stay in the page\'s order', async ({ browser }) => {
-  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-  const page = await phone.newPage();
-  await page.goto('index.html');
-  // A place kept from earlier in the tab is ignored on a page that scrolls
-  await page.evaluate(() => sessionStorage.setItem('moved', JSON.stringify({ home: { intro: [100, 60, 2] } })));
-  await page.goto('index.html');
-  await expect(page.locator('#moved-places')).toHaveCount(0);   // the script has taken over
-  expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
-  await phone.close();
 });

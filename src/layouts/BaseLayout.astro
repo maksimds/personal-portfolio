@@ -49,10 +49,9 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
   <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
   {/* Runs before anything is drawn: marks the page as having JavaScript (the CSS then hides the
       objects that drop in, and shows the tools that need it), remembers a visitor who turned the
-      single-key shortcuts off, decides whether the page is a canvas (only a page that asks to
-      be, with data-board, on a screen at least 1024px wide, for a visitor who hasn't chosen "View
-      as list"), and puts back the objects the visitor has moved on it. src/scripts/main.ts runs a
-      moment later (module scripts wait for the page). */}
+      single-key shortcuts off, and decides whether the page is a canvas: only a page that asks to
+      be (data-board), on a screen at least 1024px wide, for a visitor who hasn't chosen "View as
+      list". src/scripts/main.ts runs a moment later (module scripts wait for the page). */}
   <script is:inline>
     (function () {
       var root = document.documentElement;
@@ -60,25 +59,6 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
       root.classList.add('js');
       if (saved('shortcuts') === 'off') root.classList.add('no-shortcuts');
       if (root.dataset.board === 'canvas' && saved('view') !== 'list' && matchMedia('(min-width: 1024px)').matches) root.classList.add('is-canvas');
-      // Objects the visitor has moved on a canvas (src/scripts/drag.ts) stay where they were put
-      // while they browse the site in this tab, and go back to their places when a page is reloaded.
-      // Drawn here, before the page is, so they don't jump.
-      try {
-        var nav = performance.getEntriesByType('navigation')[0];
-        if (nav && nav.type === 'reload') sessionStorage.removeItem('moved');
-        var moved = root.dataset.page && JSON.parse(sessionStorage.getItem('moved') || '{}')[root.dataset.page];
-        var css = '';
-        for (var name in moved) {
-          var p = moved[name].map(Number);
-          if (/^[a-z-]+$/.test(name) && p.length === 3 && p.every(isFinite)) css += '[data-drag="' + name + '"]{--drag-x:' + p[0] + 'px;--drag-y:' + p[1] + 'px;--drag-z:' + p[2] + '}';
-        }
-        if (css) {
-          var style = document.createElement('style');
-          style.id = 'moved-places';
-          style.textContent = css;
-          document.head.appendChild(style);
-        }
-      } catch (e) { /* no storage: everything starts in its place */ }
     })();
   </script>
   {/* Google Analytics, on the live site only (see the file). A plain file in public/, not bundled. */}
