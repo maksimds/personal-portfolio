@@ -340,7 +340,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
 }
 .avatar:first-child { margin-left: 0; }
 .avatar--photo img { width: 100%; height: 100%; object-fit: cover; }
-.avatar--blue { background: var(--sticky-blue); }
+.avatar--charcoal { background: var(--charcoal); color: #fff; }   /* "U": the same as the visitor's "Me" cursor */
 /* The clock, in an outlined box like a board's timer. It keeps its width as the digits change. */
 .clock-chip {
   display: flex;
