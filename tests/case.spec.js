@@ -28,8 +28,8 @@ for (const url of cases) {
       await expect(section.locator('h2')).toHaveText(/\S/);
       await expect(section.locator('.board-section__tab')).toHaveCount(1);
     }
-    // Nothing is wider than the screen
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    // Nothing is wider than the screen (asked again for a moment, in case the page is still settling)
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }
 
