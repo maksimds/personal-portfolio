@@ -1,7 +1,8 @@
 /* ==========================================================================
    Personal portfolio — scripts (loaded on every page by src/layouts/BaseLayout.astro)
    - the chrome: menus, tooltips, single-key shortcuts and the stamp
-   - the board as a canvas: panning and zooming the home page on a wide screen
+   - the board as a canvas: panning and zooming the home page on a wide screen, and moving the
+     big objects on it around
    - the phone menu
    - live clocks (the top-right pill and the hero)
    - objects dropping in as they come into view
@@ -14,6 +15,7 @@
    ========================================================================== */
 import { initChrome } from './chrome';
 import { initBoard } from './board';
+import { initDrag } from './drag';
 import { initMenu } from './menu';
 import { initClock } from './clock';
 import { initDropIn } from './reveal';
@@ -32,7 +34,7 @@ initDropIn();
 initConnectors();
 initCursors();
 initUserCursor();
-initBoard();
+initDrag(initBoard());
 initEmbeds();
 initBackLinks();
 initYear();

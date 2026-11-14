@@ -4,6 +4,8 @@
 // When the name is one of the page's headings, say which with tabAs ("h2") and give it an id with
 // tabId: the section is then labelled by it for screen readers. For a tab that needs its own
 // markup, fill the "tab" slot instead (give the element class="board-section__tab").
+// On a canvas page, drag="name" lets the visitor pick the section up and move it (src/scripts/drag.ts);
+// the name, unique on the page, is what its place is kept under.
 interface Props {
   name?: string;
   color?: 'blue' | 'violet' | 'green' | 'yellow' | 'pink' | 'gray';
@@ -16,11 +18,12 @@ interface Props {
   labelledby?: string;
   // Drops in as it comes into view (see "Drop in" in styles.css)
   dropIn?: boolean;
+  drag?: string;
   class?: string;
 }
-const { name, color = 'gray', as: Tag = 'section', tabAs: Tab = 'span', id, tabId, labelledby, dropIn = false, class: className } = Astro.props;
+const { name, color = 'gray', as: Tag = 'section', tabAs: Tab = 'span', id, tabId, labelledby, dropIn = false, drag, class: className } = Astro.props;
 ---
-<Tag class:list={['board-section', `board-section--${color}`, { 'drop-in': dropIn }, className]} id={id} aria-labelledby={labelledby ?? tabId}>
+<Tag class:list={['board-section', `board-section--${color}`, { 'drop-in': dropIn }, className]} id={id} aria-labelledby={labelledby ?? tabId} data-drag={drag}>
   {Astro.slots.has('tab') ? <slot name="tab" /> : name && <Tab class="board-section__tab" id={tabId}>{name}</Tab>}
   <slot />
 </Tag>

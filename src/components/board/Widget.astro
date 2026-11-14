@@ -3,16 +3,18 @@
 // link out to a playlist, an image, an embedded prototype). The strip carries three dots that are
 // only decoration and, with name, a short name in small technical type.
 // <Widget name="Playlist">…</Widget>
+// drag="name" lets the visitor move it on a canvas page, as on <Section>.
 interface Props {
   name?: string;
   as?: 'div' | 'aside' | 'figure' | 'section';
   id?: string;
   dropIn?: boolean;
+  drag?: string;
   class?: string;
 }
-const { name, as: Tag = 'div', id, dropIn = false, class: className } = Astro.props;
+const { name, as: Tag = 'div', id, dropIn = false, drag, class: className } = Astro.props;
 ---
-<Tag class:list={['widget', { 'drop-in': dropIn }, className]} id={id}>
+<Tag class:list={['widget', { 'drop-in': dropIn }, className]} id={id} data-drag={drag}>
   {name
     ? <p class="widget__bar"><span class="widget__name">{name}</span><span class="widget__dots" aria-hidden="true"></span></p>
     : <div class="widget__bar" aria-hidden="true"><span class="widget__dots"></span></div>}

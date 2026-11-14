@@ -5,6 +5,7 @@
      with the middle mouse button, or drag with one finger on a touch screen
    - Zoom: Ctrl or ⌘ + scroll, pinch, or the zoom pill; always between 50% and 150%
    - Tabbing to something off screen moves the board to it, and so does a link to a section (#work)
+   - The big objects on it can be picked up and moved with the pointer tool (src/scripts/drag.ts)
    The page's own order never changes, only where things are drawn, so it reads the same to a
    screen reader. Under 1024px wide, without JavaScript, or with "View as list" switched on, the
    same page is an ordinary scrolling one.
@@ -23,11 +24,21 @@ const START_Y = 0.46;      // the starting point sits a little above the middle 
 // What stays clear of the chrome when the board moves to show something that got keyboard focus
 const SAFE = { top: 84, right: 24, bottom: 84, left: 24 };
 
-export function initBoard(): void {
+// What src/scripts/drag.ts needs to know about the canvas, and can ask of it
+export interface BoardView {
+  // Whether the page is shown as a canvas right now
+  active(): boolean;
+  // The board's point under a point of the screen (in the board's own units, as if it weren't zoomed)
+  toBoard(clientX: number, clientY: number): { x: number; y: number };
+  // Moves the board by so many pixels of the screen
+  panBy(dx: number, dy: number): void;
+}
+
+export function initBoard(): BoardView | null {
   const root = document.documentElement;
   const board = document.querySelector<HTMLElement>('.board');
   const layer = document.querySelector<HTMLElement>('.board__layer');
-  if (!board || !layer || root.dataset.board !== 'canvas') return;
+  if (!board || !layer || root.dataset.board !== 'canvas') return null;
 
   const wide = window.matchMedia('(min-width: 1024px)');
   const calm = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -381,4 +392,13 @@ export function initBoard(): void {
 
   if (listSwitch) listSwitch.setAttribute('aria-checked', String(listView()));
   if (active()) enter();
+
+  return {
+    active,
+    toBoard: (cx, cy) => ({ x: (cx - x) / zoom, y: (cy - y) / zoom }),
+    panBy: (dx, dy) => {
+      cancelAnimationFrame(glideFrame);
+      set(x + dx, y + dy);
+    },
+  };
 }

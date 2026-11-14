@@ -42,7 +42,7 @@ const person = {
 
   {/* ===== My works (main projects first, then side projects) =====
       The section's tab is its heading. */}
-  <Section class="works" color="blue" id="work" labelledby="work-title">
+  <Section class="works" color="blue" id="work" labelledby="work-title" drag="work">
     <h2 slot="tab" id="work-title" class="board-section__tab">My works</h2>
     <p class="works__meta drop-in">Years of experience <span class="arrow">→</span> <strong>2+</strong></p>
     {/* The same fact as a sticker, for show: the line above is the one that's read out */}
@@ -61,9 +61,10 @@ const person = {
 
   {/* ===== Decoration, hidden from screen readers =====
       Lines from the intro's stickies to the works, and from the works on to the footer; and a
-      made-up visitor's cursor drifting about, on the canvas only. */}
-  <Connector from="intro-notes" to="work" fromSide="bottom" toSide="top" color="violet" label="see my work" />
-  <Connector from="work" to="footer" fromSide="bottom" toSide="top" color="gray" class="canvas-only" />
+      made-up visitor's cursor drifting about, on the canvas only. The lines pick their sides
+      from where the objects are, so they still fit when the visitor moves one. */}
+  <Connector from="intro-notes" to="work" color="violet" label="see my work" />
+  <Connector from="work" to="footer" color="gray" class="canvas-only" />
   <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
 
 </BaseLayout>

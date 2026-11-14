@@ -940,6 +940,7 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   pointer-events: none;
 }
 .connector.is-ready { visibility: visible; animation: connector-in 0.3s 0.9s var(--ease) backwards; }
+.connector.is-ready.is-overlapping { visibility: hidden; }   /* its two objects overlap (one was moved onto the other) */
 @keyframes connector-in {
   from { opacity: 0; }
 }
@@ -1171,6 +1172,30 @@ html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
   [data-pref="list"] { display: none; }
 }
 .zoom .icon-button:disabled { color: var(--chrome-text-3); cursor: default; background: none; }
+
+/* ---------- Moving objects ----------
+   On a canvas the big objects (data-drag) can be picked up with the pointer tool and put
+   somewhere else on the board (src/scripts/drag.ts). Each is drawn --drag-x and --drag-y away from
+   where the page's layout puts it: relative positioning, so nothing around it moves, and its own
+   translate, rotate and drop-in are left alone. --drag-z stacks it: 1 until it's first moved, then
+   2 and up in the order they were last picked up. The lines and the made-up visitor's cursor stay
+   above them all. A page that scrolls ignores all of it, so everything is back in the page's order. */
+.is-canvas [data-drag] {
+  position: relative;
+  left: var(--drag-x, 0px);
+  top: var(--drag-y, 0px);
+  z-index: var(--drag-z, 1);
+}
+.is-canvas .connector { z-index: 20; }
+.is-canvas .cursor { z-index: 30; }
+/* Pointed at with the pointer tool, an object has a thin outline in the selection blue, as on a
+   board; picked up, a thicker one. Nothing is selected by the drag: the text stays as it is. */
+@media (hover: hover) and (pointer: fine) {
+  .is-canvas:not(.tool-hand, .is-space, .is-grabbing, .is-stamping, .is-dragging) [data-drag]:hover { outline: 1.5px solid var(--select); }
+}
+.is-dragging [data-drag].is-dragged { outline: 2px solid var(--select); }
+.is-dragging,
+.is-dragging * { cursor: default; user-select: none; }
 
 /* ---------- Home ----------
    As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
