@@ -1324,9 +1324,8 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   .works__stamp { right: 16px; }
 }
 
-/* The made-up visitors' cursors, where they start on the canvas */
-.home-cursor--a { left: 2060px; top: 1262px; }
-.home-cursor--b { left: 2500px; top: 1930px; }
+/* The made-up visitor's cursor, where it starts on the canvas */
+.home-cursor { left: 2060px; top: 1262px; }
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet
@@ -1435,8 +1434,6 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .is-canvas .about-block--do { grid-area: 2 / 2; }
 .is-canvas .about-block--believe { grid-area: 3 / 2; }
 .is-canvas .about-playlist { grid-area: 4 / 1; }
-/* The made-up visitor's cursor, where it starts on the canvas: just right of the photo */
-.about-cursor { left: 2340px; top: 1010px; }
 @media (max-width: 767px) {
   html[data-page="about"] main { row-gap: 64px; }
   .about-photo { margin-top: -16px; }

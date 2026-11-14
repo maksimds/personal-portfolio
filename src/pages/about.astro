@@ -7,7 +7,6 @@ import Stamp from '../components/board/Stamp.astro';
 import WashiTape from '../components/board/WashiTape.astro';
 import Widget from '../components/board/Widget.astro';
 import Connector from '../components/board/Connector.astro';
-import Cursor from '../components/board/Cursor.astro';
 import { playlistUrl } from '../data/links';
 
 // How wide the photo print's picture is drawn: on the canvas, on a tablet, on a phone
@@ -72,10 +71,9 @@ const photoSizes = '(min-width: 1024px) 296px, (min-width: 768px) 224px, 216px';
   </Widget>
 
   {/* ===== Decoration, hidden from screen readers =====
-      Lines that lead from one section to the next, and a made-up visitor's cursor on the canvas. */}
+      Lines that lead from one section to the next. */}
   <Connector from="about" to="who" color="violet" />
   <Connector from="who" to="do" color="orange" />
   <Connector from="do" to="believe" color="blue" />
-  <Cursor name="Recruiter?" color="green" route="b" class="about-cursor canvas-only" />
 
 </BaseLayout>

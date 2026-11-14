@@ -60,11 +60,10 @@ const person = {
   </Section>
 
   {/* ===== Decoration, hidden from screen readers =====
-      Lines from the intro's stickies to the works, and from the works on to the footer; and two
-      made-up visitors' cursors drifting about, on the canvas only. */}
+      Lines from the intro's stickies to the works, and from the works on to the footer; and a
+      made-up visitor's cursor drifting about, on the canvas only. */}
   <Connector from="intro-notes" to="work" fromSide="bottom" toSide="top" color="violet" label="see my work" />
   <Connector from="work" to="footer" fromSide="bottom" toSide="top" color="gray" class="canvas-only" />
-  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor home-cursor--a canvas-only" />
-  <Cursor name="Recruiter?" color="green" route="b" class="home-cursor home-cursor--b canvas-only" />
+  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
 
 </BaseLayout>
