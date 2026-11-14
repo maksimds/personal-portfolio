@@ -1,7 +1,7 @@
 // Checks the notes wall on the About page (src/components/about/Notes.astro, src/scripts/notes.ts):
 // visitors' notes show as stickies, in plain text; posting one sends only a name and a message;
-// the section says so when there are no notes, when they can't load and when a note doesn't go
-// through; on the canvas it's a column to the left of "Who I am" that never moves the other blocks.
+// the section says so when there are no notes, when they can't load, when a note doesn't go
+// through and when the database is pausing the visitor after 3 notes; on the canvas it's a column to the left of "Who I am" that never moves the other blocks.
 // Only the live site talks to the database, so most checks open the page as if it were on
 // dmaksimoff.com (the built files in dist/ are handed to the browser for that address, as in
 // analytics.spec.js), and the database itself is always faked: no check reads from or posts to
@@ -30,7 +30,8 @@ const WORDS = 'word '.repeat(40).trim();
 const MANY = Array.from({ length: 12 }, (_, i) => note(i, i % 2 ? WORDS : 'a\n'.repeat(100).trim()));
 
 // Opens About as if on dmaksimoff.com with a fake database. Returns what was asked of the database.
-async function openLive(page, { notes = [], load = 200, post = 201 } = {}) {
+// `posted` is what the database says back to a post, if anything.
+async function openLive(page, { notes = [], load = 200, post = 201, posted } = {}) {
   const calls = { loads: [], posts: [] };
   await page.route('https://dmaksimoff.com/**', (route) => {
     const file = new URL(route.request().url()).pathname.slice(1) || 'index.html';
@@ -41,7 +42,7 @@ async function openLive(page, { notes = [], load = 200, post = 201 } = {}) {
     const req = route.request();
     if (req.method() === 'POST') {
       calls.posts.push({ body: req.postDataJSON(), headers: req.headers() });
-      return route.fulfill({ status: post, headers: CORS, body: '' });
+      return route.fulfill({ status: post, headers: CORS, ...(posted ? { json: posted } : { body: '' }) });
     }
     calls.loads.push({ url: req.url(), headers: req.headers() });
     return route.fulfill({ status: load, headers: CORS, json: load === 200 ? notes : { message: 'unavailable' } });
@@ -174,6 +175,33 @@ test.describe('the notes wall on a desktop', () => {
     await expect(page.locator('#note-name')).toHaveValue('Tester');
   });
 
+  test('past the limit of 3 notes, it says how long the pause has left, and keeps what was written', async ({ page, context }) => {
+    // What the database says back (supabase/notes-limit.sql): 2501 seconds left is 42 minutes
+    const calls = await openLive(page, { post: 429, posted: { code: 'PT429', message: 'Too many notes', details: '2501', hint: null } });
+    await panToNotes(page);
+    await page.locator('[data-notes-open]').click();
+    await page.locator('#note-message').fill('One more');
+    await page.locator('#note-name').fill('Tester');
+    await page.locator('.notes__post').click();
+    await expect(status(page)).toHaveText('That’s the limit of 3 notes for now. You can post another in 42 minutes.');
+    expect(calls.posts).toHaveLength(1);
+    await expect(page.locator('[data-notes-form]')).toBeVisible();
+    await expect(page.locator('#note-message')).toHaveValue('One more');
+    await expect(page.locator('.notes__post')).toHaveText('Post');
+
+    // Under a minute left reads as 1 minute; with no time given, the whole hour
+    for (const [details, text] of [['30', '1 minute'], [undefined, '60 minutes']]) {
+      const other = await context.newPage();
+      await openLive(other, { post: 429, posted: { code: 'PT429', message: 'Too many notes', details } });
+      await panToNotes(other);
+      await other.locator('[data-notes-open]').click();
+      await other.locator('#note-message').fill('One more');
+      await other.locator('#note-name').fill('Tester');
+      await other.keyboard.press('ControlOrMeta+Enter');
+      await expect(status(other)).toHaveText(`That’s the limit of 3 notes for now. You can post another in ${text}.`);
+    }
+  });
+
   test('says so when there are no notes yet, and when they can\'t load', async ({ page, context }) => {
     await openLive(page, { notes: [] });
     await expect(page.locator('[data-notes-empty]')).toHaveText('No notes yet. Leave the first one!');
@@ -246,6 +274,55 @@ test.describe('the notes wall on a desktop', () => {
     expect(await animated()).toEqual([]);
   });
 
+  test('a click outside the notes section closes the form, keeping what was written; inside, it stays open', async ({ page }) => {
+    await openLive(page, { notes: SOME });
+    await panToNotes(page);
+    const form = page.locator('[data-notes-form]');
+    const button = page.locator('[data-notes-open]');
+    await button.click();
+    const field = page.locator('#note-message');
+    await field.fill('Half a thought');
+    await still(page.locator('#notes'));
+
+    // Inside the section: a note, the intro line
+    await stickies(page).nth(0).click();
+    await page.locator('.notes__intro').click();
+    await expect(form).toBeVisible();
+    // Selecting text that runs out past the section's edge isn't a click outside
+    const box = await field.boundingBox();
+    const section = await page.locator('#notes').boundingBox();
+    await page.mouse.move(box.x + 6, box.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(section.x - 60, box.y + 10, { steps: 6 });
+    await page.mouse.up();
+    await expect(form).toBeVisible();
+
+    // Outside: the empty board beside the section
+    await page.mouse.click(section.x - 100, section.y + 100);
+    await expect(form).toBeHidden();
+    await expect(button).toBeVisible();
+    await expect(button).not.toBeFocused();
+    await button.click();
+    await expect(field).toHaveValue('Half a thought');
+  });
+
+  test('the "New note" button and the two fields show no blue ring when focused', async ({ page }) => {
+    await openLive(page, { notes: SOME });
+    await panToNotes(page);
+    const ring = (locator) => locator.evaluate((el) => ({ focused: el.matches(':focus-visible'), outline: getComputedStyle(el).outlineStyle }));
+    await page.locator('[data-notes-open]').click();
+    expect(await ring(page.locator('#note-message'))).toEqual({ focused: true, outline: 'none' });
+    await page.keyboard.press('Tab');
+    expect(await ring(page.locator('#note-name'))).toEqual({ focused: true, outline: 'none' });
+    await expect(page.locator('#note-name')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    // Back from the keyboard, "New note" looks pointed at instead
+    await page.keyboard.press('Escape');
+    const button = page.locator('[data-notes-open]');
+    await expect(button).toBeFocused();
+    expect(await ring(button)).toEqual({ focused: true, outline: 'none' });
+    await expect(button).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0.5)');
+  });
+
   test('the section can be moved like the others, and the line from "Who I am" follows', async ({ page }) => {
     await openLive(page, { notes: SOME });
     const line = page.locator('[data-from="who"][data-to="notes"]');
@@ -266,7 +343,7 @@ test.describe('the notes wall on a desktop', () => {
   });
 });
 
-test.describe('the toolbar\'s comment button', () => {
+test.describe('the links to the notes: the toolbar\'s comment button and the home page\'s sticker', () => {
   // Where the CSS alone draws the board's layer, as it does before the script runs
   const drawnByCss = (page) => page.locator('.board__layer').evaluate((el) => {
     const set = el.style.transform;
@@ -304,12 +381,40 @@ test.describe('the toolbar\'s comment button', () => {
     await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
   });
 
+  test('the home page\'s "Leave me a note" sticker is on the first screen, left of the intro, and opens About on the notes', async ({ page }) => {
+    await page.goto('index.html');
+    const sticker = page.getByRole('link', { name: 'Leave me a note' });
+    await expect(sticker).toHaveAttribute('href', '/about.html#notes');
+    await expect(sticker).toBeInViewport({ ratio: 1 });
+    // It hangs off the intro's left edge, and is part of the intro, so it moves with it
+    await expect(page.locator('.intro .intro__hint')).toHaveCount(1);
+    const [hint, intro] = await Promise.all([sticker.boundingBox(), page.locator('.intro').boundingBox()]);
+    expect(hint.x + hint.width / 2).toBeLessThan(intro.x);
+    expect(hint.x + hint.width).toBeGreaterThan(intro.x);
+
+    await sticker.click();
+    await expect(page).toHaveURL(/\/about\.html#notes$/);
+    await expect.poll(() => notesTop(page)).toBe(120);
+    expect(await drawnByCss(page)).toEqual(await layer(page));
+  });
+
   test.describe('on a phone', () => {
     test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
-    test('scrolls the About page to the notes', async ({ page }) => {
+    test('the toolbar button scrolls the About page to the notes', async ({ page }) => {
       await page.goto('about.html');
       await button(page).tap();
+      await expect(page).toHaveURL(/\/about\.html#notes$/);
+      await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
+    });
+
+    test('the home page\'s sticker sits under the intro\'s stickies and leads to the notes', async ({ page }) => {
+      await page.goto('index.html');
+      const sticker = page.getByRole('link', { name: 'Leave me a note' });
+      await sticker.scrollIntoViewIfNeeded();
+      const [hint, last] = await Promise.all([sticker.boundingBox(), page.locator('.intro__notes .sticky').last().boundingBox()]);
+      expect(hint.y).toBeGreaterThan(last.y + last.height);
+      await sticker.tap();
       await expect(page).toHaveURL(/\/about\.html#notes$/);
       await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
     });

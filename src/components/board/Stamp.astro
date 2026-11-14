@@ -2,7 +2,8 @@
 // A small round sticker with a white ring, stuck on at a slight angle: a "+1", a star, a short
 // badge. <Stamp color="green" tilt={-10}>2+ yrs</Stamp>
 // decorative: for a stamp that repeats text already on the page, or is only there for fun, so
-// screen readers skip it.
+// screen readers skip it. With href, the stamp is a link, which lifts and straightens a little
+// when pointed at (don't make a link decorative).
 interface Props {
   color?: 'yellow' | 'orange' | 'red' | 'pink' | 'violet' | 'blue' | 'teal' | 'green' | 'gray' | 'white';
   // Degrees; a few either way reads as hand-placed
@@ -11,8 +12,10 @@ interface Props {
   small?: boolean;
   large?: boolean;
   decorative?: boolean;
+  href?: string;
   class?: string;
 }
-const { color = 'yellow', tilt = -8, small = false, large = false, decorative = false, class: className } = Astro.props;
+const { color = 'yellow', tilt = -8, small = false, large = false, decorative = false, href, class: className } = Astro.props;
+const Tag = href ? 'a' : 'span';
 ---
-<span class:list={['stamp', `stamp--${color}`, { 'stamp--small': small, 'stamp--large': large }, className]} style={`--tilt: ${tilt}deg`} aria-hidden={decorative ? 'true' : undefined}><slot /></span>
+<Tag class:list={['stamp', `stamp--${color}`, { 'stamp--small': small, 'stamp--large': large }, className]} href={href} style={`--tilt: ${tilt}deg`} aria-hidden={decorative ? 'true' : undefined}><slot /></Tag>

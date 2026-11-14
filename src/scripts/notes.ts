@@ -8,8 +8,10 @@
      on it and can't post to it; there the section says where the notes are.
    - Visitors' words and names go on the page as plain text, never as markup.
    - A note is sent with `Prefer: return=minimal`: the database won't hand back a note it hasn't
-     approved, so asking for it back would fail the whole post (see supabase/notes.sql). */
-import { notesApi, notesKey, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
+     approved, so asking for it back would fail the whole post (see supabase/notes.sql).
+   - After 3 notes the database pauses a visitor for 60 minutes (supabase/notes-limit.sql) and turns
+     the next one away with 429, saying how many seconds are left; the form says so in minutes. */
+import { notesApi, notesKey, NOTES_IN_A_ROW, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
 
 interface Note { id: string; author_name: string; message: string; color: string; }
 
@@ -83,8 +85,10 @@ export function initNotes(): void {
 
   // Opens the form in place of the "New note" button, or closes it again (keeping what was
   // written). The form grows out of the button's size into a full sticky, pushing the notes under it
-  // down as it goes, and shrinks back into it when it closes; at once for reduced motion.
-  function writing(on: boolean): void {
+  // down as it goes, and shrinks back into it when it closes; at once for reduced motion. Closed
+  // from the keyboard or by posting, the keyboard's place goes back to the button; closed by a
+  // click somewhere else, it stays where that click put it.
+  function writing(on: boolean, refocus = true): void {
     if (on === !form!.hidden && !motion) return;
     motion?.cancel();
     motion = null;
@@ -109,7 +113,7 @@ export function initNotes(): void {
       motion = null;
       form!.hidden = true;
       open.hidden = false;
-      open.focus();
+      if (refocus) open.focus();
       if (smooth) open.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
     };
     if (!smooth) return shut();
@@ -133,6 +137,17 @@ export function initNotes(): void {
     status.textContent = '';
     writing(true);
   });
+
+  // A click anywhere outside the notes section closes the form, keeping what was written. Only a
+  // click that starts and ends outside it: scrolling, panning, moving a block and selecting text
+  // that runs past the section's edge don't count.
+  const section = root.closest('.board-section') ?? root;
+  const outside = (e: Event): boolean => !(e.target instanceof Node && section.contains(e.target));
+  let pressedOutside = false;
+  document.addEventListener('pointerdown', (e) => { pressedOutside = outside(e); }, true);
+  document.addEventListener('click', (e) => {
+    if (pressedOutside && outside(e) && !form.hidden && !sending) writing(false, false);
+  }, true);
   form.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !sending) {
       e.preventDefault();
@@ -166,6 +181,14 @@ export function initNotes(): void {
         headers: { apikey: notesKey, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
         body: JSON.stringify(note),
       });
+      if (res.status === 429) {
+        // Paused: `details` is the seconds left. If it's missing, the whole pause (60 minutes)
+        const { details } = await res.json().catch(() => ({ details: '' }));
+        const minutes = Math.max(1, Math.ceil(Number(details) / 60) || 60);
+        busy(false);
+        status.textContent = `That’s the limit of ${NOTES_IN_A_ROW} notes for now. You can post another in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
+        return;
+      }
       if (!res.ok) throw new Error(`status ${res.status}`);
       form.reset();
       busy(false);
