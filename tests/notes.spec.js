@@ -315,7 +315,7 @@ test.describe('the notes wall on a desktop', () => {
   });
 });
 
-test.describe('the toolbar\'s comment button', () => {
+test.describe('the links to the notes: the toolbar\'s comment button and the home page\'s sticker', () => {
   // Where the CSS alone draws the board's layer, as it does before the script runs
   const drawnByCss = (page) => page.locator('.board__layer').evaluate((el) => {
     const set = el.style.transform;
@@ -353,12 +353,40 @@ test.describe('the toolbar\'s comment button', () => {
     await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
   });
 
+  test('the home page\'s "Leave me a note" sticker is on the first screen, left of the intro, and opens About on the notes', async ({ page }) => {
+    await page.goto('index.html');
+    const sticker = page.getByRole('link', { name: 'Leave me a note' });
+    await expect(sticker).toHaveAttribute('href', '/about.html#notes');
+    await expect(sticker).toBeInViewport({ ratio: 1 });
+    // It hangs off the intro's left edge, and is part of the intro, so it moves with it
+    await expect(page.locator('.intro .intro__hint')).toHaveCount(1);
+    const [hint, intro] = await Promise.all([sticker.boundingBox(), page.locator('.intro').boundingBox()]);
+    expect(hint.x + hint.width / 2).toBeLessThan(intro.x);
+    expect(hint.x + hint.width).toBeGreaterThan(intro.x);
+
+    await sticker.click();
+    await expect(page).toHaveURL(/\/about\.html#notes$/);
+    await expect.poll(() => notesTop(page)).toBe(120);
+    expect(await drawnByCss(page)).toEqual(await layer(page));
+  });
+
   test.describe('on a phone', () => {
     test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
-    test('scrolls the About page to the notes', async ({ page }) => {
+    test('the toolbar button scrolls the About page to the notes', async ({ page }) => {
       await page.goto('about.html');
       await button(page).tap();
+      await expect(page).toHaveURL(/\/about\.html#notes$/);
+      await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
+    });
+
+    test('the home page\'s sticker sits under the intro\'s stickies and leads to the notes', async ({ page }) => {
+      await page.goto('index.html');
+      const sticker = page.getByRole('link', { name: 'Leave me a note' });
+      await sticker.scrollIntoViewIfNeeded();
+      const [hint, last] = await Promise.all([sticker.boundingBox(), page.locator('.intro__notes .sticky').last().boundingBox()]);
+      expect(hint.y).toBeGreaterThan(last.y + last.height);
+      await sticker.tap();
       await expect(page).toHaveURL(/\/about\.html#notes$/);
       await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
     });

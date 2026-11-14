@@ -824,6 +824,10 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
 .stamp--green { --fill: var(--sticky-green); }
 .stamp--gray { --fill: var(--sticky-gray); }
 .stamp--white { --fill: var(--sticky-white); }
+/* A stamp that's a link lifts and straightens halfway when pointed at */
+a.stamp { transition: rotate 0.3s var(--ease-out), scale 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
+a.stamp:hover,
+a.stamp:focus-visible { rotate: calc(var(--tilt, -8deg) / 2); scale: 1.06; box-shadow: var(--shadow-float); }
 
 /* Washi tape: a see-through strip with torn ends, over the edge of whatever it holds (.taped).
    --photo gives a picture the white border of a print. */
@@ -1255,6 +1259,12 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
    and the portrait hangs off its corner */
 .is-canvas .intro { width: 912px; height: 472px; margin-left: 96px; }
 .is-canvas .intro__photo { top: -56px; right: -64px; width: 184px; }
+/* The "Leave me a note" sticker (a link to the notes wall on About): under the stickies on a page
+   that scrolls; on the canvas it hangs off the intro's left edge, level with the greeting, as the
+   portrait hangs off the right. Its 16px over the edge stays inside the intro's padding, clear of
+   the text. */
+.intro__hint { margin-top: 28px; }
+.is-canvas .intro__hint { position: absolute; left: -96px; top: 112px; margin: 0; }
 @media (min-width: 768px) {
   .intro__notes.sticky-grid { display: flex; }   /* side by side from tablet width up; stacked on phones */
 }

@@ -3,12 +3,16 @@
 // lines, each on its own sticky. A taped portrait hangs off the top-right corner (decoration, so
 // it has no alt text; it's left out on phones). A made-up visitor's cursor drifts about inside it,
 // on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
+// A pink sticker, "Leave me a note", links to the notes wall on the About page, as the toolbar's
+// Notes button does: on the canvas it hangs off the intro's left edge (and moves with it), and on
+// a page that scrolls it sits under the stickies.
 import { site } from '../../data/site';
 import Img from '../Img.astro';
 import Section from '../board/Section.astro';
 import Sticky from '../board/Sticky.astro';
 import WashiTape from '../board/WashiTape.astro';
 import Cursor from '../board/Cursor.astro';
+import Stamp from '../board/Stamp.astro';
 ---
 <Section class="intro" color="violet" name="Intro" labelledby="hero-title" drag="intro">
   <p class="intro__location drop-in">
@@ -27,5 +31,7 @@ import Cursor from '../board/Cursor.astro';
     <WashiTape color="pink" tilt={-5} />
     <Img src="denis-portrait.jpg" alt="" sizes="184px" loading="eager" />
   </figure>
+  {/* One span around the words: a stamp centres its contents as a grid, which would put each piece on a row of its own */}
+  <Stamp large color="pink" tilt={-10} href="/about.html#notes" class="intro__hint drop-in"><span>Leave me<br>a note <span aria-hidden="true">✍️</span></span></Stamp>
   <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
 </Section>
