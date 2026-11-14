@@ -246,6 +246,55 @@ test.describe('the notes wall on a desktop', () => {
     expect(await animated()).toEqual([]);
   });
 
+  test('a click outside the notes section closes the form, keeping what was written; inside, it stays open', async ({ page }) => {
+    await openLive(page, { notes: SOME });
+    await panToNotes(page);
+    const form = page.locator('[data-notes-form]');
+    const button = page.locator('[data-notes-open]');
+    await button.click();
+    const field = page.locator('#note-message');
+    await field.fill('Half a thought');
+    await still(page.locator('#notes'));
+
+    // Inside the section: a note, the intro line
+    await stickies(page).nth(0).click();
+    await page.locator('.notes__intro').click();
+    await expect(form).toBeVisible();
+    // Selecting text that runs out past the section's edge isn't a click outside
+    const box = await field.boundingBox();
+    const section = await page.locator('#notes').boundingBox();
+    await page.mouse.move(box.x + 6, box.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(section.x - 60, box.y + 10, { steps: 6 });
+    await page.mouse.up();
+    await expect(form).toBeVisible();
+
+    // Outside: the empty board beside the section
+    await page.mouse.click(section.x - 100, section.y + 100);
+    await expect(form).toBeHidden();
+    await expect(button).toBeVisible();
+    await expect(button).not.toBeFocused();
+    await button.click();
+    await expect(field).toHaveValue('Half a thought');
+  });
+
+  test('the "New note" button and the two fields show no blue ring when focused', async ({ page }) => {
+    await openLive(page, { notes: SOME });
+    await panToNotes(page);
+    const ring = (locator) => locator.evaluate((el) => ({ focused: el.matches(':focus-visible'), outline: getComputedStyle(el).outlineStyle }));
+    await page.locator('[data-notes-open]').click();
+    expect(await ring(page.locator('#note-message'))).toEqual({ focused: true, outline: 'none' });
+    await page.keyboard.press('Tab');
+    expect(await ring(page.locator('#note-name'))).toEqual({ focused: true, outline: 'none' });
+    await expect(page.locator('#note-name')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+    // Back from the keyboard, "New note" looks pointed at instead
+    await page.keyboard.press('Escape');
+    const button = page.locator('[data-notes-open]');
+    await expect(button).toBeFocused();
+    expect(await ring(button)).toEqual({ focused: true, outline: 'none' });
+    await expect(button).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0.5)');
+  });
+
   test('the section can be moved like the others, and the line from "Who I am" follows', async ({ page }) => {
     await openLive(page, { notes: SOME });
     const line = page.locator('[data-from="who"][data-to="notes"]');

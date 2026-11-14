@@ -83,8 +83,10 @@ export function initNotes(): void {
 
   // Opens the form in place of the "New note" button, or closes it again (keeping what was
   // written). The form grows out of the button's size into a full sticky, pushing the notes under it
-  // down as it goes, and shrinks back into it when it closes; at once for reduced motion.
-  function writing(on: boolean): void {
+  // down as it goes, and shrinks back into it when it closes; at once for reduced motion. Closed
+  // from the keyboard or by posting, the keyboard's place goes back to the button; closed by a
+  // click somewhere else, it stays where that click put it.
+  function writing(on: boolean, refocus = true): void {
     if (on === !form!.hidden && !motion) return;
     motion?.cancel();
     motion = null;
@@ -109,7 +111,7 @@ export function initNotes(): void {
       motion = null;
       form!.hidden = true;
       open.hidden = false;
-      open.focus();
+      if (refocus) open.focus();
       if (smooth) open.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
     };
     if (!smooth) return shut();
@@ -133,6 +135,17 @@ export function initNotes(): void {
     status.textContent = '';
     writing(true);
   });
+
+  // A click anywhere outside the notes section closes the form, keeping what was written. Only a
+  // click that starts and ends outside it: scrolling, panning, moving a block and selecting text
+  // that runs past the section's edge don't count.
+  const section = root.closest('.board-section') ?? root;
+  const outside = (e: Event): boolean => !(e.target instanceof Node && section.contains(e.target));
+  let pressedOutside = false;
+  document.addEventListener('pointerdown', (e) => { pressedOutside = outside(e); }, true);
+  document.addEventListener('click', (e) => {
+    if (pressedOutside && outside(e) && !form.hidden && !sending) writing(false, false);
+  }, true);
   form.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !sending) {
       e.preventDefault();

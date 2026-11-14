@@ -1508,6 +1508,11 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .is-canvas .about-block--do { grid-area: 2 / 2; }
 .is-canvas .about-block--believe { grid-area: 3 / 2; }
 .is-canvas .about-playlist { grid-area: 4 / 1; }
+/* The footer, bottom right, starts 225px higher than the 152px under the columns it has on the
+   home page: 20% of a 900px-tall screen at the page's 80% zoom (180px on screen). Its tab then
+   sits about as far under "What I believe in" as the rows are apart. It's on the right and the
+   playlist on the left, so pulled up beside the playlist it can't touch it. */
+.is-canvas[data-page="about"] .site-footer { margin-top: -73px; }
 
 /* The notes wall: a green "Notes" section (src/components/about/Notes.astro, filled by
    src/scripts/notes.ts). At the top, a dashed "New note" sticky that opens into the form, a yellow
@@ -1534,7 +1539,13 @@ html:not(.js) .notes { display: none; }
   cursor: pointer;
   transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
 }
-.notes__new:hover { border-color: rgb(0 0 0 / 0.5); background: rgb(255 255 255 / 0.7); }
+/* No blue focus ring on the button or the two fields: the button looks pointed at instead, the
+   name field turns white, and the note's field has its blinking caret */
+.notes__new:hover,
+.notes__new:focus-visible { border-color: rgb(0 0 0 / 0.5); background: rgb(255 255 255 / 0.7); }
+.notes__new:focus-visible,
+.notes__form textarea:focus-visible,
+.notes__form input:focus-visible { outline: none; }
 .notes__new[hidden] { display: none; }
 
 /* It grows out of the "New note" button's size as it opens (src/scripts/notes.ts), so what's inside
@@ -1570,7 +1581,9 @@ html:not(.js) .notes { display: none; }
   border-radius: var(--r-sm);
   background: rgb(255 255 255 / 0.65);
   color: inherit;
+  transition: background-color 0.15s var(--ease);
 }
+.notes__form input:focus { background: #fff; }
 .notes__post { height: 36px; border: 0; cursor: pointer; }
 .notes__post[aria-disabled="true"] { cursor: progress; }
 

@@ -168,6 +168,19 @@ test.describe('the About page on a desktop', () => {
     await expect.poll(() => layer(page)).toEqual({ x: before.x, y: before.y - 300, zoom: 0.8 });
   });
 
+  test('the footer\'s tab starts about as far under "What I believe in" as the rows are apart', async ({ page }) => {
+    // Once everything has dropped in, which moves it a few pixels
+    await page.waitForFunction(() => document.getAnimations().every((a) => a.animationName !== 'drop-in' || a.playState === 'finished'));
+    const gap = await page.evaluate(() => {
+      const zoom = new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a;
+      const believe = document.querySelector('#believe').getBoundingClientRect();
+      const tab = document.querySelector('.site-footer .board-section__tab').getBoundingClientRect();
+      return (tab.top - believe.bottom) / zoom;
+    });
+    expect(gap).toBeGreaterThan(100);
+    expect(gap).toBeLessThan(140);
+  });
+
   test('the dots under the photo switch between the photos', async ({ page }) => {
     const slides = page.locator('.about-photos__slide');
     const dots = page.locator('.about-photos__dots button');
