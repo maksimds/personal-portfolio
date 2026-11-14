@@ -1287,7 +1287,7 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   letter-spacing: -0.01em;
   line-height: 1.25;
 }
-.work-card__desc { margin: 6px 0 0; font-size: 0.9375rem; line-height: 1.4; }
+.work-card__desc { margin: 6px 0 0; font-size: 0.9375rem; line-height: 1.4; text-wrap: balance; }   /* no lone "up" after "start-" */
 .work-card__cta { position: absolute; top: 20px; right: 24px; font-size: 1.25rem; line-height: 1; }
 .work-card__cta .arrow { transition: none; }
 /* The → nudges to the right and glides back when the card is pointed at */
