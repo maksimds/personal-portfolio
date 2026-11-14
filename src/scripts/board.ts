@@ -130,10 +130,12 @@ export function initBoard(): BoardView | null {
     return { x: innerWidth / 2 - sx * zoom, y: innerHeight * START_Y - sy * zoom };
   }
 
-  // The place that shows a section linked to: centred, its top just below the pills
+  // The place that shows a section linked to: centred, its top just below the pills. A section
+  // still dropping in (as the page opens) is drawn a little above its place: aim for where it settles.
   function placeOf(el: Element): { x: number; y: number } {
     const box = el.getBoundingClientRect();
-    return { x: x + innerWidth / 2 - (box.left + box.width / 2), y: y + TOP - box.top };
+    const [dx = 0, dy = 0] = getComputedStyle(el).translate.split(' ').map((v) => parseFloat(v) || 0);
+    return { x: x + innerWidth / 2 - (box.left - dx * zoom + box.width / 2), y: y + TOP - (box.top - dy * zoom) };
   }
 
   // The element a # address points at, if it's on the board

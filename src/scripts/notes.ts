@@ -14,6 +14,8 @@ import { notesApi, notesKey, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
 interface Note { id: string; author_name: string; message: string; color: string; }
 
 const SITE = 'dmaksimoff.com';
+const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';   // --ease-out in styles.css, as the objects dropping in use
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
 const connected = (): boolean => import.meta.env.DEV || location.hostname === SITE || location.hostname === 'www.' + SITE;
 
 // A slight turn for each note, the same every time it's shown: from its id, -1.5 to 1.5 degrees
@@ -33,7 +35,6 @@ export function initNotes(): void {
   const empty = root.querySelector<HTMLElement>('[data-notes-empty]')!;
   const status = root.querySelector<HTMLElement>('[data-notes-status]')!;
   const open = root.querySelector<HTMLButtonElement>('[data-notes-open]')!;
-  const cancel = root.querySelector<HTMLButtonElement>('[data-notes-cancel]')!;
   const post = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
   const message = form.querySelector<HTMLTextAreaElement>('textarea')!;
   const name = form.querySelector<HTMLInputElement>('input')!;
@@ -77,12 +78,46 @@ export function initNotes(): void {
   /* ----- Writing one ----- */
 
   let sending = false;
+  let motion: Animation | null = null;
+  let closedHeight = 0;   // the "New note" button's height, which the form grows from and shrinks back to
 
-  // Opens the form in place of the "New note" button, or closes it again (keeping what was written)
+  // Opens the form in place of the "New note" button, or closes it again (keeping what was
+  // written). The form grows out of the button's size into a full sticky, pushing the notes under it
+  // down as it goes, and shrinks back into it when it closes; at once for reduced motion.
   function writing(on: boolean): void {
-    form!.hidden = !on;
-    open.hidden = on;
-    (on ? message : open).focus();
+    if (on === !form!.hidden && !motion) return;
+    motion?.cancel();
+    motion = null;
+    const smooth = !calm.matches && 'animate' in form!;
+
+    if (on) {
+      closedHeight = open.offsetHeight || closedHeight;
+      open.hidden = true;
+      form!.hidden = false;
+      message.focus();
+      if (smooth) {
+        motion = form!.animate(
+          [{ height: `${closedHeight}px`, opacity: 0 }, { opacity: 1, offset: 0.35 }, { height: `${form!.offsetHeight}px`, opacity: 1 }],
+          { duration: 450, easing: EASE },
+        );
+        motion.onfinish = () => { motion = null; };
+      }
+      return;
+    }
+
+    const shut = (): void => {
+      motion = null;
+      form!.hidden = true;
+      open.hidden = false;
+      open.focus();
+      if (smooth) open.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' });
+    };
+    if (!smooth) return shut();
+    motion = form!.animate(
+      [{ height: `${form!.offsetHeight}px`, opacity: 1 }, { opacity: 0, offset: 0.7 }, { height: `${closedHeight}px`, opacity: 0 }],
+      { duration: 320, easing: EASE },
+    );
+    motion.onfinish = shut;
   }
 
   // While a note is on its way, the fields can't be changed, but they keep the keyboard's place
@@ -97,9 +132,6 @@ export function initNotes(): void {
   open.addEventListener('click', () => {
     status.textContent = '';
     writing(true);
-  });
-  cancel.addEventListener('click', () => {
-    if (!sending) writing(false);
   });
   form.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !sending) {

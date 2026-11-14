@@ -1537,7 +1537,9 @@ html:not(.js) .notes { display: none; }
 .notes__new:hover { border-color: rgb(0 0 0 / 0.5); background: rgb(255 255 255 / 0.7); }
 .notes__new[hidden] { display: none; }
 
-.notes__form.sticky { width: auto; min-height: 0; gap: 12px; padding: 20px; }
+/* It grows out of the "New note" button's size as it opens (src/scripts/notes.ts), so what's inside
+   is clipped to it meanwhile; the focus rings fit inside its padding */
+.notes__form.sticky { width: auto; min-height: 0; gap: 12px; padding: 20px; overflow: hidden; }
 .notes__form[hidden] { display: none; }   /* a sticky is display: flex, which would show it anyway */
 /* 16px at least, or a phone zooms in on the field when it's tapped */
 .notes__form textarea,
@@ -1569,19 +1571,6 @@ html:not(.js) .notes { display: none; }
   background: rgb(255 255 255 / 0.65);
   color: inherit;
 }
-.notes__cancel {
-  flex: none;
-  height: 36px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: var(--r-sm);
-  background: none;
-  color: var(--charcoal);
-  font-weight: 550;
-  cursor: pointer;
-}
-.notes__cancel:hover,
-.notes__cancel:focus-visible { background: rgb(0 0 0 / 0.07); }
 .notes__post { height: 36px; border: 0; cursor: pointer; }
 .notes__post[aria-disabled="true"] { cursor: progress; }
 
@@ -1628,6 +1617,14 @@ html:not(.js) .notes { display: none; }
   left: calc(-720px + var(--drag-x, 0px));
   top: var(--drag-y, 0px);
   width: 592px;
+}
+/* Arriving at /about.html#notes (the toolbar's comment button), the layer starts at the notes
+   instead: where the script would put them (centred, their top 120px down the screen), at the
+   page's zoom. Their place on the board is fixed: across, the layer's padding (1664) − 720 + half
+   their width (296) = 1240; down, the layer's padding (760) + the photo print's height, which sets
+   the first row (12 + 370 + 44 = 426) + the gap between rows (112) = 1298. */
+.is-canvas[data-page="about"]:has(#notes:target) .board__layer {
+  transform: translate(calc(50vw - 1240px * var(--start-zoom, 1)), calc(120px - 1298px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
 @media (max-width: 767px) {
   html[data-page="about"] main { row-gap: 64px; }

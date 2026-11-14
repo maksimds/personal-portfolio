@@ -215,6 +215,37 @@ test.describe('the notes wall on a desktop', () => {
     await expect(field).toHaveValue('hi there');
   });
 
+  test('"New note" grows into the form and shrinks back; at once with reduced motion', async ({ page }) => {
+    await openLive(page, { notes: SOME });
+    await panToNotes(page);
+    const form = page.locator('[data-notes-form]');
+    const button = page.locator('[data-notes-open]');
+    // The heights the form's animation runs between, read as soon as it starts
+    const animated = () => form.evaluate((el) => el.getAnimations().map((a) => {
+      const frames = a.effect.getKeyframes();
+      return { from: frames[0].height, to: frames.at(-1).height };
+    }));
+    const closed = await button.evaluate((el) => `${el.offsetHeight}px`);
+
+    await button.click();
+    const opening = await animated();
+    expect(opening).toHaveLength(1);
+    expect(opening[0].from).toBe(closed);
+    await expect.poll(() => form.evaluate((el) => el.getAnimations().length)).toBe(0);
+    const open = await form.evaluate((el) => `${el.offsetHeight}px`);
+    expect(opening[0].to).toBe(open);
+
+    await page.keyboard.press('Escape');
+    expect(await animated()).toEqual([{ from: open, to: closed }]);
+    await expect(form).toBeHidden();
+    await expect(button).toBeFocused();
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await button.click();
+    await expect(form).toBeVisible();
+    expect(await animated()).toEqual([]);
+  });
+
   test('the section can be moved like the others, and the line from "Who I am" follows', async ({ page }) => {
     await openLive(page, { notes: SOME });
     const line = page.locator('[data-from="who"][data-to="notes"]');
@@ -232,6 +263,56 @@ test.describe('the notes wall on a desktop', () => {
     const after = await page.locator('#notes').boundingBox();
     expect({ x: Math.round(after.x - before.x), y: Math.round(after.y - before.y) }).toEqual({ x: 40, y: 40 });
     await expect.poll(() => line.locator('.connector__line').getAttribute('d')).not.toBe(drawn);
+  });
+});
+
+test.describe('the toolbar\'s comment button', () => {
+  // Where the CSS alone draws the board's layer, as it does before the script runs
+  const drawnByCss = (page) => page.locator('.board__layer').evaluate((el) => {
+    const set = el.style.transform;
+    el.style.transform = '';
+    const m = new DOMMatrix(getComputedStyle(el).transform);
+    el.style.transform = set;
+    return { x: Math.round(m.e), y: Math.round(m.f), zoom: Math.round(m.a * 100) / 100 };
+  });
+  const layer = (page) => page.locator('.board__layer').evaluate((el) => {
+    const m = new DOMMatrix(getComputedStyle(el).transform);
+    return { x: Math.round(m.e), y: Math.round(m.f), zoom: Math.round(m.a * 100) / 100 };
+  });
+  const notesTop = (page) => page.locator('#notes').evaluate((el) => Math.round(el.getBoundingClientRect().top));
+  const button = (page) => page.locator('.toolbar [data-shortcut="c"]');
+
+  test('is "Notes" (C), and from another page opens About on the notes, already drawn there', async ({ page }) => {
+    await page.goto('index.html');
+    await expect(button(page)).toHaveAttribute('aria-label', 'Notes');
+    await expect(page.locator('#tip-notes')).toHaveText(/Notes\s*C/);
+    await page.keyboard.press('c');
+    await expect(page).toHaveURL(/\/about\.html#notes$/);
+    await expect.poll(() => notesTop(page)).toBe(120);
+    await expect(page.locator('#notes')).toBeInViewport();
+    // The CSS draws the board on the notes before the script runs, so nothing jumps
+    expect(await drawnByCss(page)).toEqual(await layer(page));
+  });
+
+  test('on the About page, glides the board to the notes', async ({ page }) => {
+    await page.goto('about.html');
+    await expect(page.locator('#about-title')).toBeInViewport();
+    await expect(page.locator('#notes')).not.toBeInViewport({ ratio: 0.5 });
+    await button(page).click();
+    await expect(page).toHaveURL(/\/about\.html#notes$/);
+    await expect.poll(() => notesTop(page)).toBe(120);
+    await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
+  });
+
+  test.describe('on a phone', () => {
+    test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+
+    test('scrolls the About page to the notes', async ({ page }) => {
+      await page.goto('about.html');
+      await button(page).tap();
+      await expect(page).toHaveURL(/\/about\.html#notes$/);
+      await expect(page.locator('#notes .board-section__tab')).toBeInViewport();
+    });
   });
 });
 

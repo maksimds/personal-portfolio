@@ -1,7 +1,8 @@
 ---
 // The notes wall on the About page: a "Notes" section where visitors leave Denis a short note. A
 // new note waits until it's approved in the database; then it shows here as a sticky with the
-// visitor's name, newest first. "New note" opens into the form for writing one.
+// visitor's name, newest first. "New note" grows into the form for writing one; Escape (or
+// posting) shrinks it back. The toolbar's comment button links here (/about.html#notes).
 // src/scripts/notes.ts loads the notes and sends new ones; the database and its rules are in
 // supabase/notes.sql, and the address, key and limits in src/data/notes.ts. Without JavaScript
 // the section only says that it needs it.
@@ -24,7 +25,6 @@ import { MESSAGE_MAX, NAME_MAX } from '../../data/notes';
       <div class="notes__row">
         <label class="visually-hidden" for="note-name">Your name</label>
         <input id="note-name" name="author_name" type="text" maxlength={NAME_MAX} required autocomplete="name" placeholder="Your name">
-        <button type="button" class="notes__cancel" data-notes-cancel>Cancel</button>
         <button type="submit" class="button-primary notes__post">Post</button>
       </div>
     </form>

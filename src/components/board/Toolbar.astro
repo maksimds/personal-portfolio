@@ -55,9 +55,11 @@ const onAbout = isCurrentPage('/about.html', Astro.url.pathname);
     </a>
     <Tooltip id="tip-resume" name="Resume" keys="R" />
   </span>
+  {/* The notes wall on the About page: there, the board glides to it; from another page, About
+      opens on it (src/scripts/board.ts) */}
   <span class="tool">
-    <a class="icon-button" href={`mailto:${site.email}`} target="_blank" rel="noopener" data-shortcut="c" aria-label="Email" aria-describedby="tip-email" aria-keyshortcuts="C"><Icon name="comment" /></a>
-    <Tooltip id="tip-email" name="Email" keys="C" />
+    <a class="icon-button" href="/about.html#notes" data-shortcut="c" aria-label="Notes" aria-describedby="tip-notes" aria-keyshortcuts="C"><Icon name="comment" /></a>
+    <Tooltip id="tip-notes" name="Notes" keys="C" />
   </span>
   {/* Hidden for visitors who have turned on reduced motion, and without JavaScript, which it needs */}
   <span class="tool tool--stamp">
