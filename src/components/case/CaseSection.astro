@@ -1,10 +1,25 @@
 ---
-// A main section with an h2 (Problem, Research, Solution, Impact…). afterRule: the first section
-// after a <CaseRule />, which sits closer to the line.
+// A main section with an h2 (Problem, Research, Solution, Impact…), as a section of the board.
+// The heading is the section's tab. A title with a colon ("Problem: Too many steps") is split:
+// the part before the colon is the tab and the rest is the heading inside, still one h2 that
+// reads "Problem: Too many steps". The sections take a different colour each, in turn (see
+// .case-section in styles.css). A section with nothing in it is just its heading, as big text
+// on the board, for introducing the blocks that follow.
+// afterRule: the first section after a <CaseRule />, which sits closer to the line.
 interface Props { title: string; afterRule?: boolean; }
 const { title, afterRule = false } = Astro.props;
+const body = (await Astro.slots.render('default')) ?? '';
+const colon = title.indexOf(': ');
+const tab = colon > 0 ? title.slice(0, colon) : title;
+const rest = colon > 0 ? title.slice(colon + 2) : '';
 ---
-<section class:list={['case-section', { 'case-section--after-rule': afterRule }, 'reveal']}>
-  <h2>{title}</h2>
-  <slot />
-</section>
+{body.trim()
+  ? (
+    <section class:list={['board-section', 'case-section', { 'case-section--after-rule': afterRule }, 'drop-in']}>
+      {rest
+        ? <h2 class="case-section__title"><span class="board-section__tab">{tab}<span class="visually-hidden">: </span></span>{rest}</h2>
+        : <h2 class="board-section__tab">{tab}</h2>}
+      <Fragment set:html={body} />
+    </section>
+  )
+  : <h2 class:list={['case-heading', { 'case-heading--after-rule': afterRule }, 'drop-in']}>{title}</h2>}

@@ -1,10 +1,10 @@
 ---
 // A widget: a white card with a slim header strip, for something that isn't the board's own (a
-// link out to a playlist, an embedded prototype). The strip carries a short name, in small
-// technical type, and three dots that are only decoration.
+// link out to a playlist, an image, an embedded prototype). The strip carries three dots that are
+// only decoration and, with name, a short name in small technical type.
 // <Widget name="Playlist">…</Widget>
 interface Props {
-  name: string;
+  name?: string;
   as?: 'div' | 'aside' | 'figure' | 'section';
   id?: string;
   dropIn?: boolean;
@@ -13,6 +13,8 @@ interface Props {
 const { name, as: Tag = 'div', id, dropIn = false, class: className } = Astro.props;
 ---
 <Tag class:list={['widget', { 'drop-in': dropIn }, className]} id={id}>
-  <p class="widget__bar"><span class="widget__name">{name}</span><span class="widget__dots" aria-hidden="true"></span></p>
+  {name
+    ? <p class="widget__bar"><span class="widget__name">{name}</span><span class="widget__dots" aria-hidden="true"></span></p>
+    : <div class="widget__bar" aria-hidden="true"><span class="widget__dots"></span></div>}
   <div class="widget__body"><slot /></div>
 </Tag>

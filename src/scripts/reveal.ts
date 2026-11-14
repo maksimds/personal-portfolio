@@ -3,7 +3,9 @@
    (see "Drop in" in src/styles/styles.css) once their top is 48px into view. Objects that come in
    together follow each other 0.06s apart, in page order; after the eighth they come together, so
    a long page doesn't keep you waiting. On a page laid out as a canvas nothing is scrolled to, so
-   they all drop in as the page opens (src/scripts/board.ts calls showAllDropIns). */
+   they all drop in as the page opens (src/scripts/board.ts calls showAllDropIns). The older class
+   "reveal" counts as "drop-in": a case study's file can still carry it on a line of its own. */
+const DROP = '.drop-in, .reveal';
 function show(list: HTMLElement[]): void {
   list.forEach((el, i) => {
     el.style.setProperty('--drop-delay', Math.min(i, 8) * 0.06 + 's');
@@ -12,11 +14,11 @@ function show(list: HTMLElement[]): void {
 }
 
 export function showAllDropIns(): void {
-  show(Array.from(document.querySelectorAll<HTMLElement>('.drop-in:not(.is-visible)')));
+  show(Array.from(document.querySelectorAll<HTMLElement>(DROP)).filter((el) => !el.classList.contains('is-visible')));
 }
 
 export function initDropIn(): void {
-  const els = Array.from(document.querySelectorAll<HTMLElement>('.drop-in'));
+  const els = Array.from(document.querySelectorAll<HTMLElement>(DROP));
   if (!('IntersectionObserver' in window) || document.documentElement.classList.contains('is-canvas')) {
     show(els);
     return;
@@ -30,26 +32,6 @@ export function initDropIn(): void {
   // into view, so it's marked as shown now: it's there, settled, if the screen later has room for it
   show(els.filter((el) => !el.getClientRects().length));
   els.filter((el) => el.getClientRects().length).forEach((el) => io.observe(el));
-}
-
-/* ---------- Fade in on scroll ---------- */
-export function initReveal(): void {
-  const revealEls = document.querySelectorAll('.reveal');
-
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
-
-    revealEls.forEach((el) => { io.observe(el); });
-  } else {
-    revealEls.forEach((el) => { el.classList.add('is-visible'); });
-  }
 }
 
 /* ---------- Blur in on scroll (My works, About, footer) ----------

@@ -1,8 +1,9 @@
 ---
-// "Project details": write them in the frontmatter (facts) and put <CaseFacts facts={frontmatter.facts} /> where they go
+// "Project details", as a table on the board: write them in the frontmatter (facts) and put
+// <CaseFacts facts={frontmatter.facts} /> where they go
+import Table from '../board/Table.astro';
+
 interface Props { facts: { label: string; value: string; wide?: boolean }[]; }
 const { facts } = Astro.props;
 ---
-<dl class="case-facts reveal">
-  {facts.map((f) => <div class={f.wide ? 'case-facts__wide' : undefined}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
-</dl>
+<Table items={facts} class="case-facts" dropIn />

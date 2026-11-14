@@ -19,17 +19,19 @@ const { prev, next } = await getNeighbours(project);
 ---
 <BaseLayout title={`${data.pageTitle ?? data.title} — Denis Maksimov`} description={data.description} canonicalPath={projectUrl(project)}>
 
-  <article class="case container">
-    <div class="grid">
-      <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+  {/* A page that scrolls: one column of board objects. The title and the taped logo share the top;
+      everything under them comes from the case study's file. */}
+  <article class="case">
+    <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
 
+    <div class:list={['case-top', { 'case-top--logo': data.hero.logo }]}>
       <CaseHead title={data.title} subtitle={data.subtitle} status={data.status} />
       <CaseHero {...data.hero} />
+    </div>
 
-      <div class="case-body">
-        <Content components={caseComponents} />
-        <CaseNav prev={prev} next={next} />
-      </div>
+    <div class="case-body">
+      <Content components={caseComponents} />
+      <CaseNav prev={prev} next={next} />
     </div>
   </article>
 

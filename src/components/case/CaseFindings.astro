@@ -1,9 +1,12 @@
 ---
-// A list of findings, each a bold title with a line of detail. ordered: numbered (1, 2, 3…).
+// A list of findings, each on a sticky: a bold title with a line of detail. Three to a row (four
+// findings go two by two). ordered: a numbered list for screen readers (1, 2, 3…).
 interface Props { items: { title: string; text: string }[]; ordered?: boolean; }
 const { items, ordered = false } = Astro.props;
 const List = ordered ? 'ol' : 'ul';
+const colors = ['yellow', 'green', 'blue', 'pink', 'violet', 'orange'];
+const perRow = items.length === 4 ? 2 : Math.min(items.length, 3);
 ---
-<List class="case-findings">
-  {items.map((item) => <li><strong>{item.title}</strong><span>{item.text}</span></li>)}
+<List class="case-findings" style={`--per-row: ${perRow}`}>
+  {items.map((item, i) => <li class:list={['sticky', `sticky--${colors[i % colors.length]}`]}><strong>{item.title}</strong><span>{item.text}</span></li>)}
 </List>

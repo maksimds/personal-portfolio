@@ -1,5 +1,6 @@
 ---
-// One persona card. The details line up across the cards, so give each the same labels.
+// One persona, on a tall coloured card (each card in a row gets its own colour). The details line
+// up across the cards, so give each the same labels.
 import Img from '../Img.astro';
 
 interface Props {
@@ -11,7 +12,7 @@ const { name, type, details } = Astro.props;
 ---
 <div class="case-persona">
   <div class="case-persona__head">
-    <Img src="avatar-default.svg" alt="" sizes="9rem" />
+    <Img src="avatar-default.svg" alt="" sizes="4.5rem" />
     <h3>{name}</h3>
     <p class="case-persona__type">{type}</p>
   </div>

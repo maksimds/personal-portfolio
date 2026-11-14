@@ -813,6 +813,7 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
   rotate: var(--tilt, -8deg);
 }
 .stamp--small { width: 44px; height: 44px; padding: 0; font-size: 20px; }   /* one emoji */
+.stamp--large { width: 112px; height: 112px; padding: 6px; font-size: 14px; line-height: 1.15; }   /* two short lines of words */
 .stamp--orange { --fill: var(--sticky-orange); }
 .stamp--red { --fill: var(--sticky-red); }
 .stamp--pink { --fill: var(--sticky-pink); }
@@ -911,6 +912,7 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
   font-weight: 500;
   line-height: 1;
 }
+div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
 .widget__dots {
   width: 4px;
   height: 4px;
@@ -1077,12 +1079,15 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
    A board object with class "drop-in" starts see-through and 8px higher, then settles into place
    as it comes into view (src/scripts/reveal.ts adds .is-visible and --drop-delay). Only the
    starting state is written, so each object ends on its own styles; it moves with `translate`,
-   which leaves an object's own `transform` or `rotate` (a tilted sticky) alone. */
+   which leaves an object's own `transform` or `rotate` (a tilted sticky) alone. The older class
+   "reveal" does the same: a case study's file can still carry it on a line of its own. */
 @keyframes drop-in {
   from { opacity: 0; translate: 0 -8px; }
 }
-.js .drop-in { opacity: 0; }
-.js .drop-in.is-visible {
+.js .drop-in,
+.js .reveal { opacity: 0; }
+.js .drop-in.is-visible,
+.js .reveal.is-visible {
   opacity: 1;
   animation: drop-in 0.45s var(--drop-delay, 0s) var(--ease-out) backwards;
 }
@@ -1422,6 +1427,316 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   .about-photo { margin-top: -16px; }
 }
 
+/* ---------- Case study ----------
+   A page that scrolls: one column of board objects, for reading. The title with its status stamp
+   and the taped logo share the top; under them come the intro (a violet section), the project
+   details (a table), then a section for each part of the story, with stickies for findings,
+   shapes for features, widget cards for images and prototypes, and tall cards for personas.
+   The markup is src/components/case/; the text is each case study's own file. */
+.case { width: min(var(--column), 100% - 32px); margin: 0 auto; }
+
+/* "← All work": the words are underlined when pointed at, and the arrow nudges left and back */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: var(--fs-small);
+  font-weight: 550;
+  line-height: var(--lh-chrome);
+}
+.back-link .arrow { transition: none; }
+.back-link:hover .back-link__label,
+.back-link:focus-visible .back-link__label { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 0.2em; }
+.back-link:hover .arrow,
+.back-link:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
+.case-back { margin-bottom: 40px; }
+
+/* The top: the title block, and beside it (from tablet width up) the logo on its card. A picture
+   instead of a logo goes under the title, as wide as the column. */
+.case-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
+@media (min-width: 768px) {
+  .case-top--logo { grid-template-columns: minmax(0, 1fr) 352px; column-gap: 56px; align-items: center; }
+}
+/* Title, status, subtitle. The stamp sits right after the title on its line; in the page's own
+   order it comes last, after the subtitle, as it always has. */
+.case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+.case-head h1 { order: 1; min-width: 0; }
+.case-status { order: 2; flex: none; }
+.case-head__subtitle {
+  order: 3;
+  flex-basis: 100%;
+  max-width: 30em;
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* The logo, on a white card taped on at a slight angle. --logo-width, set on the figure, sizes
+   the logo: 2.6 times it is the share of the card's width the image takes (the default, 36%,
+   makes the dōTERRA wordmark nearly as wide as the card). For a logo image with empty space
+   around the mark, --logo-trim is the share of the image's height that's empty above the mark
+   (and the same again below), so that space doesn't stretch the card. */
+.case-hero--logo {
+  --w: calc(var(--logo-width, min(36%, 24rem)) * 2.6);
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: min(352px, 100%);
+  min-height: 184px;
+  padding: 32px 24px;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: var(--shadow-sticky);
+  rotate: -2deg;
+}
+.case-hero--logo img { width: var(--w); max-width: 100%; margin-block: calc(var(--w) * var(--logo-trim, 0) * -1); }
+.case-hero:not(.case-hero--logo) img { width: 100%; }
+
+/* Text */
+.case-body { margin-top: 72px; line-height: 1.6; }
+.case-body p { max-width: 40em; margin: 0 0 0.9em; }
+.case .board-section > :last-child { margin-bottom: 0; }
+/* A link inside a paragraph (a cited source) is underlined from the start: see .link */
+
+/* Main sections: the heading is the tab; a title with a colon keeps the rest as a heading inside.
+   Each takes the next colour in turn. */
+.case-section { --tint: var(--section-blue); --stroke: #c2e3ff; --tab: var(--tab-blue); }
+.case-section:nth-child(5n + 2 of .case-section) { --tint: var(--section-green); --stroke: #b5ecbf; --tab: var(--tab-green); }
+.case-section:nth-child(5n + 3 of .case-section) { --tint: var(--section-yellow); --stroke: #fbe3a3; --tab: var(--tab-yellow); }
+.case-section:nth-child(5n + 4 of .case-section) { --tint: var(--section-pink); --stroke: #ffcdea; --tab: var(--tab-pink); }
+.case-section:nth-child(5n + 5 of .case-section) { --tint: var(--section-violet); --stroke: #e0d1ff; --tab: var(--tab-violet); }
+.case-section__title {
+  max-width: 26em;
+  margin-bottom: 20px;
+  font-size: clamp(1.375rem, 1vw + 1.1rem, 1.75rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+/* A section with nothing in it is only its heading, as big text on the board */
+.case-heading { font-size: var(--fs-h2); }
+/* Deep dives and steps: a gray section each, with the heading inside */
+.case-detail h3 { max-width: 28em; margin-bottom: 20px; line-height: 1.2; }
+/* "To be continued" closing a case study that's still in progress, the size of the title */
+.case-continued { font-size: var(--fs-h1); }
+
+/* Project details: the table, with the fourth column (skills, usually the longest) the widest */
+.case-facts { font-size: 0.9375rem; line-height: 1.45; box-shadow: var(--shadow-sticky); }
+@media (min-width: 768px) {
+  .case-facts { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.6fr); }
+}
+
+/* Findings: a sticky each, a bold point with a line under it, --per-row to a row */
+.case-findings {
+  display: grid;
+  grid-template-columns: repeat(var(--per-row, 3), minmax(0, 1fr));
+  gap: var(--object-gap);
+  margin: 1.5em 0 1.25em;
+  padding: 0;
+  list-style: none;
+}
+.case-findings .sticky { gap: 8px; width: auto; min-height: 200px; padding: 20px; font-size: 1rem; }
+.case-findings strong { font-size: 1.0625rem; line-height: 1.25; }
+@media (min-width: 768px) and (max-width: 1023px) {
+  .case-findings { gap: 32px; }
+}
+
+/* A quote: a big yellow sticky in the middle of the column, with who said it at the bottom */
+.case-quote { gap: 20px; width: min(560px, 100%); min-height: 0; margin-inline: auto; padding: 32px; }
+.case-quote img { width: 100%; }
+.case-quote blockquote {
+  margin: 0;
+  font-size: clamp(1.375rem, 1vw + 1.1rem, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.case-quote .sticky__author { font-size: var(--fs-small); }
+
+/* Feature highlights, two by two: a rounded shape each */
+.case-features {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.case-features .shape { display: grid; min-width: 0; }
+.case-section .case-features { margin-top: 1.5em; }   /* right under a paragraph */
+
+/* Media: an image or device mockup on a widget card, with an optional caption under it */
+.case-media { margin: 1.25em 0; }
+.case-detail > h3 + .case-media { margin-top: 0; }
+.case-media .widget__body { padding: 0; }
+.case-media__panel { display: flex; justify-content: center; padding: clamp(16px, 3vw, 28px); }
+.case-media__panel img { width: 100%; }
+.case-media--phone .case-media__panel img { width: min(100%, 15rem); }
+/* App screens exported with their drop shadow: the phone is about 62% of the image's width and the
+   rest is clear space for the shadow, which stands in for the panel's top and bottom padding */
+.case-media--screen .case-media__panel { padding-block: 0; }
+.case-media--screen .case-media__panel img { width: min(100%, 26rem); }
+/* Two screens side by side, overlapping where their shadows' clear space meets (stacked on phones) */
+.case-media--pair .case-media__panel img { --screen-width: min(55%, 26rem); width: var(--screen-width); }
+.case-media--pair .case-media__panel > :not(:first-child) img { margin-left: calc(var(--screen-width) * -0.2); }
+/* Several images in one panel, one under the other (sketches over more than one sheet) */
+.case-media--stack .case-media__panel { flex-direction: column; gap: clamp(16px, 3vw, 28px); }
+/* A small UI piece at its real size: mark the 2x screenshot with retina so it shows at half its pixel size */
+.case-media--card .case-media__panel img { width: auto; }
+.case-media figcaption { margin-top: 12px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; line-height: 1.5; }
+/* A link under a media card that opens another card below it ("See how it was before") */
+.case-body .case-media__toggle { margin-top: -0.35em; }
+
+/* Links out ("→ Live site"): see the footer links for the hover, the → turning to ↗ */
+.arrow-link { font-weight: 550; }
+/* A link that opens a panel under it: while open, its arrow points down */
+.arrow-link[aria-expanded="true"] .arrow,
+.arrow-link[aria-expanded="true"]:hover .arrow,
+.arrow-link[aria-expanded="true"]:focus-visible .arrow { transform: rotate(90deg); }
+/* Kalorie's "View prototype": always highlighted in the app's lime, like a marker over the words */
+.arrow-link--lime { padding: 4px 10px 4px 8px; border-radius: var(--r-sm); background: #cdf056; }
+
+/* A panel that slides open under its link: an embedded prototype, an old screen, a link's
+   address. The innermost box leaves room for the card's shadow, which the sliding box would
+   otherwise cut off. */
+.case-embed {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s var(--ease), margin-bottom 0.6s var(--ease);
+}
+.case-embed.is-open { grid-template-rows: 1fr; margin-bottom: 1.5em; }
+/* A closed panel at the end of a section takes no room, so the link above it gives up its own
+   space below: the section then ends the same distance under the link as under a paragraph */
+.case .board-section > p:has(+ .case-embed:last-child) { margin-bottom: 0; }
+.case .board-section > .case-embed:last-child { padding-top: 0; transition: grid-template-rows 0.6s var(--ease), padding-top 0.6s var(--ease); }
+.case .board-section > .case-embed:last-child.is-open { padding-top: 12px; }
+.case-embed__inner { min-height: 0; margin: 0 -12px; overflow: hidden; }
+.case-embed__pad { padding: 4px 12px 16px; }
+.case-embed .case-media { margin: 0; }
+.case-embed .widget__body { padding: 0; }
+.case-embed__frame { position: relative; aspect-ratio: 16 / 10; background: var(--section-gray); }
+.case-embed__frame::before {
+  content: "Loading prototype…";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.case-embed__frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* A store link that drops the full link down below it, set in under its label */
+.case-store { margin-bottom: 1.5em; }
+.case-body .case-store p { margin: 0; }
+.case-store .case-embed.is-open { margin-bottom: 0; }
+.case-store .case-embed__inner { margin: 0; }
+.case-store .case-embed__pad { padding: 0.5em 0 0 1.3em; }
+
+/* User personas: a tall coloured card per persona, side by side (stacked on phones). A picture,
+   the name and type, then the details, a label over each value between thin lines. The cards
+   share their rows (subgrid), so each detail lines up with the same one in the other card. */
+.case-personas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  margin-top: 1.5em;
+}
+.case-persona {
+  --fill: var(--sticky-violet);
+  display: grid;
+  grid-row: span 8;            /* the head and the seven details */
+  grid-template-rows: subgrid;
+  padding: 24px;
+  border-radius: 4px;
+  background: var(--fill);
+  box-shadow: var(--shadow-sticky);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.case-persona:nth-child(4n + 2) { --fill: var(--sticky-teal); }
+.case-persona:nth-child(4n + 3) { --fill: var(--sticky-orange); }
+.case-persona:nth-child(4n + 4) { --fill: var(--sticky-pink); }
+.case-persona__head { padding-bottom: 20px; }
+.case-persona__head img {
+  width: 72px;
+  aspect-ratio: 1 / 1;
+  margin-bottom: 14px;
+  border: 2px solid #fff;
+  border-radius: 50%;          /* round, like a profile picture */
+  object-fit: cover;
+}
+.case-persona h3 { font-size: 1.375rem; }
+.case-body .case-persona__type { margin: 4px 0 0; font-weight: 500; }
+.case-persona dl { display: grid; grid-row: span 7; grid-template-rows: subgrid; margin: 0; }
+.case-persona dl > div { padding: 12px 0; border-top: 1px solid rgb(0 0 0 / 0.16); }
+.case-persona dt { margin-bottom: 2px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.case-persona dd { margin: 0; }
+
+/* The line before the closing section */
+.case-rule { height: 2px; border-radius: 1px; background: var(--line-gray); }
+
+/* Previous / next project: two white shapes, one at each side. The arrow nudges when pointed at. */
+.case-nav { display: flex; justify-content: space-between; gap: 24px; }
+.case-nav__link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: min(240px, 100%);
+  max-width: calc(50% - 12px);
+  padding: 16px 24px;
+  text-align: left;
+}
+.case-nav__link--next { align-items: flex-end; margin-left: auto; text-align: right; }   /* stays right when there's no previous project */
+.case-nav__label { font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.case-nav__name { font-size: 1.25rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
+.case-nav__name .arrow { transition: none; }
+.case-nav__link--prev:hover .arrow,
+.case-nav__link--prev:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
+.case-nav__link--next:hover .arrow,
+.case-nav__link--next:focus-visible .arrow { animation: arrow-nudge-right 0.9s 0.04s both; }
+
+/* The space between the column's objects. A section with a tab needs more room above it than
+   one without; a deep dive sits closer to the one before it, and an image closer to the deep
+   dive it belongs to. */
+.case-body > * + * { margin-top: 56px; }
+.case-body > * + .case-section,
+.case-body > * + .case-heading,
+.case-body > * + .case-nav,
+.case-body > * + .case-continued { margin-top: 96px; }
+.case-body > .case-section + .case-features,
+.case-body > .case-heading + .case-detail,
+.case-body > .case-detail + .case-media { margin-top: 32px; }
+.case-body > .case-detail + .case-detail { margin-top: 40px; }
+.case-body > * + .case-rule { margin-top: 80px; }
+.case-body > .case-rule + .case-section--after-rule { margin-top: 72px; }
+.case-body > .case-rule + .case-heading--after-rule { margin-top: 48px; }
+.case-body > .case-media { margin-bottom: 0; }
+
+@media (max-width: 767px) {
+  .case .board-section { padding: 20px; }
+  .case-head__subtitle { font-size: 1.125rem; }
+  .case-body { margin-top: 64px; }
+  .case-body > * + * { margin-top: 40px; }
+  .case-body > * + .case-section,
+  .case-body > * + .case-heading,
+  .case-body > * + .case-nav,
+  .case-body > * + .case-continued { margin-top: 72px; }
+  .case-findings { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .case-findings .sticky { min-height: 0; }
+  .case-quote { padding: 24px; }
+  .case-features { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .case-personas { grid-template-columns: minmax(0, 1fr); row-gap: 24px; }
+  .case-persona,
+  .case-persona dl { display: block; grid-row: auto; }
+  .case-media--pair .case-media__panel { flex-direction: column; align-items: center; }
+  .case-media--pair .case-media__panel img { --screen-width: min(100%, 26rem); }
+  .case-media--pair .case-media__panel > :not(:first-child) img { margin: -12% 0 0; }
+  .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
+  .case-nav { flex-direction: column; }
+  .case-nav__link { max-width: none; }
+}
+
 /* ---------- Legacy (the old design's tokens and layout, removed as each page is redesigned) ---------- */
 :root {
   --color-bg: var(--board-bg);
@@ -1533,374 +1848,13 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   animation: project-arrow-nudge 0.9s 0.04s both;
 }
 
-/* ---------- Case study ----------
-   Structure modelled on dousanmiao.com's case studies: title and status, a wide hero image, an
-   intro, the project details, then Problem / Research / Solution / Impact with a quote, feature
-   highlights and deep dives. Text sits in a centred column; the hero image runs full width. */
-.case { padding-top: calc(var(--row) * 2); }
-.case-head,
-.case-body { grid-column: 4 / 22; }
-
-/* "← All work": on hover the words get the header's black box (the arrow stays outside it)
-   and the arrow nudges left and back */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4em;
-  font-size: var(--fs-small);
-  font-weight: 500;
-}
-.back-link .arrow { transition: none; }
-.back-link__label { padding: 0.1em 0; }
-.back-link:hover .back-link__label,
-.back-link:focus-visible .back-link__label {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-.back-link:hover .arrow,
-.back-link:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
-.case-back { grid-column: 4 / 22; justify-self: start; margin-bottom: calc(var(--row) * 2); }
-
-/* Title, one-liner and status */
-.case-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-}
-.case-head h1,
-.case-continued {
-  font-size: clamp(2.5rem, 3.4vw + 1rem, 4.5rem);
-  font-weight: 600;
-  line-height: 1.05;
-}
-/* "To be continued" closing a case study that's still in progress, the size of the title */
-.case-continued { margin-top: calc(var(--row) * 3); }
-.case-head__subtitle {
-  margin: 0.6em 0 0;
-  font-size: var(--fs-text-sm);
-  color: var(--color-muted);
-}
-.case-status {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  margin-top: 0.75em;
-  padding: 0.45em 0.8em;
-  border: 1.5px solid var(--color-rule);
-  font-size: var(--fs-small);
-  font-weight: 500;
-  line-height: 1;
-  white-space: nowrap;
-}
-.case-status::before {
-  content: "";
-  width: 0.5em;
-  height: 0.5em;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-/* Wide hero image */
-.case-hero { grid-column: 1 / -1; margin: calc(var(--row) * 2.5) 0 0; }
-.case-hero img { width: 100%; }
-/* A logo instead of a picture: centered on the page background, in a shorter box than a picture hero.
-   --logo-width, set on the figure, overrides the width (the default fits the dōTERRA wordmark).
-   For a logo image with empty space around the mark, --logo-trim is the share of the image's height
-   that's empty above the mark (and the same again below), so that space doesn't stretch the box. */
-.case-hero--logo { display: grid; place-items: center; aspect-ratio: 45 / 13; }
-.case-hero--logo img {
-  width: var(--logo-width, min(36%, 24rem));
-  margin-block: calc(var(--logo-width, min(36%, 24rem)) * var(--logo-trim, 0) * -1);
-}
-
-/* Body text */
-.case-body { font-size: var(--fs-text-sm); line-height: 1.6; }
-.case-body p { margin: 0 0 0.9em; }
-/* A link inside a paragraph (a cited source): underlined from the start so it reads as a link */
-.case-body p .link { background-size: 100% 1px; transition: color 0.3s var(--ease); }
-.case-body p .link:hover,
-.case-body p .link:focus-visible { color: var(--color-muted); }
-.case-intro { margin-top: calc(var(--row) * 2.5); }
-.case-section { margin-top: calc(var(--row) * 3); }
-.case-section--after-rule { margin-top: calc(var(--row) * 2); }
-.case-section h2 { font-size: max(1.375rem, var(--fs-works-title)); margin-bottom: 0.7em; }   /* never below 22px */
-.case-detail { margin-top: calc(var(--row) * 2.25); }
-.case-detail h3,
-.case-persona h3 {
-  font-size: clamp(1.125rem, 0.5vw + 1rem, 1.5rem);
-  letter-spacing: -0.01em;
-}
-.case-detail h3 { margin-bottom: 0.6em; }
-
-/* Links out ("→ Live site"): the footer links' hover, the → turning to ↗ */
-.arrow-link { font-weight: 500; }
-
-/* Embedded prototype: a panel that slides open under its "View prototype" link. While open,
-   the link reads "Hide prototype" and its arrow points down. */
-.arrow-link[aria-expanded="true"] .arrow,
-.arrow-link[aria-expanded="true"]:hover .arrow,
-.arrow-link[aria-expanded="true"]:focus-visible .arrow { transform: rotate(90deg); }
-
-/* Kalorie's "View prototype": always highlighted in lime with beige text, in place of the black
-   hover box; the arrow still turns on hover */
-.arrow-link--lime,
-.arrow-link--lime:hover,
-.arrow-link--lime:focus-visible {
-  background-color: #6a8807;
-  color: var(--color-bg);
-}
-
-.case-embed {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.6s var(--ease), margin-bottom 0.6s var(--ease);
-}
-.case-embed.is-open { grid-template-rows: 1fr; margin-bottom: 1.5em; }
-.case-embed__inner { min-height: 0; overflow: hidden; }
-.case-embed__frame {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  background: rgba(11, 11, 11, 0.05);
-}
-.case-embed__frame::before {
-  content: "Loading prototype…";
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font-size: var(--fs-small);
-  color: var(--color-muted);
-}
-.case-embed__frame iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-@media (max-width: 767px) {
-  .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
-}
-
-/* A store link under the logo that drops the full link down below it, set in under its label */
-.case-store { margin-bottom: 1.5em; }
-.case-body .case-store p { margin: 0; }
-.case-store .case-embed.is-open { margin-bottom: 0; }
-.case-body .case-store .case-embed__inner p { padding: 0.5em 0 0 1.3em; }
-
-/* Project details: label above value, between two thin rules. Skills (the fourth) gets the
-   widest column, as it's usually the longest. */
-.case-facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.8fr);
-  gap: calc(var(--row) * 1.25) var(--gap);
-  margin: calc(var(--row) * 2) 0 0;
-  padding: calc(var(--row) * 1.25) 0;
-  border-block: var(--rule-weight) solid transparent;
-  background:
-    var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box,
-    var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
-}
-.case-facts dt,
-.case-persona dt { margin-bottom: 0.3em; font-size: var(--fs-small); color: var(--color-muted); }
-.case-facts dd,
-.case-persona dd { margin: 0; }
-.case-facts__wide { grid-column: 1 / -1; }
-
-/* Research findings: a bold point with a muted line under it */
-.case-findings { list-style: none; margin: 1.25em 0 0; padding: 0; }
-.case-findings li { margin-bottom: 1em; }
-.case-findings strong { display: block; font-weight: 600; }
-.case-findings span { color: var(--color-muted); }
-
-/* A quote set over an image, on the site's black */
-.case-quote {
-  position: relative;
-  overflow: hidden;
-  margin: calc(var(--row) * 2.5) 0 0;
-  padding: clamp(2.5rem, 6vw, 6rem) clamp(1.5rem, 4vw, 4rem);
-  background: var(--color-text);
-  color: var(--color-bg);
-}
-.case-quote img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.35;
-}
-.case-quote blockquote {
-  position: relative;
-  max-width: 16em;
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: clamp(1.75rem, 1.6vw + 1rem, 3rem);
-  font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-.case-quote figcaption { position: relative; margin-top: 1.25em; font-size: var(--fs-small); opacity: 0.7; }
-
-/* Media: an image or device mockup on a slightly darker panel, with an optional caption */
-.case-media { margin: 1.5em 0 0; }
-.case-media__panel {
-  display: flex;
-  justify-content: center;
-  padding: clamp(1.25rem, 4vw, 4rem);
-  background: rgba(11, 11, 11, 0.05);
-}
-.case-media__panel img { width: 100%; }
-.case-media--phone .case-media__panel img { width: min(100%, 15rem); }
-/* App screens exported with their drop shadow: the phone is about 62% of the image's width and the
-   rest is clear space for the shadow, which stands in for the panel's top and bottom padding */
-.case-media--screen .case-media__panel { padding-block: 0; }
-.case-media--screen .case-media__panel img { width: min(100%, 26rem); }
-/* Two screens side by side, overlapping where their shadows' clear space meets (stacked on phones) */
-.case-media--pair .case-media__panel img { --screen-width: min(55%, 26rem); width: var(--screen-width); }
-.case-media--pair .case-media__panel > :not(:first-child) img { margin-left: calc(var(--screen-width) * -0.2); }
-/* Several images in one panel, one under the other (sketches over more than one sheet) */
-.case-media--stack .case-media__panel { flex-direction: column; gap: clamp(1.25rem, 4vw, 4rem); }
-/* A small UI piece at its real size: mark the 2x screenshot with srcset="… 2x" so it shows at half its pixel size */
-.case-media--card .case-media__panel img { width: auto; }
-.case-media figcaption { margin-top: 0.75em; font-size: var(--fs-small); color: var(--color-muted); }
-/* A link under a media panel that opens another panel below it ("See how it was before") */
-.case-body .case-media__toggle { margin-top: 0.9em; }
-.case-embed .case-media { margin-top: 0; }
-
-/* Feature highlights, two by two */
-.case-features {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap);
-  margin: var(--gap) 0 0;
-  padding: 0;
-  list-style: none;
-}
-.case-features li { padding: 1.1em 1.25em; background: rgba(11, 11, 11, 0.05); font-weight: 500; }
-.case-section .case-features { margin-top: 1.25em; }   /* right under a paragraph, spaced like the findings */
-
-/* User personas: a card per persona, side by side (stacked on phones). A photo, the name and type,
-   then the details, a label over each value between thin lines. The cards share their rows
-   (subgrid), so each detail lines up with the same one in the other card, like a table. */
-.case-personas {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: calc(var(--gap) * 3);
-  margin-top: 1.5em;
-}
-.case-persona {
-  display: grid;
-  grid-row: span 8;            /* the head and the seven details */
-  grid-template-rows: subgrid;
-}
-.case-persona__head { padding-bottom: calc(var(--row) * 1); }
-.case-persona__head img {
-  width: clamp(5rem, 8vw, 9rem);
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 50%;          /* round, like a profile picture */
-  margin-bottom: 0.9em;
-}
-.case-body .case-persona__type { margin: 0.25em 0 0; color: var(--color-muted); }
-.case-persona dl {
-  display: grid;
-  grid-row: span 7;
-  grid-template-rows: subgrid;
-  margin: 0;
-}
-.case-persona dl > div {
-  padding: calc(var(--row) * 0.6) 0;
-  border-top: var(--rule-weight) solid transparent;
-  background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
-}
-.case-persona dl > div:last-child {
-  border-bottom: var(--rule-weight) solid transparent;
-  background:
-    var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box,
-    var(--thin-rule) 0 100% / 100% var(--rule-weight) no-repeat border-box;
-}
-
-.case-rule {
-  height: var(--rule-weight);
-  margin: calc(var(--row) * 3) 0 0;
-  border: 0;
-  background: var(--thin-rule);
-}
-
-/* Previous / next project: the name gets the black box and the arrow nudges, like My works */
-.case-nav {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.5rem;
-  margin-top: calc(var(--row) * 3);
-  padding: calc(var(--row) * 1.5) 0 calc(var(--row) * 3);
-  border-top: var(--rule-weight) solid transparent;
-  background: var(--thin-rule) 0 0 / 100% var(--rule-weight) no-repeat border-box;
-}
-.case-nav__link { display: flex; flex-direction: column; gap: 0.4em; }
-.case-nav__link--next { align-items: flex-end; margin-left: auto; text-align: right; }   /* stays right when there's no previous project */
-.case-nav__label { font-size: var(--fs-small); color: var(--color-muted); }
-.case-nav__name {
-  font-family: var(--font-display);
-  font-size: var(--fs-works-title);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-.case-nav__title { padding: 0.05em 0; }
-.case-nav__name .arrow { transition: none; }
-.case-nav__link:hover .case-nav__title,
-.case-nav__link:focus-visible .case-nav__title {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
-.case-nav__link--prev:hover .arrow,
-.case-nav__link--prev:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
-.case-nav__link--next:hover .arrow,
-.case-nav__link--next:focus-visible .arrow { animation: project-arrow-nudge-right 0.9s 0.04s both; }
-
-@keyframes project-arrow-nudge-right {
-  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
-  35% { transform: translateX(0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
-  100% { transform: translateX(0); }
-}
-
-@media (max-width: 767px) {
-  .case-head,
-  .case-body,
-  .case-back { grid-column: 1 / -1; }
-  .case-head { flex-direction: column; gap: 1rem; }
-  .case-status { margin-top: 0; }
-  .case-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .case-facts > div:nth-child(4) { grid-column: 1 / -1; }   /* skills: full width */
-  .case-features { grid-template-columns: 1fr; }
-  .case-personas { grid-template-columns: 1fr; row-gap: calc(var(--row) * 2); }
-  .case-persona,
-  .case-persona dl { display: block; grid-row: auto; }
-  .case-media--pair .case-media__panel { flex-direction: column; align-items: center; }
-  .case-media--pair .case-media__panel img { --screen-width: min(100%, 26rem); }
-  .case-media--pair .case-media__panel > :not(:first-child) img { margin: -12% 0 0; }
-}
-
-/* The ← of the old back links and previous/next links: a quick nudge to the left, then a glide back */
+/* The ← of the 404 page's "Go back", and of the case studies' back and previous links: a quick
+   nudge to the left, then a glide back */
 @keyframes project-arrow-nudge {
   0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
   35% { transform: translateX(-0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
   100% { transform: translateX(0); }
 }
-
-/* ---------- Scroll-in fade animation ---------- */
-.js .reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-.js .reveal.is-visible { opacity: 1; transform: none; }
 
 /* ---------- Blur-in (heroes, My works, About, footer) ----------
    Modelled on mobbin.com's hero: each line starts see-through, blurred and a little lower,
@@ -1927,9 +1881,10 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
    full-screen heroes stretch to fill it, so everything under them stays out of view and the lines
    waiting to be scrolled to would never show. Here they skip the animation and just show. */
 @media (min-height: 3000px) {
-  .js .reveal { opacity: 1; transform: none; }
+  .js .reveal,
   .js .blur-in,
   .js .drop-in { opacity: 1; }
+  .js .reveal.is-visible,
   .js .blur-in.is-visible,
   .js .drop-in.is-visible { animation: none; }
 }
@@ -1958,8 +1913,6 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .js .blur-in.is-arriving,
 .js .drop-in.is-arriving {
   opacity: 1;
-  transform: none;
-  transition: none;
   animation: none;
 }
 
@@ -1971,10 +1924,11 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
-  .js .reveal { opacity: 1; transform: none; }
+  .js .reveal,
   .js .blur-in,
   .js .drop-in { opacity: 1; }
   .hero-in,
+  .js .reveal.is-visible,
   .js .blur-in.is-visible,
   .js .drop-in.is-visible { animation: none; }   /* the shortened duration above would still keep the delay */
 }
