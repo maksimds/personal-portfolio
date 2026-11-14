@@ -1,8 +1,9 @@
 ---
 // The footer: a small gray section at the end of the board, with the "Updated …" line as its tab.
+// On a canvas page the visitor can move it (data-drag, see src/scripts/drag.ts).
 import { site } from '../data/site';
 ---
-<footer class="site-footer board-section board-section--gray drop-in" id="footer">
+<footer class="site-footer board-section board-section--gray drop-in" id="footer" data-drag="footer">
   <ul class="site-footer__links">
     <li><a class="footer-link" href={`mailto:${site.email}`} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Email</a></li>
     <li><a class="footer-link" href={site.resumeUrl} target="_blank" rel="noopener"><span class="arrow" aria-hidden="true">→</span> Resume</a></li>

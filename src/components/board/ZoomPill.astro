@@ -7,11 +7,17 @@
 // buttons and "View as list" are wired up in src/scripts/board.ts, the other switch in
 // src/scripts/chrome.ts.
 import Icon from '../icons/Icon.astro';
+
+interface Props {
+  // The zoom the page opens at (see BaseLayout), so the percentage is right before the script runs
+  zoom?: number;
+}
+const { zoom = 1 } = Astro.props;
 ---
 <div class="corner-tools">
   <div class="pill pill--round zoom canvas-only" role="group" aria-label="Zoom">
     <button class="icon-button" type="button" data-zoom="out" aria-label="Zoom out"><Icon name="minus" /></button>
-    <button class="zoom__value" type="button" data-zoom="reset"><span data-zoom-value>100%</span><span class="visually-hidden">, reset zoom</span></button>
+    <button class="zoom__value" type="button" data-zoom="reset"><span data-zoom-value>{Math.round(zoom * 100)}%</span><span class="visually-hidden">, reset zoom</span></button>
     <button class="icon-button" type="button" data-zoom="in" aria-label="Zoom in"><Icon name="plus" /></button>
   </div>
   <button class="help-button" id="help-button" type="button" popovertarget="help" data-shortcut="?" aria-label="Keyboard shortcuts" aria-keyshortcuts="?">?</button>

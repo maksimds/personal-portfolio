@@ -305,7 +305,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: var(--charcoal);
+  background: var(--accent);   /* the violet of the Contact button */
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -340,8 +340,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
 }
 .avatar:first-child { margin-left: 0; }
 .avatar--photo img { width: 100%; height: 100%; object-fit: cover; }
-.avatar--green { background: var(--sticky-green); }
-.avatar--blue { background: var(--sticky-blue); }
+.avatar--charcoal { background: var(--charcoal); color: #fff; }   /* "U": the same as the visitor's "Me" cursor */
 /* The clock, in an outlined box like a board's timer. It keeps its width as the digits change. */
 .clock-chip {
   display: flex;
@@ -940,6 +939,7 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   pointer-events: none;
 }
 .connector.is-ready { visibility: visible; animation: connector-in 0.3s 0.9s var(--ease) backwards; }
+.connector.is-ready.is-overlapping { visibility: hidden; }   /* its two objects overlap (one was moved onto the other) */
 @keyframes connector-in {
   from { opacity: 0; }
 }
@@ -1134,7 +1134,8 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
    sits on one layer the size of the board (--board-w by --board-h, set per page), which
    src/scripts/board.ts moves and scales. Until that script takes over, the layer is already drawn
    at the same starting place: the board's point (--start-x, --start-y) in the middle of the
-   screen, a little above its centre. The dots are the board's own here, so they can move with it. */
+   screen, a little above its centre, at the page's starting zoom (--start-zoom, set by `zoom` on
+   the layout; 1 when it isn't). The dots are the board's own here, so they can move and scale with it. */
 html.is-canvas,
 .is-canvas body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .is-canvas .board {
@@ -1142,7 +1143,9 @@ html.is-canvas,
   inset: 0;
   overflow: hidden;            /* for browsers without the next line */
   overflow: clip;              /* never scrolled, not even by a link to a section: the script moves the layer instead */
-  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px) calc(50vw - var(--start-x)) calc(46vh - var(--start-y)) / var(--board-dot-gap) var(--board-dot-gap);
+  background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px)
+    calc(50vw - var(--start-x) * var(--start-zoom, 1)) calc(46vh - var(--start-y) * var(--start-zoom, 1)) /
+    calc(var(--board-dot-gap) * var(--start-zoom, 1)) calc(var(--board-dot-gap) * var(--start-zoom, 1));
   touch-action: none;          /* a finger pans and pinches the board, not the page */
 }
 .is-canvas .board__layer {
@@ -1152,7 +1155,7 @@ html.is-canvas,
   width: var(--board-w);
   height: var(--board-h);
   padding: 0;
-  transform: translate(calc(50vw - var(--start-x)), calc(46vh - var(--start-y)));
+  transform: translate(calc(50vw - var(--start-x) * var(--start-zoom, 1)), calc(46vh - var(--start-y) * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
   transform-origin: 0 0;
 }
 /* Only while it's moving: left on, the browser would keep the text as drawn at the old zoom, and it would blur */
@@ -1171,6 +1174,30 @@ html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
   [data-pref="list"] { display: none; }
 }
 .zoom .icon-button:disabled { color: var(--chrome-text-3); cursor: default; background: none; }
+
+/* ---------- Moving objects ----------
+   On a canvas the big objects (data-drag) can be picked up with the pointer tool and put
+   somewhere else on the board (src/scripts/drag.ts). Each is drawn --drag-x and --drag-y away from
+   where the page's layout puts it: relative positioning, so nothing around it moves, and its own
+   translate, rotate and drop-in are left alone. --drag-z stacks it: 1 until it's first moved, then
+   2 and up in the order they were last picked up. The lines and the made-up visitor's cursor stay
+   above them all. A page that scrolls ignores all of it, so everything is back in the page's order. */
+.is-canvas [data-drag] {
+  position: relative;
+  left: var(--drag-x, 0px);
+  top: var(--drag-y, 0px);
+  z-index: var(--drag-z, 1);
+}
+.is-canvas .connector { z-index: 20; }
+.is-canvas .cursor { z-index: 30; }
+/* Pointed at with the pointer tool, an object has a thin outline in the selection blue, as on a
+   board; picked up, a thicker one. Nothing is selected by the drag: the text stays as it is. */
+@media (hover: hover) and (pointer: fine) {
+  .is-canvas:not(.tool-hand, .is-space, .is-grabbing, .is-stamping, .is-dragging) [data-drag]:hover { outline: 1.5px solid var(--select); }
+}
+.is-dragging [data-drag].is-dragged { outline: 2px solid var(--select); }
+.is-dragging,
+.is-dragging * { cursor: default; user-select: none; }
 
 /* ---------- Home ----------
    As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
@@ -1352,8 +1379,19 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   .works__stamp { right: 16px; }
 }
 
-/* The made-up visitor's cursor, where it starts on the canvas */
-.home-cursor { left: 2060px; top: 1262px; }
+/* The made-up visitor's cursor, inside the intro (so it moves with it): it starts to the right of
+   the greeting and takes a smaller loop than the usual one, over the stickies and back, so the
+   whole of it, chat bubble too, stays inside the section and clear of the portrait. The chat
+   opens at the stop from 33% to 50%, as on the usual route. */
+.home-cursor { left: 516px; top: 102px; animation-name: cursor-route-intro; }
+@keyframes cursor-route-intro {
+  0%, 5% { translate: 0 0; }
+  14%, 22% { translate: 150px 46px; }
+  33%, 50% { translate: 14px -82px; }      /* stops here to chat, between the clock and the portrait */
+  61%, 67% { translate: 250px 120px; }
+  79%, 86% { translate: 70px 150px; }
+  96%, 100% { translate: 0 0; }
+}
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet

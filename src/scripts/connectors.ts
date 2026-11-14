@@ -4,7 +4,8 @@
    right angles with rounded corners (or in one curve), with an arrowhead at the end and the label
    on the middle of the line. Everything is measured in the units of the element the connector is
    positioned in, so it stays right while the board is zoomed. Drawn again whenever the window or
-   either object changes size, and once the objects have finished dropping in. */
+   either object changes size, once the objects have finished dropping in, and while the visitor
+   moves an object (src/scripts/drag.ts). While its two objects overlap, it isn't shown. */
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 interface Point { x: number; y: number; }
@@ -41,13 +42,16 @@ function anchor(box: Box, side: Side): Point {
   return { x: edge.x + OUT[side].x * GAP, y: edge.y + OUT[side].y * GAP };
 }
 
-// Which side of `a` faces `b`: across whichever gap between them is wider
+// Which side of `a` faces `b`: across whichever gap between them is wider (or overlaps least),
+// towards b's middle
 function facing(a: Box, b: Box): Side {
   const dx = Math.max(b.left - a.right, a.left - b.right);
   const dy = Math.max(b.top - a.bottom, a.top - b.bottom);
-  if (dx > dy) return b.left >= a.right ? 'right' : 'left';
-  return b.top >= a.bottom ? 'bottom' : 'top';
+  if (dx > dy) return b.left + b.right >= a.left + a.right ? 'right' : 'left';
+  return b.top + b.bottom >= a.top + a.bottom ? 'bottom' : 'top';
 }
+
+const overlap = (a: Box, b: Box): boolean => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
 
 // The corners of a right-angled route from `start` (leaving by side `a`) to `end` (arriving at side `b`)
 function elbow(start: Point, a: Side, end: Point, b: Side): Point[] {
@@ -96,6 +100,10 @@ function draw(connector: HTMLElement): void {
 
   const a = boxIn(from, parent);
   const b = boxIn(to, parent);
+  // One object moved onto the other: there's no way between them to draw
+  const tangled = overlap(a, b);
+  connector.classList.toggle('is-overlapping', tangled);
+  if (tangled) return;
   const fromSide = isSide(connector.dataset.fromSide) ? connector.dataset.fromSide : facing(a, b);
   const toSide = isSide(connector.dataset.toSide) ? connector.dataset.toSide : OPPOSITE[fromSide];
   const start = anchor(a, fromSide);

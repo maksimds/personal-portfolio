@@ -24,13 +24,16 @@ interface Props {
   board?: 'canvas' | 'document';
   // A name for the page's own rules in styles.css (html[data-page="home"])
   page?: string;
+  // The zoom a canvas page opens at, between 0.5 and 1.5 (0.8 is 80%). The CSS draws the board at
+  // it (--start-zoom) before src/scripts/board.ts takes over, and the zoom pill starts with it.
+  zoom?: number;
 }
 
-const { title, description, canonicalPath, noindex = false, board = 'document', page } = Astro.props;
+const { title, description, canonicalPath, noindex = false, board = 'document', page, zoom = 1 } = Astro.props;
 const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 ---
 <!doctype html>
-<html lang="en" data-board={board} data-page={page}>
+<html lang="en" data-board={board} data-page={page} style={zoom !== 1 ? `--start-zoom: ${zoom}` : undefined}>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -140,7 +143,7 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
 
   <div class="chrome chrome--bottom">
     <Toolbar />
-    <ZoomPill />
+    <ZoomPill zoom={zoom} />
   </div>
 
   {/* The visitor's own pointer: an arrow with "Me", following the mouse */}
