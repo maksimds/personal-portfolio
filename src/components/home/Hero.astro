@@ -1,12 +1,14 @@
 ---
 // The home page's opening section ("Intro"): where and when, the greeting, and the three status
 // lines, each on its own sticky. A taped portrait hangs off the top-right corner (decoration, so
-// it has no alt text; it's left out on phones).
+// it has no alt text; it's left out on phones). A made-up visitor's cursor drifts about inside it,
+// on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
 import { site } from '../../data/site';
 import Img from '../Img.astro';
 import Section from '../board/Section.astro';
 import Sticky from '../board/Sticky.astro';
 import WashiTape from '../board/WashiTape.astro';
+import Cursor from '../board/Cursor.astro';
 ---
 <Section class="intro" color="violet" name="Intro" labelledby="hero-title" drag="intro">
   <p class="intro__location drop-in">
@@ -25,4 +27,5 @@ import WashiTape from '../board/WashiTape.astro';
     <WashiTape color="pink" tilt={-5} />
     <Img src="denis-portrait.jpg" alt="" sizes="184px" loading="eager" />
   </figure>
+  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
 </Section>

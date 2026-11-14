@@ -55,6 +55,35 @@ test.describe('the home page on a desktop', () => {
     await expect.poll(() => lineStart(page)).toEqual({ x: line.x + 100, y: line.y + 60 });
   });
 
+  test('the "Denis" cursor stays over the intro all the way round its loop, and goes with it when it\'s moved', async ({ page }) => {
+    // Steps through its loop, noting any moment when part of it (the arrow, the name, the chat
+    // bubble while it shows) is outside the intro; then leaves it paused at the start
+    const outside = () => page.evaluate(() => {
+      const cursor = document.querySelector('.home-cursor');
+      const intro = document.querySelector('[data-drag="intro"]').getBoundingClientRect();
+      const animations = cursor.getAnimations({ subtree: true });
+      const out = [];
+      for (let t = 0; t <= 34000; t += 250) {
+        animations.forEach((a) => { a.pause(); a.currentTime = t; });
+        for (const el of cursor.children) {
+          if (Number(getComputedStyle(el).opacity) < 0.5) continue;
+          const b = el.getBoundingClientRect();
+          if (b.left < intro.left || b.top < intro.top || b.right > intro.right || b.bottom > intro.bottom) out.push(`${el.getAttribute('class')} at ${t}ms`);
+        }
+      }
+      animations.forEach((a) => { a.currentTime = 0; });
+      return out;
+    });
+    const cursor = page.locator('.home-cursor');
+    expect(await outside()).toEqual([]);
+    const before = await cursor.boundingBox();
+    await drag(page, page.locator('.intro__title'), 100, 60);
+    await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
+    const after = await cursor.boundingBox();
+    expect({ x: Math.round(after.x - before.x), y: Math.round(after.y - before.y) }).toEqual({ x: 100, y: 60 });
+    expect(await outside()).toEqual([]);
+  });
+
   test('"My works" moves when dragged by a card, without opening it; a click still opens it', async ({ page }) => {
     await page.locator('.toolbar [data-shortcut="w"]').click();
     await expect.poll(() => page.locator('#work').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(120);
@@ -71,10 +100,11 @@ test.describe('the home page on a desktop', () => {
     await drag(page, page.locator('.intro__title'), 100, 60);
     await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
 
-    // Back on the page, the intro is drawn in its new place before the page's script runs
+    // Back on the page, the intro has its new place before the page's script runs (set by the
+    // <head> script; the stylesheet, which the page waits for before it's drawn, then applies it)
     await page.addInitScript(() => {
       document.addEventListener('readystatechange', () => {
-        if (document.readyState === 'interactive') window.earlyLeft = getComputedStyle(document.querySelector('[data-drag="intro"]')).left;
+        if (document.readyState === 'interactive') window.earlyLeft = getComputedStyle(document.querySelector('[data-drag="intro"]')).getPropertyValue('--drag-x');
       });
     });
     await page.goto('about.html');

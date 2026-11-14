@@ -5,7 +5,6 @@ import ProjectCard from '../components/home/ProjectCard.astro';
 import Section from '../components/board/Section.astro';
 import Stamp from '../components/board/Stamp.astro';
 import Connector from '../components/board/Connector.astro';
-import Cursor from '../components/board/Cursor.astro';
 import { getImage } from 'astro:assets';
 import { getProjects, projectUrl } from '../data/projects';
 import { getImageFile } from '../data/images';
@@ -60,11 +59,10 @@ const person = {
   </Section>
 
   {/* ===== Decoration, hidden from screen readers =====
-      Lines from the intro's stickies to the works, and from the works on to the footer; and a
-      made-up visitor's cursor drifting about, on the canvas only. The lines pick their sides
-      from where the objects are, so they still fit when the visitor moves one. */}
+      Lines from the intro's stickies to the works, and from the works on to the footer. They
+      pick their sides from where the objects are, so they still fit when the visitor moves one.
+      The made-up visitor's cursor is in the intro (home/Hero.astro). */}
   <Connector from="intro-notes" to="work" color="violet" label="see my work" />
   <Connector from="work" to="footer" color="gray" class="canvas-only" />
-  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
 
 </BaseLayout>

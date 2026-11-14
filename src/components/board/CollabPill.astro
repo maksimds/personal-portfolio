@@ -1,5 +1,5 @@
 ---
-// The top-right pill: a stack of "viewers" (the portrait, plus two made-up ones for show), the
+// The top-right pill: a stack of "viewers" (the portrait, plus a made-up "U" for show), the
 // live Cincinnati clock in a timer-style chip, the CV, LinkedIn and GitHub links, and the violet
 // Contact button, which writes an email.
 import { site } from '../../data/site';
@@ -14,8 +14,7 @@ import Tooltip from './Tooltip.astro';
   {/* Decoration: nobody is really watching, so screen readers skip it */}
   <div class="avatars" aria-hidden="true">
     <span class="avatar avatar--photo"><Img src="denis-portrait.jpg" alt="" sizes="28px" loading="eager" /></span>
-    <span class="avatar avatar--green">R</span>
-    <span class="avatar avatar--blue">A</span>
+    <span class="avatar avatar--blue">U</span>
   </div>
 
   {/* The same clock as the hero's (src/scripts/clock.ts); the time zone is set in src/data/site.ts */}

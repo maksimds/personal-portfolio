@@ -340,7 +340,6 @@ html:not(.is-canvas) .canvas-only { display: none; }
 }
 .avatar:first-child { margin-left: 0; }
 .avatar--photo img { width: 100%; height: 100%; object-fit: cover; }
-.avatar--green { background: var(--sticky-green); }
 .avatar--blue { background: var(--sticky-blue); }
 /* The clock, in an outlined box like a board's timer. It keeps its width as the digits change. */
 .clock-chip {
@@ -1377,8 +1376,19 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   .works__stamp { right: 16px; }
 }
 
-/* The made-up visitor's cursor, where it starts on the canvas */
-.home-cursor { left: 2060px; top: 1262px; }
+/* The made-up visitor's cursor, inside the intro (so it moves with it): it starts to the right of
+   the greeting and takes a smaller loop than the usual one, over the stickies and back, so the
+   whole of it, chat bubble too, stays inside the section and clear of the portrait. The chat
+   opens at the stop from 33% to 50%, as on the usual route. */
+.home-cursor { left: 516px; top: 102px; animation-name: cursor-route-intro; }
+@keyframes cursor-route-intro {
+  0%, 5% { translate: 0 0; }
+  14%, 22% { translate: 150px 46px; }
+  33%, 50% { translate: 14px -82px; }      /* stops here to chat, between the clock and the portrait */
+  61%, 67% { translate: 250px 120px; }
+  79%, 86% { translate: 70px 150px; }
+  96%, 100% { translate: 0 0; }
+}
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet
