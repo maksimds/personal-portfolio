@@ -305,7 +305,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: var(--charcoal);
+  background: var(--accent);   /* the violet of the Contact button */
   color: #fff;
   font-size: 10px;
   font-weight: 700;
