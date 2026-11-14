@@ -6,7 +6,8 @@
    click still does what it did (a link opens, a dot switches the photo); the click that ends a
    drag does nothing. Hold Shift to keep it on a straight line. Held at the edge of the screen, the
    board pans by itself; an object can't be put off the board.
-   - Only with a mouse, trackpad or pen: a finger pans the board. Not with the hand tool, Space or
+   - Only with a mouse, trackpad or pen: a finger pans the board. Not from inside a text field
+     (the notes wall's form), where a press and a move select text. Not with the hand tool, Space or
      the stamp, and not on a page that scrolls (phones, tablets, "View as list"), where every
      object stays in the page's order.
    - The places last only while the page is open: going to another page and coming back (by a
@@ -143,6 +144,8 @@ export function initDrag(view: BoardView | null): void {
     if (held || !view.active() || e.pointerType === 'touch' || e.button !== 0 || e.ctrlKey || e.metaKey || e.altKey) return;
     // The hand tool and Space pan the board instead (src/scripts/board.ts); the stamp drops an emote
     if (root.matches('.tool-hand, .is-space, .is-stamping')) return;
+    // In a text field, a press and a move select its text
+    if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
     const el = e.target instanceof Element ? e.target.closest<HTMLElement>('[data-drag]') : null;
     const name = el?.dataset.drag;
     if (!el || !name) return;

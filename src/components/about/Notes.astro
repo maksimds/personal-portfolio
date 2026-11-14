@@ -1,0 +1,41 @@
+---
+// The notes wall on the About page: a "Notes" section where visitors leave Denis a short note. A
+// new note waits until it's approved in the database; then it shows here as a sticky with the
+// visitor's name, newest first. "New note" grows into the form for writing one; Escape (or
+// posting) shrinks it back. The toolbar's comment button links here (/about.html#notes).
+// src/scripts/notes.ts loads the notes and sends new ones; the database and its rules are in
+// supabase/notes.sql, and the address, key and limits in src/data/notes.ts. Without JavaScript
+// the section only says that it needs it.
+import Section from '../board/Section.astro';
+import Sticky from '../board/Sticky.astro';
+import Icon from '../icons/Icon.astro';
+import { MESSAGE_MAX, NAME_MAX } from '../../data/notes';
+---
+<Section class="about-notes" color="green" id="notes" tabAs="h2" tabId="notes-title" name="Notes" dropIn drag="notes">
+  <p class="notes__intro">Leave me a note! It shows up here once I’ve read it.</p>
+  <p class="notes__nojs">Turn on JavaScript to read and leave notes.</p>
+
+  <div class="notes" data-notes>
+    <button type="button" class="notes__new" data-notes-open aria-controls="notes-form"><Icon name="plus" size={16} /> New note</button>
+
+    {/* The form is a fresh yellow sticky to write on */}
+    <form class="sticky notes__form" id="notes-form" data-notes-form hidden>
+      <label class="visually-hidden" for="note-message">Your note</label>
+      <textarea id="note-message" name="message" rows="4" maxlength={MESSAGE_MAX} required placeholder="Write a note…"></textarea>
+      <div class="notes__row">
+        <label class="visually-hidden" for="note-name">Your name</label>
+        <input id="note-name" name="author_name" type="text" maxlength={NAME_MAX} required autocomplete="name" placeholder="Your name">
+        <button type="submit" class="button-primary notes__post">Post</button>
+      </div>
+    </form>
+
+    {/* What happened to a note just posted, read out by screen readers */}
+    <p class="notes__status" data-notes-status role="status"></p>
+    {/* No notes yet, or they couldn't load */}
+    <p class="notes__empty" data-notes-empty hidden></p>
+    <ul class="notes__list" data-notes-list aria-label="Notes from visitors"></ul>
+
+    {/* One note, copied for each by the script, which fills in its colour, words and name */}
+    <template data-notes-template><Sticky as="li" author="Name"><p></p></Sticky></template>
+  </div>
+</Section>

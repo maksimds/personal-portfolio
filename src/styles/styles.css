@@ -207,8 +207,10 @@ hr { border: 0; margin: 0; }
   padding-bottom: calc(var(--chrome-h) + var(--chrome-inset) * 2 + 48px + env(safe-area-inset-bottom, 0px));
 }
 
-/* Shown only on a page that's a canvas (src/scripts/board.ts): the hand, the zoom pill */
+/* Shown only on a page that's a canvas (src/scripts/board.ts): the hand, the zoom pill. And the
+   other way round, only on a page that scrolls (a line on About that only fits that layout). */
 html:not(.is-canvas) .canvas-only { display: none; }
+.is-canvas .document-only { display: none; }
 
 /* ---------- Chrome: the floating pills ----------
    White panels over the board: the file pill (top left), the collab pill (top right), the toolbar
@@ -1395,15 +1397,19 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet
-   width up), then a section each for Who I am, What I do and What I believe in, then the
-   playlist. As a canvas: the same objects on a 3200 × 2600 board, in two columns of 592px. The
-   name and the photo sit side by side over the middle; "Who I am" fills the left column, with the
-   other two sections beside it on the right and the playlist under it. Everything still flows in
-   a grid, so nothing can overlap however long the text gets. */
+   width up), then a section each for Who I am, What I do and What I believe in, then the notes
+   wall, then the playlist. As a canvas: the same objects on a 3920 × 3800 board, in two columns of
+   592px. The name and the photo sit side by side over the middle; "Who I am" fills the left
+   column, with the other two sections beside it on the right and the playlist under it. The notes
+   are a third column of the same width to the left of "Who I am" (see "The notes wall" below).
+   The board is 720px wider on the left than it would be without them (592 + 128), so they have
+   the same 944px of board beside them as the right column, and taller: with twelve notes at
+   their longest (twelve lines each) the column runs to about 2300px, and still ends on the board.
+   Everything else still flows in a grid, so nothing can overlap however long the text gets. */
 html[data-page="about"] {
-  --board-w: 3200px;
-  --board-h: 2600px;
-  --start-x: 1600px;           /* the middle of the name and photo */
+  --board-w: 3920px;
+  --board-h: 3800px;
+  --start-x: 2320px;           /* the middle of the name and photo */
   --start-y: 973px;
 }
 html[data-page="about"] main {
@@ -1413,8 +1419,9 @@ html[data-page="about"] main {
   width: min(var(--column), 100% - 32px);
   margin: 0 auto;
 }
-.is-canvas[data-page="about"] .board__layer { padding: 760px 944px 0; }
-.is-canvas[data-page="about"] main { grid-template-columns: 592px 592px; gap: 112px 128px; align-items: start; width: auto; }
+.is-canvas[data-page="about"] .board__layer { padding: 760px 944px 0 1664px; }   /* 1664 = 944 + 720, for the notes */
+/* Positioned, so the notes column can be placed against its grid (see "The notes wall") */
+.is-canvas[data-page="about"] main { position: relative; grid-template-columns: 592px 592px; gap: 112px 128px; align-items: start; width: auto; }
 
 /* The name and bio */
 .about-intro { align-self: center; margin-top: 32px; }   /* room above for the tab */
@@ -1487,6 +1494,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   html[data-page="about"] main { grid-template-columns: minmax(0, 1fr) 248px; column-gap: 56px; }
   .about-photo { width: 248px; }
   .about-block,
+  .about-notes,
   .about-playlist { grid-column: 1 / -1; }
 }
 /* On the canvas. The name and the photo share the first row, which spans both columns: the pair
@@ -1500,6 +1508,124 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .is-canvas .about-block--do { grid-area: 2 / 2; }
 .is-canvas .about-block--believe { grid-area: 3 / 2; }
 .is-canvas .about-playlist { grid-area: 4 / 1; }
+
+/* The notes wall: a green "Notes" section (src/components/about/Notes.astro, filled by
+   src/scripts/notes.ts). At the top, a dashed "New note" sticky that opens into the form, a yellow
+   sticky to write on; under it, visitors' notes as stickies, two to a row (one on a small phone),
+   newest first. Without JavaScript it only says that it needs it. */
+.notes__intro { margin: 0 0 24px; line-height: 1.6; }
+html:not(.js) .notes { display: none; }
+.js .notes__nojs { display: none; }
+
+.notes__new {
+  display: flex;
+  align-items: center;
+  gap: var(--space);
+  width: 100%;
+  min-height: 64px;
+  padding: 0 24px;
+  border: 1.5px dashed rgb(0 0 0 / 0.3);
+  border-radius: 4px;
+  background: none;
+  color: var(--charcoal);
+  font: inherit;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+.notes__new:hover { border-color: rgb(0 0 0 / 0.5); background: rgb(255 255 255 / 0.7); }
+.notes__new[hidden] { display: none; }
+
+/* It grows out of the "New note" button's size as it opens (src/scripts/notes.ts), so what's inside
+   is clipped to it meanwhile; the focus rings fit inside its padding */
+.notes__form.sticky { width: auto; min-height: 0; gap: 12px; padding: 20px; overflow: hidden; }
+.notes__form[hidden] { display: none; }   /* a sticky is display: flex, which would show it anyway */
+/* 16px at least, or a phone zooms in on the field when it's tapped */
+.notes__form textarea,
+.notes__form input,
+.notes__form button { font: inherit; font-size: 1rem; }
+.notes__form textarea {
+  display: block;
+  width: 100%;
+  min-height: 5.6em;           /* four lines: room for the longest note without scrolling */
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  line-height: 1.4;
+  resize: none;
+}
+.notes__form ::placeholder { color: rgb(30 30 30 / 0.6); opacity: 1; }
+.notes__row { display: flex; align-items: center; gap: var(--space); }
+.notes__form input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: rgb(255 255 255 / 0.65);
+  color: inherit;
+}
+.notes__post { height: 36px; border: 0; cursor: pointer; }
+.notes__post[aria-disabled="true"] { cursor: progress; }
+
+.notes__status:not(:empty) { margin: 16px 0 0; font-weight: 550; }
+.notes__empty { margin: 16px 0 0; }
+
+.notes__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.notes__list:empty { display: none; }
+/* 16px, like the form they're written in: a 200-character note fits in about eight lines */
+.notes__list .sticky { width: auto; min-height: 176px; gap: 12px; padding: 20px; font-size: 1rem; }
+/* A visitor's line breaks are kept, no long word sticks out, and no note runs past twelve lines:
+   words alone never need that many, so only a note padded out with line breaks is cut short */
+.notes__list .sticky__text p {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 12;
+  line-clamp: 12;
+  overflow: hidden;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .notes__list .sticky { animation: drop-in 0.45s var(--ease-out) backwards; }
+}
+@media (max-width: 479px) {
+  .notes__list { grid-template-columns: minmax(0, 1fr); }
+  .notes__list .sticky { min-height: 120px; }
+}
+
+/* On the canvas, the notes are a column 128px to the left of the grid, starting level with
+   "Who I am". Positioned against the grid's second row, they're out of its flow: however many
+   notes there are, the other blocks stay where they are. Moving the notes (src/scripts/drag.ts)
+   adds its offset to this place, as it does for the other objects. */
+.is-canvas[data-page="about"] .about-notes {
+  position: absolute;
+  grid-row: 2;
+  left: calc(-720px + var(--drag-x, 0px));
+  top: var(--drag-y, 0px);
+  width: 592px;
+}
+/* Arriving at /about.html#notes (the toolbar's comment button), the layer starts at the notes
+   instead: where the script would put them (centred, their top 120px down the screen), at the
+   page's zoom. Their place on the board is fixed: across, the layer's padding (1664) − 720 + half
+   their width (296) = 1240; down, the layer's padding (760) + the photo print's height, which sets
+   the first row (12 + 370 + 44 = 426) + the gap between rows (112) = 1298. */
+.is-canvas[data-page="about"]:has(#notes:target) .board__layer {
+  transform: translate(calc(50vw - 1240px * var(--start-zoom, 1)), calc(120px - 1298px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+}
 @media (max-width: 767px) {
   html[data-page="about"] main { row-gap: 64px; }
   .about-photo { margin-top: -16px; }
