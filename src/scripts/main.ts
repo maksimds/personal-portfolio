@@ -4,7 +4,7 @@
    - the board as a canvas: panning and zooming the home page on a wide screen
    - the phone menu
    - live clocks (the top-right pill and the hero)
-   - objects dropping in (plus the older blur-in, which nothing uses any more)
+   - objects dropping in as they come into view
    - the board's connectors (lines between objects) and its drifting cursors
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - the dots that switch the photo on the About page
@@ -15,7 +15,7 @@ import { initChrome } from './chrome';
 import { initBoard } from './board';
 import { initMenu } from './menu';
 import { initClock } from './clock';
-import { initDropIn, initBlurIn } from './reveal';
+import { initDropIn } from './reveal';
 import { initConnectors } from './connectors';
 import { initCursors } from './cursors';
 import { initEmbeds } from './embeds';
@@ -27,7 +27,6 @@ initChrome();
 initMenu();
 initClock();
 initDropIn();
-initBlurIn();
 initConnectors();
 initCursors();
 initBoard();

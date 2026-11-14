@@ -1,14 +1,26 @@
 ---
+// The page for an address that doesn't exist: an empty dashed frame where the page would be, with
+// the message in it, and a way back.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Stamp from '../components/board/Stamp.astro';
+import Connector from '../components/board/Connector.astro';
+import Cursor from '../components/board/Cursor.astro';
 ---
 <BaseLayout title="Page not found — Denis Maksimov" noindex>
 
   {/* ===== 404 ===== */}
-  <section class="hero hero--notfound" aria-labelledby="notfound-title">
-    <div class="hero__content container notfound">
-      <h1 id="notfound-title" class="notfound__title reveal">This page does not exist.</h1>
-      {/* Returns to the previous page when the visitor came from this site, otherwise goes home. */}
-      <a class="notfound__back reveal" href="/" data-back><span class="arrow" aria-hidden="true">←</span> Go back</a>
+  <section class="notfound" aria-labelledby="notfound-title">
+    <div class="notfound__frame drop-in" id="notfound-frame">
+      <h1 id="notfound-title" class="notfound__title">This page does not exist.</h1>
+      {/* The error's number as a sticker, for show: the heading says it in words */}
+      <Stamp color="red" tilt={10} decorative class="notfound__stamp">404</Stamp>
     </div>
+    {/* Returns to the previous page when the visitor came from this site, otherwise goes home. */}
+    <a class="shape shape--rounded notfound__back drop-in" id="notfound-back" href="/" data-back><span class="shape__text"><span class="arrow" aria-hidden="true">←</span> Go back</span></a>
+
+    {/* Decoration, hidden from screen readers: a line from the frame to the way back, and a
+        made-up visitor's cursor on a wide screen */}
+    <Connector from="notfound-frame" to="notfound-back" color="gray" />
+    <Cursor name="Denis" color="violet" route="b" class="notfound__cursor" />
   </section>
 </BaseLayout>

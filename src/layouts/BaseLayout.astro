@@ -107,7 +107,7 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
         var el = image(project(from.url, location.href));
         if (!el) return;
         name(el, e.viewTransition);
-        var line = el.closest('.reveal, .blur-in, .drop-in');
+        var line = el.closest('.reveal, .drop-in');
         if (line) line.classList.add('is-arriving');
       });
     })();

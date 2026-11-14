@@ -15,12 +15,9 @@ const pages = [
     .map((f) => `projects/${f}`),
 ].sort();
 
-// Everything that starts hidden and animates in: board objects that drop in (.drop-in), and on the
-// pages not yet redesigned (the case studies and the 404 page), the heroes (.hero-in), the blur-in
-// lines (.blur-in) and the older scroll fade-in (.reveal).
-const ANIMATED = '.drop-in, .hero-in, .blur-in, .reveal';
-// The ones that wait to be scrolled to (the heroes' lines play on load instead)
-const SCROLL_TRIGGERED = '.drop-in, .blur-in, .reveal';
+// Everything that starts hidden and drops in as it comes into view: board objects with the class
+// "drop-in", and anything a case study's file still marks with the older "reveal", which does the same.
+const ANIMATED = '.drop-in, .reveal';
 
 // Scrolls down the page the way a person would, a bit at a time, until the bottom. Keeps going
 // while the page grows (lazy images load as they come into view and make it taller).
@@ -44,4 +41,4 @@ function collectErrors(page) {
   return errors;
 }
 
-module.exports = { dist, pages, ANIMATED, SCROLL_TRIGGERED, scrollThrough, collectErrors };
+module.exports = { dist, pages, ANIMATED, scrollThrough, collectErrors };

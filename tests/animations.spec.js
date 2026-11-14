@@ -2,7 +2,7 @@
 // on a phone), with reduced motion, without JavaScript and in a very tall window (desktop only, since
 // screen size doesn't change those).
 const { test, expect } = require('@playwright/test');
-const { pages, ANIMATED, SCROLL_TRIGGERED, scrollThrough, collectErrors } = require('./helpers');
+const { pages, ANIMATED, scrollThrough, collectErrors } = require('./helpers');
 
 for (const url of pages) {
   test.describe(url, () => {
@@ -15,8 +15,8 @@ for (const url of pages) {
       for (const line of await page.locator(ANIMATED).all()) {
         await expect(line).toHaveCSS('opacity', '1');
       }
-      // ...and every scroll-triggered line must have been triggered
-      for (const line of await page.locator(SCROLL_TRIGGERED).all()) {
+      // ...and must have been triggered by coming into view
+      for (const line of await page.locator(ANIMATED).all()) {
         await expect(line).toHaveClass(/\bis-visible\b/);
       }
       expect(errors).toEqual([]);
@@ -29,11 +29,11 @@ for (const url of pages) {
           .filter((el) => getComputedStyle(el).opacity !== '1')
           .map((el) => `<${el.tagName.toLowerCase()} class="${el.className}">`), ANIMATED);
 
-      // Checked without waiting. Right after load, nothing may be animating in (the heroes' lines would be),
-      // and right after scrolling to the bottom, nothing may still be hidden or fading in (the last
-      // lines to come into view would be).
+      // Checked without waiting. Right after load, nothing may be dropping in (what's on screen would
+      // be), and right after scrolling to the bottom, nothing may still be hidden or on its way in
+      // (the last objects to come into view would be).
       await page.goto(url);
-      expect(await page.evaluate(() => document.getAnimations().filter((a) => ['blur-in', 'drop-in'].includes(a.animationName)).length)).toBe(0);
+      expect(await page.evaluate(() => document.getAnimations().filter((a) => a.animationName === 'drop-in').length)).toBe(0);
       await scrollThrough(page);
       expect(await hiddenNow()).toEqual([]);
     });
@@ -49,8 +49,8 @@ for (const url of pages) {
       });
     });
 
-    // A search engine may draw the page in one very tall window, without scrolling. The full-screen
-    // heroes stretch to fill it, which leaves the lines under them out of view.
+    // A search engine may draw the page in one very tall window, without scrolling, so nothing may
+    // wait to be scrolled to there.
     test.describe('in a very tall window', () => {
       test.use({ viewport: { width: 412, height: 12000 } });
 

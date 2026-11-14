@@ -1091,6 +1091,15 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   opacity: 1;
   animation: drop-in 0.45s var(--drop-delay, 0s) var(--ease-out) backwards;
 }
+/* A window this tall is a search engine drawing the whole page at once, not someone's screen.
+   Whatever is far down the page would wait to be scrolled to and never show, so here everything
+   skips the animation and just shows. */
+@media (min-height: 3000px) {
+  .js .drop-in,
+  .js .reveal { opacity: 1; }
+  .js .drop-in.is-visible,
+  .js .reveal.is-visible { animation: none; }
+}
 
 /* ---------- Canvas ----------
    A page laid out as a canvas (html.is-canvas: home and About, on a wide screen) doesn't scroll. Its content
@@ -1289,6 +1298,12 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   35% { transform: translateX(0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); } /* …then a smooth glide back */
   100% { transform: translateX(0); }
 }
+/* The same to the left, for the ← of a link that leads back ("All work", "Previous project", "Go back") */
+@keyframes arrow-nudge-left {
+  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+  35% { transform: translateX(-0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
+  100% { transform: translateX(0); }
+}
 /* "Coming soon" (not a link): a gray sticky with a dashed outline, at a slight angle on the canvas */
 .work-card--soon {
   border-radius: 4px;
@@ -1448,7 +1463,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .back-link:hover .back-link__label,
 .back-link:focus-visible .back-link__label { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 0.2em; }
 .back-link:hover .arrow,
-.back-link:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
+.back-link:focus-visible .arrow { animation: arrow-nudge-left 0.9s 0.04s both; }
 .case-back { margin-bottom: 40px; }
 
 /* The top: the title block, and beside it (from tablet width up) the logo on its card. A picture
@@ -1692,7 +1707,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .case-nav__name { font-size: 1.25rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
 .case-nav__name .arrow { transition: none; }
 .case-nav__link--prev:hover .arrow,
-.case-nav__link--prev:focus-visible .arrow { animation: project-arrow-nudge 0.9s 0.04s both; }
+.case-nav__link--prev:focus-visible .arrow { animation: arrow-nudge-left 0.9s 0.04s both; }
 .case-nav__link--next:hover .arrow,
 .case-nav__link--next:focus-visible .arrow { animation: arrow-nudge-right 0.9s 0.04s both; }
 
@@ -1737,156 +1752,46 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   .case-nav__link { max-width: none; }
 }
 
-/* ---------- Legacy (the old design's tokens and layout, removed as each page is redesigned) ---------- */
-:root {
-  --color-bg: var(--board-bg);
-  --color-text: var(--charcoal);
-  --color-muted: var(--charcoal);
-  --color-rule: var(--chrome-border);
-  --color-accent: var(--accent);
-  --font-display: var(--font-inter);
-  --max-width: 2000px;
-  --gutter: 12vw;
-  --gap: 11px;
-  --row: calc(76vw * 0.0215);
-  --rule-weight: 2px;
-  --thin-rule: linear-gradient(var(--color-rule) 0.775px, transparent 1.775px);
-  --header-pad-y: 1vw;
-  --header-height: 0px;
-  --header-solid-bg: var(--color-bg);
-  --nav-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23000' stroke-width='1.35'%3E%3Cpath d='M.75 11.25 11.1.9M6.3.675h5.025V5.7'/%3E%3C/svg%3E");
-  --dur: 0.9s;
-  --fs-text: var(--fs-body);
-  --fs-nav: 1rem;
-  --fs-title: 1.25rem;
-  --fs-text-sm: var(--fs-body);
-  --fs-works-title: var(--fs-h3);
-}
-@media (max-width: 767px) {
-  :root { --gutter: 6vw; --header-pad-y: 6vw; --row: 24px; }
-}
-
-/* ---------- Layout container / grid ---------- */
-.container {
-  width: 100%;
-  max-width: calc(var(--max-width) + var(--gutter) * 2);
-  margin: 0 auto;
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: var(--gap);
-}
-
-@media (max-width: 767px) {
-  .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-}
-
-/* ---------- Old full-screen hero (still used by the 404 page) ---------- */
-.hero {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-height: 70vh;
-  padding: calc(var(--row) * 3) 0;
-}
-.hero__content { position: relative; }
-
-/* ---------- 404 page ---------- */
-/* Same full-screen hero as the home page, with equal space above and below so the content
-   sits in the middle of the screen. */
-.hero--notfound {
-  min-height: 100vh;
-  min-height: 100svh;          /* the full screen on phones too (the home hero is 2px shorter there, to show its line) */
-  padding-top: calc(var(--header-height) + var(--row));
-  padding-bottom: calc(var(--header-height) + var(--row));
-}
-
+/* ---------- 404 ----------
+   The message sits in an empty dashed frame, where the page would have been, in the middle of
+   the screen between the pills and the toolbar (216px is the room the board leaves for them).
+   Under it, a white shape leads back, with a line from the frame to it. */
 .notfound {
-  --notfound-title: clamp(2.75rem, 8.2vw, 120px);
+  position: relative;          /* the cursor is placed from its corner */
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 72px;                   /* room for the line between the frame and the shape */
+  width: min(var(--column), 100% - 32px);
+  min-height: calc(100vh - 216px);
+  min-height: calc(100svh - 216px);
+  margin: 0 auto;
   text-align: center;
 }
-
-/* Syne ExtraBold, 120px from a ~1460px-wide window up, scaling down on smaller screens */
-.notfound__title {
-  font-size: var(--notfound-title);
-  font-weight: 800;
-  line-height: 1;
-  text-wrap: balance;
+.notfound__frame {
+  position: relative;
+  padding: clamp(40px, 8vw, 72px) clamp(24px, 6vw, 80px);
+  border-radius: var(--r-panel);
+  background: var(--section-gray);
+  outline: 2px dashed var(--line-gray);
+  outline-offset: -2px;
 }
-
-/* Outlined button; on hover it gets the header's black box (fading in over 0.9s and snapping
-   back instantly) and the ← nudges left and glides back, like the arrows in My works. */
-.notfound__back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6em;
-  /* The visible gap below the letters is this margin plus the bit of the heading's line box
-     under them (about 0.16em); this makes it 1.5x the original 1.5-row margin's gap. */
-  margin-top: calc(var(--row) * 2.25 + var(--notfound-title) * 0.08);
-  padding: 0.9em 1.6em;
-  border: var(--rule-weight) solid var(--color-rule);
-  font-size: var(--fs-text-sm);
-  font-weight: 500;
-  line-height: 1;
-}
+.notfound__title { max-width: 11em; text-wrap: balance; }
+.notfound__stamp { position: absolute; top: -28px; right: -20px; font-size: 17px; }
+.notfound__back { min-width: 0; min-height: 0; padding: 16px 28px; font-weight: 550; }
 .notfound__back .arrow { transition: none; }
-.notfound__back:hover,
-.notfound__back:focus-visible {
-  background-color: #000;
-  color: #fff;
-  transition: background-color 0.9s ease 0.04s, color 0.9s ease 0.04s;
-}
 .notfound__back:hover .arrow,
-.notfound__back:focus-visible .arrow {
-  animation: project-arrow-nudge 0.9s 0.04s both;
+.notfound__back:focus-visible .arrow { animation: arrow-nudge-left 0.9s 0.04s both; }
+/* The made-up visitor's cursor, only where there's room for it to wander: it starts right of
+   the column, level with the shape, and drifts no higher than the frame's bottom edge */
+.notfound__cursor { top: 80%; right: -60px; }
+@media (max-width: 1023px) {
+  .notfound__cursor { display: none; }
 }
-
-/* The ← of the 404 page's "Go back", and of the case studies' back and previous links: a quick
-   nudge to the left, then a glide back */
-@keyframes project-arrow-nudge {
-  0% { transform: translateX(0); animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
-  35% { transform: translateX(-0.3em); animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1); }
-  100% { transform: translateX(0); }
-}
-
-/* ---------- Blur-in (heroes, My works, About, footer) ----------
-   Modelled on mobbin.com's hero: each line starts see-through, blurred and a little lower,
-   then settles into place, 0.1s after the one before it. Only the starting state is written,
-   so each line ends on its own styles. */
-@keyframes blur-in {
-  from { opacity: 0; filter: blur(8px); transform: translateY(var(--blur-in-y, 12px)); }
-}
-
-/* Home and About heroes: play on load, starting after 0.4s. Plain CSS, so they play without JS too.
-   Big titles move a quarter of their own size; the photo rises further, like mobbin.com's hero images. */
-.hero-in { animation: blur-in 0.8s 0.4s var(--ease) backwards; }
-
-/* My works, the About sections and the footer: plays as each line scrolls into view.
-   src/scripts/reveal.ts adds .is-visible and sets --blur-in-delay, so lines that come in together
-   still follow each other. */
-.js .blur-in { opacity: 0; }
-.js .blur-in.is-visible {
-  opacity: 1;
-  animation: blur-in 0.8s var(--blur-in-delay, 0s) var(--ease) backwards;
-}
-
-/* A window this tall is a search engine drawing the whole page at once, not someone's screen. The
-   full-screen heroes stretch to fill it, so everything under them stays out of view and the lines
-   waiting to be scrolled to would never show. Here they skip the animation and just show. */
-@media (min-height: 3000px) {
-  .js .reveal,
-  .js .blur-in,
-  .js .drop-in { opacity: 1; }
-  .js .reveal.is-visible,
-  .js .blur-in.is-visible,
-  .js .drop-in.is-visible { animation: none; }
+@media (max-width: 767px) {
+  .notfound { gap: 32px; }     /* no line on phones */
+  .notfound__stamp { right: -8px; }
 }
 
 /* ---------- Page transitions ----------
@@ -1910,7 +1815,6 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   object-fit: contain;
 }
 .js .reveal.is-arriving,
-.js .blur-in.is-arriving,
 .js .drop-in.is-arriving {
   opacity: 1;
   animation: none;
@@ -1925,10 +1829,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
     animation-duration: 0.01ms !important;
   }
   .js .reveal,
-  .js .blur-in,
   .js .drop-in { opacity: 1; }
-  .hero-in,
   .js .reveal.is-visible,
-  .js .blur-in.is-visible,
   .js .drop-in.is-visible { animation: none; }   /* the shortened duration above would still keep the delay */
 }
