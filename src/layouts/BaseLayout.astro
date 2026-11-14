@@ -9,6 +9,7 @@ import CollabPill from '../components/board/CollabPill.astro';
 import Toolbar from '../components/board/Toolbar.astro';
 import ZoomPill from '../components/board/ZoomPill.astro';
 import MobileMenu from '../components/MobileMenu.astro';
+import UserCursor from '../components/board/UserCursor.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 
 interface Props {
@@ -141,6 +142,9 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
     <Toolbar />
     <ZoomPill />
   </div>
+
+  {/* The visitor's own pointer: an arrow with "Me", following the mouse */}
+  <UserCursor />
 
   <script src="../scripts/main.ts"></script>
 </body>

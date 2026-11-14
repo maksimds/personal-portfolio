@@ -5,7 +5,8 @@
    - the phone menu
    - live clocks (the top-right pill and the hero)
    - objects dropping in as they come into view
-   - the board's connectors (lines between objects) and its drifting cursors
+   - the board's connectors (lines between objects), its drifting cursors, and the visitor's own
+     cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - the dots that switch the photo on the About page
    The inline script in the <head> of BaseLayout adds the "js" class to <html> before the page is
@@ -18,6 +19,7 @@ import { initClock } from './clock';
 import { initDropIn } from './reveal';
 import { initConnectors } from './connectors';
 import { initCursors } from './cursors';
+import { initUserCursor } from './user-cursor';
 import { initEmbeds } from './embeds';
 import { initBackLinks } from './back-links';
 import { initYear } from './year';
@@ -29,6 +31,7 @@ initClock();
 initDropIn();
 initConnectors();
 initCursors();
+initUserCursor();
 initBoard();
 initEmbeds();
 initBackLinks();

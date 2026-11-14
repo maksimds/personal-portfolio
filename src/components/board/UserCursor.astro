@@ -1,0 +1,11 @@
+---
+// The visitor's own pointer, drawn like the made-up visitors' cursors (Cursor.astro) but in
+// Charcoal, with "Me" on its name tag. src/scripts/user-cursor.ts moves it with the mouse and
+// hides the system pointer while it shows. It's a manual popover so it can sit in the browser's
+// top layer, above the menus (which are popovers too). Decoration: screen readers skip it.
+---
+<div class="user-cursor" popover="manual" aria-hidden="true" data-user-cursor>
+  {/* The same arrow as Cursor.astro; its tip is 2.4px in from the top-left corner */}
+  <svg class="cursor__arrow" viewBox="0 0 16 16" width="22" height="22" focusable="false"><path d="M1.75 1.75 6.200 14.250l2.100-5.950 5.950-2.100z" /></svg>
+  <span class="cursor__name">Me</span>
+</div>

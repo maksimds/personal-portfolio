@@ -1039,6 +1039,34 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   .cursor { display: none; }
 }
 
+/* ---------- The visitor's own cursor ----------
+   The same arrow and name tag as the made-up visitors' cursors, in Charcoal, saying "Me". It
+   follows the mouse (src/scripts/user-cursor.ts), in place of the system pointer. It's a popover,
+   so the browser's own popover styles (a box in the middle of the screen) are undone here. It
+   only shows while html.has-user-cursor is set, and never while the hand tool, Space or the
+   stamp is in use: those keep their own pointers. It doesn't move by itself, so it stays for
+   visitors who have turned on reduced motion. */
+.user-cursor {
+  --hue: var(--charcoal);
+  position: fixed;
+  inset: 0 auto auto 0;
+  display: none;
+  grid-template-columns: 16px auto;
+  justify-items: start;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: visible;
+  background: none;
+  color: inherit;
+  pointer-events: none;
+}
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping) .user-cursor:popover-open { display: grid; }
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping),
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping) * { cursor: none !important; }
+
 /* ---------- Footer ----------
    A small gray section at the end of the board: the links on the left, the copyright on the
    right, and the "Updated …" line as the section's tab. */
