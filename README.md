@@ -6,3 +6,4 @@ This is my design portfolio website repository, live at [dmaksimoff.com](https:/
 ## Development
 
 The site is built with [Astro](https://astro.build) and TypeScript. The pages share one layout and a set of components in `src/`, and each case study is a single MDX file in `src/content/projects/`. 
+For the notes wall feature, Supabase was used to keep the notes in a database. 
