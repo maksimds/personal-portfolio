@@ -56,14 +56,17 @@ test.describe('the home page on a desktop', () => {
   });
 
   test('the "Denis" cursor stays over the intro all the way round its loop, and goes with it when it\'s moved', async ({ page }) => {
-    // Steps through its loop, noting any moment when part of it (the arrow, the name, the chat
-    // bubble while it shows) is outside the intro; then leaves it paused at the start
+    // Steps through its scene (src/scripts/intro-cursor.ts starts it once the stickies have
+    // settled), noting any moment when part of it (the arrow, the name, the chat bubble while it
+    // shows) is outside the intro; then leaves it paused at the start
+    await expect.poll(() => page.locator('.home-cursor').evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(3);
     const outside = () => page.evaluate(() => {
       const cursor = document.querySelector('.home-cursor');
       const intro = document.querySelector('[data-drag="intro"]').getBoundingClientRect();
       const animations = cursor.getAnimations({ subtree: true });
+      const length = animations[0].effect.getComputedTiming().duration;
       const out = [];
-      for (let t = 0; t <= 34000; t += 250) {
+      for (let t = 0; t < length; t += 100) {
         animations.forEach((a) => { a.pause(); a.currentTime = t; });
         for (const el of cursor.children) {
           if (Number(getComputedStyle(el).opacity) < 0.5) continue;

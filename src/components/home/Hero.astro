@@ -1,8 +1,11 @@
 ---
 // The home page's opening section ("Intro"): where and when, the greeting, and the three status
 // lines, each on its own sticky. A taped portrait hangs off the top-right corner (decoration, so
-// it has no alt text; it's left out on phones). A made-up visitor's cursor drifts about inside it,
+// it has no alt text; it's left out on phones). A made-up visitor's cursor moves about inside it,
 // on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
+// It plays a scene (src/scripts/intro-cursor.ts): it says hello, looks over the stickies, then
+// deletes the words in the data-cursor-edit span and types them back. To have it retype other
+// words, move that span (keep it on the last line of a sticky's text, and to a few words).
 // A pink sticker, "Leave me a note", links to the notes wall on the About page, as the toolbar's
 // Notes button does: on the canvas it hangs off the intro's left edge (and moves with it), and on
 // a page that scrolls it sits under the stickies.
@@ -25,7 +28,7 @@ import Stamp from '../board/Stamp.astro';
   <div class="intro__notes sticky-grid sticky-grid--stack" id="intro-notes">
     <Sticky color="yellow" tilt={-1.2} dropIn><p>Currently <span class="arrow">→</span> <strong>Product Designer @ dōTERRA</strong></p></Sticky>
     <Sticky color="green" tilt={0.9} dropIn><p>Seeking <span class="arrow">→</span> <strong>Design roles after graduation in <span class="nowrap">May ’27</span></strong></p></Sticky>
-    <Sticky color="blue" tilt={-0.6} dropIn><p>Focus <span class="arrow">→</span> <strong>Mobile apps, websites, platforms &amp; design systems</strong></p></Sticky>
+    <Sticky color="blue" tilt={-0.6} dropIn><p>Focus <span class="arrow">→</span> <strong>Mobile apps, websites, platforms &amp; <span data-cursor-edit>design systems</span></strong></p></Sticky>
   </div>
   <figure class="intro__photo taped taped--photo drop-in">
     <WashiTape color="pink" tilt={-5} />
@@ -33,5 +36,5 @@ import Stamp from '../board/Stamp.astro';
   </figure>
   {/* One span around the words: a stamp centres its contents as a grid, which would put each piece on a row of its own */}
   <Stamp large color="pink" tilt={-10} href="/about.html#notes" class="intro__hint drop-in"><span>Leave me<br>a note <span aria-hidden="true">✍️</span></span></Stamp>
-  <Cursor name="Denis" color="violet" chat="Welcome to my board" class="home-cursor canvas-only" />
+  <Cursor name="Denis" color="violet" chat="Welcome to my board" script="intro" class="home-cursor canvas-only" />
 </Section>

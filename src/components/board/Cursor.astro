@@ -4,6 +4,8 @@
 // its stops. <Cursor name="Denis" color="violet" chat="Welcome to my board" />
 // Place it with a class of the page's own (it's position: absolute). route picks one of two
 // wandering paths, so two cursors on a page don't move alike.
+// script: the cursor plays a scene written in a script instead of drifting round a route.
+// "intro" is the home page's (src/scripts/intro-cursor.ts); it stays still until that starts it.
 // It's decoration: screen readers skip it, it stops while it's off screen
 // (src/scripts/cursors.ts), and it's gone for visitors who have turned on reduced motion.
 interface Props {
@@ -11,11 +13,12 @@ interface Props {
   color?: 'violet' | 'green' | 'blue' | 'pink' | 'yellow';
   chat?: string;
   route?: 'a' | 'b';
+  script?: 'intro';
   class?: string;
 }
-const { name, color = 'violet', chat, route = 'a', class: className } = Astro.props;
+const { name, color = 'violet', chat, route = 'a', script, class: className } = Astro.props;
 ---
-<div class:list={['cursor', `cursor--${color}`, `cursor--route-${route}`, className]} aria-hidden="true" data-cursor>
+<div class:list={['cursor', `cursor--${color}`, script ? 'cursor--scripted' : `cursor--route-${route}`, className]} aria-hidden="true" data-cursor data-cursor-script={script}>
   <svg class="cursor__arrow" viewBox="0 0 16 16" width="22" height="22" focusable="false"><path d="M1.75 1.75 6.200 14.250l2.100-5.950 5.950-2.100z" /></svg>
   <span class="cursor__name">{name}</span>
   {chat && <span class="cursor__chat">{chat}</span>}
