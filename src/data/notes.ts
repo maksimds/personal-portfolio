@@ -9,8 +9,9 @@ export const notesKey = 'sb_publishable_8zdvC2CGkzG8rP3qThJl3Q_sokZ80ap';
 export const MESSAGE_MAX = 200;
 export const NAME_MAX = 40;
 
-// How many notes one visitor can send before a 60-minute pause: the database holds them to it
-// (supabase/notes-limit.sql), and this is only for the message the form shows when it does
+// How many notes one browser can send before a 60-minute pause: the database holds it to that
+// (supabase/notes-limit.sql, which also allows 10 an hour per internet address), and this is only
+// for the message the form shows when it does
 export const NOTES_IN_A_ROW = 3;
 
 // How many of the newest approved notes the wall shows

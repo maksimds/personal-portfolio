@@ -202,6 +202,40 @@ test.describe('the notes wall on a desktop', () => {
     }
   });
 
+  test('past the limit for the whole network, it says so instead', async ({ page }) => {
+    await openLive(page, { post: 429, posted: { code: 'PT429', message: 'Too many notes', details: '600', hint: 'network' } });
+    await panToNotes(page);
+    await page.locator('[data-notes-open]').click();
+    await page.locator('#note-message').fill('One more');
+    await page.locator('#note-name').fill('Tester');
+    await page.locator('.notes__post').click();
+    await expect(status(page)).toHaveText('Lots of notes have come from your network in the last hour. You can post another in 10 minutes.');
+    await expect(page.locator('#note-message')).toHaveValue('One more');
+  });
+
+  test('each browser sends its own random ID with a note, the same one every time', async ({ page, browser }) => {
+    // Posts one note on a page, and returns the ID it was sent with
+    const sendNote = async (p, calls) => {
+      await panToNotes(p);
+      await p.locator('[data-notes-open]').click();
+      await p.locator('#note-message').fill('Hello');
+      await p.locator('#note-name').fill('Tester');
+      await p.locator('.notes__post').click();
+      await expect(status(p)).toHaveText('Thanks! Your note will show here once I’ve read it.');
+      return calls.posts.at(-1).headers['x-notes-visitor'];
+    };
+    const first = await sendNote(page, await openLive(page));
+    expect(first).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    // The same browser, on another visit: the same ID
+    const again = await page.context().newPage();
+    expect(await sendNote(again, await openLive(again))).toBe(first);
+    // Another browser (a friend on the same Wi-Fi): another ID
+    const other = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const friend = await other.newPage();
+    expect(await sendNote(friend, await openLive(friend))).not.toBe(first);
+    await other.close();
+  });
+
   test('says so when there are no notes yet, and when they can\'t load', async ({ page, context }) => {
     await openLive(page, { notes: [] });
     await expect(page.locator('[data-notes-empty]')).toHaveText('No notes yet. Leave the first one!');
