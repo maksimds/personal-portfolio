@@ -1688,6 +1688,9 @@ html:not(.js) .notes { display: none; }
    order it comes last, after the subtitle, as it always has. */
 .case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
 .case-head h1 { order: 1; min-width: 0; }
+/* The status stamp is the large stamp made 15% smaller, text and all, with its words kept on one
+   line ("In progress", "Completed") */
+.case-status.stamp--large { width: 95.2px; height: 95.2px; padding: 5.1px; font-size: 11.9px; white-space: nowrap; }
 .case-status { order: 2; flex: none; }
 .case-head__subtitle {
   order: 3;

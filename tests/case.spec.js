@@ -33,6 +33,32 @@ for (const url of cases) {
   });
 }
 
+for (const url of cases) {
+  test(`${url}: the status stamp is 15% smaller than a large stamp, its words on one line inside it`, { tag: '@phone' }, async ({ page }) => {
+    await page.goto(url);
+    const stamp = page.locator('.case-status');
+    await expect(stamp).not.toHaveText(/In development/);
+    const size = await stamp.evaluate((el) => {
+      const style = getComputedStyle(el);
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return {
+        width: parseFloat(style.width),
+        height: parseFloat(style.height),
+        fontSize: parseFloat(style.fontSize),
+        lines: range.getClientRects().length,
+        // Wider than the inside of the white ring would make it scroll sideways (rotation doesn't count here)
+        overflows: el.scrollWidth > el.clientWidth,
+      };
+    });
+    expect(size.width).toBeCloseTo(112 * 0.85, 1);
+    expect(size.height).toBeCloseTo(112 * 0.85, 1);
+    expect(size.fontSize).toBeCloseTo(14 * 0.85, 1);
+    expect(size.lines).toBe(1);
+    expect(size.overflows).toBe(false);
+  });
+}
+
 test('a title with a colon is split into the tab and a heading, and still reads as one', async ({ page }) => {
   await page.goto('projects/doterra-case-study.html');
   const title = page.locator('.case-section__title').first();
