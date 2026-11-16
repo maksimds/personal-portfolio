@@ -3,7 +3,7 @@
    moving the way a hand moves a mouse. It has two parts:
    - the welcome, played once: it drags out a rectangle just above the intro (the sign marked
      data-cursor-welcome) from one corner to the other, types the sign's words into it ("Welcome
-     to my portfolio") and clicks back down on the board, where it rests, to let go. The sign stays.
+     to my portfolio 🎯") and clicks back down on the board, where it rests, to let go. The sign stays.
    - then round the stickies, over and over: on each one it double-clicks the words marked
      data-cursor-edit, deletes them, types them back and clicks on the empty board beside the
      sticky to let go
@@ -102,6 +102,16 @@ function pickOrder(parts: number): number[] {
   return order;
 }
 
+// Where each key's character ends in the words, counted as the string counts (so it can be sliced
+// there): a key puts in, or takes out, a whole character, an emoji too, never half of one
+function keyEnds(words: string): number[] {
+  const chars = typeof Intl.Segmenter === 'function'
+    ? Array.from(new Intl.Segmenter().segment(words), (s) => s.segment)
+    : Array.from(words);
+  let end = 0;
+  return chars.map((c) => (end += c.length));
+}
+
 // How far along a move the hand is at each moment: smooth at both ends (the "minimum jerk" curve
 // of a reaching hand), with time bent so it's at its fastest about a third of the way in
 const reach = (u: number): number => {
@@ -161,10 +171,11 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
   // Keys aren't evenly spaced: a new word takes longer to start
   const type = (words: string, from: number, typing: Typing): number => {
     let key = from;
-    for (let shown = 1; shown <= words.length; shown++) {
+    const ends = keyEnds(words);
+    ends.forEach((shown, i) => {
       typing.push({ t: key, shown });
-      if (shown < words.length) key += words[shown - 1] === ' ' ? 180 + random() * 90 : 72 + random() * 96;
-    }
+      if (i < ends.length - 1) key += words[shown - 1] === ' ' ? 180 + random() * 90 : 72 + random() * 96;
+    });
     return key;
   };
 
@@ -219,10 +230,11 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     // The first backspace is held a little
     const typing: Typing = [];
     let key = edit + 1000;
-    for (let shown = words.length - 1; shown >= 0; shown--) {
+    const left = [0, ...keyEnds(words)].slice(0, -1).reverse();
+    left.forEach((shown, i) => {
       typing.push({ t: key, shown });
-      key += shown === words.length - 1 ? 190 : 78 + random() * 44;
-    }
+      key += i === 0 ? 190 : 78 + random() * 44;
+    });
     const last = type(words, key + 850, typing);
 
     wait(Math.max(0, last + 550 - t));

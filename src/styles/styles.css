@@ -1424,7 +1424,7 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
    keeps the whole of it inside the section, or the sign's strip above it, and clear of the portrait. */
 .home-cursor { left: 516px; top: 102px; }
 /* The welcome sign: a violet rectangle that cursor draws just above the intro, centred over it,
-   and types "Welcome to my portfolio" into, as the page opens. The script reads its place and size
+   and types "Welcome to my portfolio 🎯" into, as the page opens. The script reads its place and size
    from here, so moving or resizing it is done here. Until it's drawn it isn't seen; the script
    grows it from its top-left corner as it's dragged out, and outlines it in the cursor's colour,
    a little outside its edge, as a selection, while it's being drawn and typed into. Clicks go
