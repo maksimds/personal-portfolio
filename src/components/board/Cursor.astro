@@ -5,7 +5,8 @@
 // Place it with a class of the page's own (it's position: absolute). route picks one of two
 // wandering paths, so two cursors on a page don't move alike.
 // script: the cursor plays a scene written in a script instead of drifting round a route.
-// "intro" is the home page's (src/scripts/intro-cursor.ts); it stays still until that starts it.
+// "intro" is the home page's (src/scripts/intro-cursor.ts): it says hello and retypes the words
+// marked data-cursor-edit on the stickies beside it. It stays still until the script starts it.
 // It's decoration: screen readers skip it, it stops while it's off screen
 // (src/scripts/cursors.ts), and it's gone for visitors who have turned on reduced motion.
 interface Props {

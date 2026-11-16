@@ -1048,8 +1048,13 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
 .cursor--scripted .cursor__chat { opacity: 0; scale: 0.6; }
 /* What such a cursor is editing: the sticky is outlined in the cursor's colour, as someone
    else's selection is on a shared board, and a caret stands in its text. The caret takes up no
-   room, so the words don't move when it comes and goes; it blinks once it's been still a while. */
+   room, and the words the cursor has "deleted" (.type-rest) are only see-through, still in
+   their place, so nothing on the sticky moves; the words being edited can't break across lines
+   either, which the caret in the middle of one would otherwise allow. The caret blinks once
+   it's been still a while. */
 .sticky.is-edited { outline: 2px solid var(--tab-violet); }
+.is-edited [data-cursor-edit] { white-space: nowrap; }
+.type-rest { opacity: 0; }
 .type-caret {
   display: inline-block;
   width: 0;
@@ -1414,8 +1419,8 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
 
 /* The made-up visitor's cursor, inside the intro (so it moves with it): it starts, and rests
    between rounds, to the right of the greeting. Where it goes from there is a scene in
-   src/scripts/intro-cursor.ts, whose places keep the whole of it, chat bubble too, inside the
-   section and clear of the portrait. */
+   src/scripts/intro-cursor.ts (up beside the clock to say hello, and to each sticky's words),
+   which keeps the whole of it, chat bubble too, inside the section and clear of the portrait. */
 .home-cursor { left: 516px; top: 102px; }
 
 /* ---------- About ----------
