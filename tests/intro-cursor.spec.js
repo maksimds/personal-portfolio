@@ -1,8 +1,8 @@
 // Checks the scene the "Denis" cursor plays in the home page's intro (src/scripts/intro-cursor.ts).
 // On a desktop canvas it has four parts: hello (a wave and the chat bubble), and one for each
 // sticky, where it goes to the end of the marked words, double-clicks, deletes them a letter at a
-// time, types them back and clicks away. The parts play in a new order on every visit, never
-// opening with the part that opened the visit before. The words themselves never leave the page.
+// time, types them back and clicks away. Hello always comes first; the stickies follow in a new
+// order on every visit, never starting with the sticky the visit before started with. The words themselves never leave the page.
 // As a list, with reduced motion and on a phone, nothing plays.
 const { test, expect } = require('@playwright/test');
 
@@ -15,8 +15,8 @@ const STICKIES = [
 const cursor = (page) => page.locator('.home-cursor');
 const words = (page) => page.locator('[data-cursor-edit]');
 const running = (page) => cursor(page).evaluate((el) => el.getAnimations({ subtree: true }).length);
-// The order the parts are playing in, as the script remembers it: "2031" is the second sticky,
-// hello, the third sticky, the first
+// The order the parts are playing in, as the script remembers it: "0312" is hello, the third
+// sticky, the first, the second
 const order = (page) => page.evaluate(() => localStorage.getItem('intro-cursor-order'));
 
 // Plays the scene through once, a tenth of a second at a time, and returns what there was to see
@@ -83,8 +83,9 @@ test.describe('on a desktop', () => {
     await expect.poll(() => running(page)).toBe(3);
   });
 
-  test('it says hello and retypes the words on each sticky, one part at a time, in the order it picked', async ({ page }) => {
+  test('it says hello, then retypes the words on each sticky, one part at a time, in the order it picked', async ({ page }) => {
     const played = await order(page);
+    expect(played).toMatch(/^0[123]{3}$/);
     expect(played.split('').sort().join('')).toBe('0123');
     const { length, seen } = await watch(page);
     expect(length, `order ${played}`).toBeGreaterThan(25000);
@@ -137,7 +138,7 @@ test.describe('on a desktop', () => {
     await expect(words(page).locator('*')).toHaveCount(0);
   });
 
-  test('every visit plays the parts in a new order, opening with a different one, and stays inside the intro', async ({ page }) => {
+  test('every visit opens with hello, then goes round the stickies in a new order, starting with a different one, and stays inside the intro', async ({ page }) => {
     const orders = [await order(page)];
     expect(await outside(page)).toEqual([]);
     for (let visit = 0; visit < 7; visit++) {
@@ -160,10 +161,11 @@ test.describe('on a desktop', () => {
     await expect(words(page).locator('*')).toHaveCount(0);
 
     for (const [i, o] of orders.entries()) {
+      expect(o, orders.join(' ')).toMatch(/^0[123]{3}$/);
       expect(o.split('').sort().join(''), orders.join(' ')).toBe('0123');
-      if (i) expect(o[0], orders.join(' ')).not.toBe(orders[i - 1][0]);
+      if (i) expect(o[1], orders.join(' ')).not.toBe(orders[i - 1][1]);
     }
-    expect(new Set(orders).size, orders.join(' ')).toBeGreaterThan(3);
+    expect(new Set(orders).size, orders.join(' ')).toBeGreaterThan(2);
   });
 
   test('it moves like a hand: in arcs, never in a jump, and to a stop between moves', async ({ page }) => {

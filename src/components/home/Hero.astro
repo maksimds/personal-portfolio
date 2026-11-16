@@ -3,9 +3,9 @@
 // lines, each on its own sticky. A taped portrait hangs off the top-right corner (decoration, so
 // it has no alt text; it's left out on phones). A made-up visitor's cursor moves about inside it,
 // on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
-// It plays a scene in four parts, in a new order on every visit (src/scripts/intro-cursor.ts):
-// it says hello, and on each sticky deletes the words in the data-cursor-edit span and types them
-// back. To have it retype other words, move that span (keep it at the end of the sticky's text,
+// It plays a scene in four parts (src/scripts/intro-cursor.ts): it says hello, then on each
+// sticky, in a new order on every visit, deletes the words in the data-cursor-edit span and types
+// them back. To have it retype other words, move that span (keep it at the end of the sticky's text,
 // and to a few words). A sticky without the span is left alone.
 // A pink sticker, "Leave me a note", links to the notes wall on the About page, as the toolbar's
 // Notes button does: on the canvas it hangs off the intro's left edge (and moves with it), and on

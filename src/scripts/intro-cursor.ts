@@ -4,9 +4,10 @@
    - hello: it goes up beside the clock, waves and opens its chat bubble
    - one for each sticky: it double-clicks the words marked data-cursor-edit, deletes them, types
      them back and clicks on the empty board beside the sticky to let go
-   The parts are the same every time, but their order is shuffled whenever the scene starts (the
-   page is opened, reloaded or come back to), and it never opens with the part it opened with the
-   time before, so no two visits in a row play alike. The browser remembers the last order (KEY).
+   Hello always comes first. The stickies' parts are the same every time, but their order is
+   shuffled whenever the scene starts (the page is opened, reloaded or come back to), and it
+   never goes first to the sticky it went to first the time before, so no two visits in a row
+   play alike. The browser remembers the last order (KEY).
 
    How it moves (glide, below): every move is a slight arc, not a straight line; it starts fast
    and slows into its target; a longer one takes longer, though not in proportion; a long move to
@@ -46,7 +47,7 @@ interface Scene {
   edits: Editing[];                       // one for each spot, in the spots' order
 }
 
-const KEY = 'intro-cursor-order';             // localStorage: the order the parts last played in, as "2031"
+const KEY = 'intro-cursor-order';             // localStorage: the order the parts last played in, as "0312"
 // Where it says hello, measured from the intro's top-left corner (the intro is 912 × 472 on the
 // canvas): between the clock and the portrait. The chat bubble hangs about 180px to the right of
 // the cursor's place and 74px below it, and all of it stays inside the intro from here.
@@ -66,18 +67,18 @@ function seeded(seed: number): () => number {
 }
 
 // The order to play the parts in this time (part 0 is hello, part 1 the first sticky, and so on):
-// shuffled, and never opening with the part the last one opened with
+// hello, then the stickies shuffled, never starting with the sticky the last order started with
 function pickOrder(parts: number): number[] {
   const order = Array.from({ length: parts }, (_, i) => i);
-  for (let i = parts - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+  for (let i = parts - 1; i > 1; i--) {
+    const j = 1 + Math.floor(Math.random() * i);
     [order[i], order[j]] = [order[j], order[i]];
   }
   let last = '';
   try { last = localStorage.getItem(KEY) ?? ''; } catch { /* private window: any order will do */ }
-  if (parts > 1 && String(order[0]) === last[0]) {
-    const j = 1 + Math.floor(Math.random() * (parts - 1));
-    [order[0], order[j]] = [order[j], order[0]];
+  if (parts > 2 && String(order[1]) === last[1]) {
+    const j = 2 + Math.floor(Math.random() * (parts - 2));
+    [order[1], order[j]] = [order[j], order[1]];
   }
   try { localStorage.setItem(KEY, order.join('')); } catch { /* private window: it just isn't remembered */ }
   return order;
@@ -186,7 +187,7 @@ function writeScene(home: Point, spots: Spot[], order: number[]): Scene {
     edits[n] = { select, edit, done, typing };
   };
 
-  // The parts in this time's order, with a breath between them; then home, and a rest
+  // Hello, then the stickies in this time's order, with a breath between them; then home, and a rest
   wait(1200);
   order.forEach((part, i) => {
     if (i) wait(500 + random() * 700);
