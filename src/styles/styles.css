@@ -1548,7 +1548,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
    - 42–52%: a page turns; 58–68%: it closes, the page and the cover together
    - 68–80%: it turns back and rises over its place; 72–87%: the blue and the red slide back
      in under it, from the sides they left by; 88–100%: it drops onto them and settles
-   ✈️ (src/components/about/HobbyTravel.astro) flies around 🌍. Its route (offset-path) starts and
+   ✈️ (src/components/about/HobbyTravel.astro) flies around the world, drawn like 🌍. Its route (offset-path) starts and
    ends in the middle, nose up-right as the emoji's is, so it's never turned at rest. Between, it
    goes once and a quarter round an orbit, an ellipse 29 × 12 tipped up 18° to the right, clockwise:
    right end, the near side (in front of the world, bigger), the left end, the far side (behind
@@ -1557,7 +1557,8 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
    14.37%, then a quarter every 14.81%, the near side the last time at 88.4%.
    - 0–14%: it takes off up-right, shrinking, onto the right end; the world pops up (3–13%)
    - 14–74%: round the orbit at one speed, a quarter every 12%; behind the world 38–62%
-   - the world turns: 🌎 comes over 🌍 at 30–32%, 🌏 over that at 46–48%, and goes at 62–64%
+   - the world turns once, west to east, at one speed, while it shows (3–84%): its map slides
+     right by a turn, 122.52 (2π × its radius, 19.5, in its own units; see scripts/globe.mjs)
    - 74–100%: the plane hooks home, back to full size; 72–84%: the world shrinks away */
 .hobby { position: relative; }
 .hobby__scene {
@@ -1772,10 +1773,8 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   100% { opacity: 0; }
 }
 
-/* ✈️: the world is the size of the emoji, in the middle, on top of each other its three faces */
-.hobby__globe { inset: 0; display: grid; place-items: center; z-index: 1; line-height: 1; }
-.hobby__globe span { grid-area: 1 / 1; }
-.hobby__globe span + span { opacity: 0; }
+/* ✈️: the world is the size of the emoji, in the middle */
+.hobby__globe { left: 10px; top: 10px; z-index: 1; }
 .hobby__plane { position: absolute; left: 8px; top: 8px; z-index: 2; display: grid; place-items: center; width: 24px; height: 24px; line-height: 1; }
 @media (prefers-reduced-motion: no-preference) {
   /* At the scene's top-left corner, so the route's points are the scene's, however a browser
@@ -1789,8 +1788,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   }
   .hobby--travel.is-playing .hobby__plane span { animation: plane-size 2.4s both; }
   .hobby--travel.is-playing .hobby__globe { animation: globe-shows 2.4s both; }
-  .hobby--travel.is-playing .hobby__globe span:nth-child(2) { animation: globe-americas 2.4s both; }
-  .hobby--travel.is-playing .hobby__globe span:nth-child(3) { animation: globe-asia 2.4s both; }
+  .hobby--travel.is-playing .hobby__land { animation: world-turns 2.4s both; }
 }
 @keyframes plane-route {
   0% { offset-distance: 0%; z-index: 2; animation-timing-function: cubic-bezier(0.45, 0, 0.8, 0.75); }
@@ -1819,15 +1817,9 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   13%, 72% { opacity: 1; scale: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
   84%, 100% { opacity: 0; scale: 0.3; }
 }
-@keyframes globe-americas {
-  0%, 30% { opacity: 0; }
-  32%, 48% { opacity: 1; animation-timing-function: steps(1, start); }   /* 🌏 is over it by now */
-  49%, 100% { opacity: 0; }
-}
-@keyframes globe-asia {
-  0%, 46% { opacity: 0; }
-  48%, 62% { opacity: 1; }
-  64%, 100% { opacity: 0; }
+@keyframes world-turns {
+  0%, 3% { translate: 0 0; animation-timing-function: linear; }
+  84%, 100% { translate: 122.52px 0; }   /* once round: Europe and Africa face us again */
 }
 
 /* The playlist: the Spotify mark, then the words; underlined when pointed at */

@@ -5,7 +5,7 @@
 // board that shows while it plays, the knight jumps an L onto a queen and knocks her out through
 // the edge, then hops home. 📚 (HobbyBooks.astro): the two books under the top one fly out, and
 // the top one turns to face us, opens, turns a page, closes and lands back on them. ✈️
-// (HobbyTravel.astro): the plane flies round 🌍, behind it on the far side, as it turns.
+// (HobbyTravel.astro): the plane flies round the world, behind it on the far side, as it turns.
 // Pointing at one again plays it again; on a touch screen a tap plays it; with reduced motion
 // nothing plays.
 const { test, expect } = require('@playwright/test');
@@ -345,7 +345,7 @@ test.describe('on a desktop', () => {
 
     // Stepped through. The plane's place is worked out from its route (in the scene's units, the
     // circle 40 across) and how far along it is; it faces along it, its nose up-right
-    const { frames, route, start, end } = await travel.evaluate((el) => {
+    const { frames, turn, route, start, end } = await travel.evaluate((el) => {
       const plane = el.querySelector('.hobby__plane');
       const look = getComputedStyle(plane);
       const d = look.offsetPath.match(/path\("(.*)"\)/)[1];
@@ -357,7 +357,8 @@ test.describe('on a desktop', () => {
       const total = path.getTotalLength();
       const at = (share) => { const p = path.getPointAtLength(total * share); return { x: p.x, y: p.y }; };
       const heading = (a, b) => (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
-      const faces = [...el.querySelectorAll('.hobby__globe span')];
+      const land = el.querySelector('.hobby__land');
+      const xy = (value) => (value === 'none' ? [0, 0] : value.split(' ').map(parseFloat).concat(0).slice(0, 2));
       const animations = el.getAnimations({ subtree: true });
       animations.forEach((a) => a.pause());
       const out = [];
@@ -372,12 +373,13 @@ test.describe('on a desktop', () => {
           size: Number(getComputedStyle(plane.firstElementChild).scale),
           globe: Number(globe.opacity),
           globeZ: Number(globe.zIndex),
-          faces: faces.map((f) => Number(getComputedStyle(f).opacity)),
+          land: xy(getComputedStyle(land).translate)[0],
         });
       }
       animations.forEach((a) => { a.currentTime = 0; a.play(); });
       svg.remove();
-      return { frames: out, route: look.offsetRotate, start: { at: at(0), heading: heading(at(0), at(0.002)) }, end: { at: at(1), heading: heading(at(0.998), at(1)) } };
+      const turn = -Number(land.querySelectorAll('use')[1].getAttribute('x'));
+      return { frames: out, turn, route: look.offsetRotate, start: { at: at(0), heading: heading(at(0), at(0.002)) }, end: { at: at(1), heading: heading(at(0.998), at(1)) } };
     });
     const mid = { x: 20, y: 20 };
     const apart = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -393,14 +395,14 @@ test.describe('on a desktop', () => {
     expect(frames.at(-1).size).toBe(1);
 
     // All the way round the world, clockwise
-    let turn = 0;
+    let around = 0;
     const away = frames.filter((f) => apart(f.at, mid) > 4);
     for (let i = 1; i < away.length; i++) {
       let step = Math.atan2(away[i].at.y - 20, away[i].at.x - 20) - Math.atan2(away[i - 1].at.y - 20, away[i - 1].at.x - 20);
       step = ((step + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
-      turn += (step * 180) / Math.PI;
+      around += (step * 180) / Math.PI;
     }
-    expect(turn).toBeGreaterThan(360);
+    expect(around).toBeGreaterThan(360);
 
     // On the orbit (an ellipse 29 × 12 round the middle, tipped up 18° to the right), over the
     // world it's in front of it on the near side (below the long middle line) and behind it on
@@ -422,16 +424,25 @@ test.describe('on a desktop', () => {
     // It stays inside the circle
     for (const f of frames) expect(apart(f.at, mid) + 10 * f.size).toBeLessThan(20.5);
 
-    // The world shows while it goes round, and turns: 🌍, 🌎, 🌏 and 🌍 again, each over the last
+    // The world shows while it goes round, and turns smoothly, west to east (its land moving
+    // right), at one speed, once round: its map moves by as far as its two copies are apart, so
+    // the side that faces us at the start faces us again at the end
     expect(frames[0].globe).toBe(0);
     expect(frames.at(-1).globe).toBe(0);
-    const shown = frames.filter((f) => f.globe === 1).map((f) => (f.faces[2] === 1 ? '🌏' : f.faces[1] === 1 ? '🌎' : f.faces[1] === 0 && f.faces[2] === 0 ? '🌍' : null)).filter(Boolean);
-    expect(shown.filter((face, i) => face !== shown[i - 1])).toEqual(['🌍', '🌎', '🌏', '🌍']);
+    expect(turn).toBeCloseTo(2 * Math.PI * 19.5, 1);
+    const showing = frames.filter((f) => f.globe > 0);
+    const steps = showing.slice(1).map((f, i) => f.land - showing[i].land);
+    expect(Math.min(...steps)).toBeGreaterThan(0);
+    expect(Math.max(...steps) - Math.min(...steps)).toBeLessThan(0.01);
+    expect(showing[0].land).toBeLessThan(1);
+    expect(turn - showing.at(-1).land).toBeLessThan(1);
+    expect(await travel.evaluate((el) => el.querySelector('.hobby__land').parentElement.getAttribute('filter'))).toBe('url(#world-round)');   // bent onto the ball
 
     // It finishes, and everything is back as it was
     await expect.poll(() => playing(page, 'travel'), { timeout: 4000 }).toBe(false);
     await expect(travel.locator('.hobby__plane')).toHaveCSS('offset-path', 'none');
     await expect(travel.locator('.hobby__globe')).toHaveCSS('opacity', '0');
+    await expect(travel.locator('.hobby__land')).toHaveCSS('translate', 'none');
 
     await pointAt(page, travel);
     await expect.poll(() => playing(page, 'travel')).toBe(true);
