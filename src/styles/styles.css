@@ -1525,7 +1525,19 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
    - 33–38%: the whip: it swings forward and up through the ball, meeting it in front, at 38% (0.65s)
    - 38–60%: the ball squashes and flies off right, out through the edge; the racket carries on
      up and wraps over the shoulder, its head pointing back, then fades
-   - 60–100%: the ball drops back in from the top, full size, lands in the middle and bounces */
+   - 60–100%: the ball drops back in from the top, full size, lands in the middle and bounces
+   ♞ (src/components/about/HobbyChess.astro) takes a queen, on a faint board of 8px squares that
+   shows while it plays (5 across, the middle one at 16–24, the dark ones those the queen and the
+   knight end their moves on). A piece stands at the bottom of its square, so a place is where
+   the middle of its base is: the knight stands at 20, 30 at rest, the queen's square is 12, 24.
+   translate on .hobby__knight is where it stands, from its place at rest; on the piece inside
+   it, how high it's off the board, and the piece leans and shrinks about its base.
+   - 0–21%: the board fades in, and the knight shrinks to fit a square and hops onto one, 28, 32
+   - 14–30%: the queen glides in from the left along her row, straight onto her square
+   - 32–38%: the knight crouches, leaning back
+   - 38–50%: it jumps an L, two squares left and one up, and lands on the queen at 50% (1s)
+   - 50–62%: she's knocked out, spinning, up and out through the edge, a burst where she stood
+   - 62–72%: the board fades out; 68–100%: the knight hops home, back to full size, and bounces */
 .hobby { position: relative; }
 .hobby__scene {
   position: absolute;
@@ -1536,7 +1548,9 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 }
 .hobby__ball { position: relative; z-index: 1; display: inline-block; }   /* in front of the racket */
 .hobby__racket,
-.hobby__pow {
+.hobby__pow,
+.hobby__board,
+.hobby__queen {
   position: absolute;
   opacity: 0;
   pointer-events: none;
@@ -1547,7 +1561,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   overflow: visible;
   transform-origin: 3.8px 17.4px;
 }
-.hobby__pow { left: 21px; top: 11px; }   /* round the ball where it's hit, at 31, 21 */
+.hobby--tennis .hobby__pow { left: 21px; top: 11px; }   /* round the ball where it's hit, at 31, 21 */
 @media (prefers-reduced-motion: no-preference) {
   .hobby--tennis.is-playing .hobby__racket { animation: racket-forehand 1.7s both; }
   .hobby--tennis.is-playing .hobby__ball { animation: ball-forehand 1.7s both; }
@@ -1582,6 +1596,63 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   0%, 38% { opacity: 0; scale: 0.5; }
   39.5% { opacity: 1; scale: 1; }
   47%, 100% { opacity: 0; scale: 1.25; }
+}
+
+/* ♞: the board's dark squares are the odd ones (their column and row, counted from 0, add up odd) */
+.hobby__board {
+  inset: 0;
+  background: repeating-conic-gradient(rgb(76 36 170 / 0.2) 0 25%, rgb(255 255 255 / 0.28) 0 50%) 0 0 / 16px 16px;
+}
+.hobby__knight { position: relative; z-index: 1; }   /* in front of the queen it lands on */
+.hobby__knight svg { display: block; transform-origin: 50% 100%; }
+.hobby__queen { left: 6.6px; top: 12px; transform-origin: 50% 60%; }   /* on her square: her base at 12, 24 */
+.hobby--chess .hobby__pow { left: 2px; top: 8px; }   /* round the queen, at 12, 18 */
+@media (prefers-reduced-motion: no-preference) {
+  .hobby--chess.is-playing .hobby__board { animation: board-show 2s both; }
+  .hobby--chess.is-playing .hobby__knight { animation: knight-moves 2s both; }
+  .hobby--chess.is-playing .hobby__knight svg { animation: knight-jumps 2s both; }
+  .hobby--chess.is-playing .hobby__queen { animation: queen-taken 2s both; }
+  .hobby--chess.is-playing .hobby__pow { animation: capture-pow 2s both; }
+}
+@keyframes board-show {
+  0% { opacity: 0; }
+  12%, 62% { opacity: 1; }
+  72%, 100% { opacity: 0; }
+}
+/* Where the knight stands. Off the board it goes at one speed, so its jumps are true arcs */
+@keyframes knight-moves {
+  0% { translate: 0 0; animation-timing-function: linear; }
+  16%, 38% { translate: 8px 2px; animation-timing-function: linear; }   /* on its square */
+  50%, 68% { translate: -8px -6px; animation-timing-function: linear; }   /* on the queen's */
+  84%, 100% { translate: 0 0; }   /* home */
+}
+/* How high it is, and how it leans and squashes. Up is easing out, down easing in */
+@keyframes knight-jumps {
+  0% { translate: 0 0; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }
+  8% { translate: 0 -5px; scale: 0.72; rotate: -6deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }
+  16% { translate: 0 0; scale: 0.62 0.48; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* lands on its square */
+  21%, 32% { scale: 0.55; rotate: 0deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  38% { translate: 0 0; scale: 0.6 0.47; rotate: 8deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }   /* crouched, leaning back */
+  41% { scale: 0.5 0.62; rotate: -8deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }   /* springs up, stretched */
+  44% { translate: 0 -10px; scale: 0.55; rotate: -14deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }   /* over the top */
+  50% { translate: 0 0; scale: 0.66 0.44; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* lands on the queen */
+  55% { scale: 0.53 0.58; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  60% { scale: 0.55; }
+  68% { translate: 0 0; scale: 0.55; rotate: 0deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }
+  76% { translate: 0 -6px; scale: 0.8; rotate: 6deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }
+  84% { translate: 0 0; scale: 1.12 0.86; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* home */
+  91% { translate: 0 -3px; scale: 0.97 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }   /* and a bounce */
+  100% { translate: 0 0; scale: 1; rotate: 0deg; }
+}
+@keyframes queen-taken {
+  0%, 14% { opacity: 1; translate: -24px 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.25, 1.2, 0.5, 1); }   /* off the board, left */
+  30%, 50% { translate: 0 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1); }   /* on her square, until she's taken */
+  62%, 100% { opacity: 1; translate: -22px -26px; rotate: -420deg; }   /* gone through the edge */
+}
+@keyframes capture-pow {
+  0%, 50% { opacity: 0; scale: 0.5; }
+  51.2% { opacity: 1; scale: 1; }
+  58%, 100% { opacity: 0; scale: 1.25; }
 }
 
 /* The playlist: the Spotify mark, then the words; underlined when pointed at */

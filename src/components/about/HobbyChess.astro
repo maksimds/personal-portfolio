@@ -1,0 +1,57 @@
+---
+// What's inside the ♞ sticker on "Who I am" (src/pages/about.astro): a knight, and the queen it
+// takes. Both are drawn in the style of an emoji, since there's no knight or queen emoji (only
+// the pawn has one): the knight black like ♟️, facing left, the queen white with a dark outline so
+// she shows on the violet. All of it is in .hobby__scene, which is cut to the sticker's circle, so
+// nothing ever shows outside it. The board, the queen and the burst as she's taken are hidden
+// until the sticker is pointed at (src/scripts/hobbies.ts); then the knight jumps an L onto the
+// queen and knocks her out through the edge. The styles are "The hobby stickers" in
+// src/styles/styles.css.
+// .hobby__knight is where the knight stands; the piece inside it lifts off the board for a jump,
+// and leans and shrinks about the middle of its base (18, 40).
+---
+<span class="hobby__scene">
+  <span class="hobby__board"></span>
+  <svg class="hobby__queen" viewBox="0 0 36 40" width="10.8" height="12" focusable="false">
+    <defs>
+      <linearGradient id="queen-white" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff" />
+        <stop offset="0.55" stop-color="#ebe7f3" />
+        <stop offset="1" stop-color="#c4bdd6" />
+      </linearGradient>
+    </defs>
+    <g fill="url(#queen-white)" stroke="#2b2b2b" stroke-width="2.4" stroke-linejoin="round">
+      <rect x="6" y="33" width="24" height="5" rx="2" />
+      <rect x="9.5" y="29.4" width="17" height="3.8" rx="1.5" />
+      <path d="M9.4 20H26.6C24.6 23.2 23.4 26 23.6 29.6H12.4C12.6 26 11.4 23.2 9.4 20Z" />
+      {/* The crown: five points, each with a ball on its tip */}
+      <path d="M8.6 20.4L5.4 10.5L11.6 15.2L12.6 7.4L16.6 13.8L18 5L19.4 13.8L23.4 7.4L24.4 15.2L30.6 10.5L27.4 20.4Z" />
+      <circle cx="5.4" cy="10.5" r="2" /><circle cx="12.6" cy="7.4" r="2" /><circle cx="18" cy="5" r="2" /><circle cx="23.4" cy="7.4" r="2" /><circle cx="30.6" cy="10.5" r="2" />
+    </g>
+  </svg>
+  <span class="hobby__knight">
+    <svg viewBox="0 0 36 40" width="18" height="20" focusable="false">
+      <defs>
+        <linearGradient id="knight-black" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#707070" />
+          <stop offset="0.45" stop-color="#2e2e2e" />
+          <stop offset="1" stop-color="#0c0c0c" />
+        </linearGradient>
+      </defs>
+      <g fill="url(#knight-black)">
+        <rect x="5" y="33" width="26" height="5" rx="2" />
+        <rect x="8" y="29.5" width="20" height="4" rx="1.6" />
+        {/* The head and neck: up the chest, under the jaw to the muzzle, up the face to the ear, and down the mane */}
+        <path d="M10 30.5C9.6 26 11.2 23 14.6 20.2C12 20.6 9 20.8 7.2 20.4C5 19.9 3.6 18.3 3.9 16.4C4.1 15 4.8 13.9 5.9 13L11.8 7.8C12.7 7 13.4 6 13.9 4.8L15.4 1.6L17.6 4.6C24 5.4 29.2 10.8 29.2 18.4C29.2 23 28.4 27 27.4 30.5Z" />
+      </g>
+      {/* The mane's edge, the eye and the nostril, and a shine down the face and along the base */}
+      <path d="M19.5 7C24.6 8.6 27.4 13 27.6 19" fill="none" stroke="#5a5a5a" stroke-width="1.3" stroke-linecap="round" />
+      <ellipse cx="11.8" cy="11.4" rx="1.5" ry="1.25" fill="#d9d9d9" />
+      <circle cx="6.1" cy="15.6" r="0.8" fill="#5a5a5a" />
+      <path d="M6.8 13.4L11.6 9.2M7.2 34.8h6" stroke="#fff" stroke-width="1.2" stroke-linecap="round" opacity="0.5" />
+    </svg>
+  </span>
+  <svg class="hobby__pow" viewBox="0 0 20 20" width="20" height="20" focusable="false">
+    <path d="M10 3.5V.7M14.6 5.4l2-2M16.5 10h2.8M14.6 14.6l2 2M10 16.5v2.8M5.4 14.6l-2 2M3.5 10H.7M5.4 5.4l-2-2" stroke="#1c1c1c" stroke-width="1.1" stroke-linecap="round" />
+  </svg>
+</span>

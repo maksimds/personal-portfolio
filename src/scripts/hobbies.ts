@@ -1,6 +1,7 @@
 /* ---------- About: the hobby stickers ----------
    A sticker on "Who I am" with the class "hobby" plays a short scene when it's pointed at, or
-   tapped on a touch screen (the 🎾 one: a racket hits the ball, src/components/about/HobbyTennis.astro).
+   tapped on a touch screen (🎾: a racket hits the ball, src/components/about/HobbyTennis.astro;
+   ♞: the knight takes a queen, src/components/about/HobbyChess.astro).
    The class is-playing starts it (see "The hobby stickers" in src/styles/styles.css) and comes off
    when its last animation ends, so the scene always plays to the end, and pointing at the sticker
    again plays it again. Nothing plays for visitors who have turned on reduced motion. */
