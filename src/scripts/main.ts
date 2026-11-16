@@ -6,8 +6,8 @@
    - the phone menu
    - live clocks (the top-right pill and the hero)
    - objects dropping in as they come into view
-   - the board's connectors (lines between objects), its drifting cursors, and the visitor's own
-     cursor that follows the mouse
+   - the board's connectors (lines between objects), its drifting cursors, the scene the "Denis"
+     cursor plays in the home page's intro, and the visitor's own cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - the dots that switch the photo on the About page
    - the notes wall on the About page: visitors' notes, and the form for leaving one
@@ -22,6 +22,7 @@ import { initClock } from './clock';
 import { initDropIn } from './reveal';
 import { initConnectors } from './connectors';
 import { initCursors } from './cursors';
+import { initIntroCursor } from './intro-cursor';
 import { initUserCursor } from './user-cursor';
 import { initEmbeds } from './embeds';
 import { initBackLinks } from './back-links';
@@ -35,6 +36,7 @@ initClock();
 initDropIn();
 initConnectors();
 initCursors();
+initIntroCursor();
 initUserCursor();
 initDrag(initBoard());
 initEmbeds();
