@@ -20,8 +20,9 @@ import { NAME_MAX, EMAIL_MAX, MESSAGE_MAX } from '../data/contact';
 
   {/* ===== The form =====
       The browser checks that every field is filled in and the email looks like one; the script
-      sends it. Without JavaScript the form can't send, so the email address shows instead. */}
-  <Section class="contact-message" color="blue" id="message" tabAs="h2" tabId="message-title" name="Send a message" dropIn drag="message">
+      sends it. Once it's sent, the form gives way to the thanks. Without JavaScript the form can't
+      send, so the email address shows instead. */}
+  <Section class="contact-message" color="blue" id="message" tabAs="h2" tabId="message-title" name="Send me a message" dropIn drag="message">
     <p class="contact-message__nojs">Turn on JavaScript to send a message here, or email me at <a class="link" href={`mailto:${site.email}`}>{site.email}</a>.</p>
 
     <form class="contact-form" data-contact-form>
@@ -43,6 +44,14 @@ import { NAME_MAX, EMAIL_MAX, MESSAGE_MAX } from '../data/contact';
         <p class="contact-form__status" data-contact-status role="status"></p>
       </div>
     </form>
+
+    {/* After a message is sent: the thanks (focused, so a screen reader reads it out), and a button
+        that brings the form back for another, unless this browser has sent as many as it can for
+        now; then the button comes back when the pause is over */}
+    <div class="contact-sent" data-contact-sent hidden>
+      <p class="contact-sent__text" data-contact-sent-text tabindex="-1"></p>
+      <button type="button" class="button-primary contact-sent__again" data-contact-again>Send another message</button>
+    </div>
   </Section>
 
   {/* Decoration, hidden from screen readers: a line from "Let’s talk" down to the form */}

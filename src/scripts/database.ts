@@ -34,11 +34,12 @@ export function visitorId(): string {
   }
 }
 
-// What a 429 says: how long the pause has left, as "You can … another in 42 minutes." (`details`
-// is the seconds left; if it's missing, the whole pause, 60 minutes), and whether it's the limit for
-// the visitor's whole network (`hint`) rather than for this browser
-export async function pause(res: Response, verb: string): Promise<{ wait: string; network: boolean }> {
+// What a 429 says: how long the pause has left, as "You can … another in 42 minutes." and in
+// seconds (`details` is the seconds left; if it's missing, the whole pause, 60 minutes), and
+// whether it's the limit for the visitor's whole network (`hint`) rather than for this browser
+export async function pause(res: Response, verb: string): Promise<{ wait: string; seconds: number; network: boolean }> {
   const { details, hint } = await res.json().catch(() => ({ details: '', hint: '' }));
-  const minutes = Math.max(1, Math.ceil(Number(details) / 60) || 60);
-  return { wait: `You can ${verb} another in ${minutes} minute${minutes === 1 ? '' : 's'}.`, network: hint === 'network' };
+  const seconds = Number(details) > 0 ? Number(details) : 60 * 60;
+  const minutes = Math.max(1, Math.ceil(seconds / 60));
+  return { wait: `You can ${verb} another in ${minutes} minute${minutes === 1 ? '' : 's'}.`, seconds, network: hint === 'network' };
 }

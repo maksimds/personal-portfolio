@@ -11,7 +11,9 @@ export const NAME_MAX = 100;
 export const EMAIL_MAX = 254;
 export const MESSAGE_MAX = 2000;
 
-// How many messages one browser can send before a 60-minute pause: the database holds it to that
-// (supabase/messages.sql, which also allows 10 an hour per internet address), and this is only for
-// the message the form shows when it does
+// How many messages one browser can send before a pause, and how long the pause is: the database
+// holds it to that (supabase/messages.sql, which also allows 10 an hour per internet address).
+// These are only for what the form says: the message when the database turns one away, and
+// whether it offers to send another after one goes through
 export const MESSAGES_IN_A_ROW = 3;
+export const MESSAGES_PAUSE_MINUTES = 60;

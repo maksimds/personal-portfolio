@@ -1,6 +1,7 @@
 // Checks the Contact page (src/pages/contact.astro, src/scripts/contact.ts): on a desktop it's a
 // canvas that opens on "Let’s talk" and the form, with a line between them; sending the form posts
-// only the name, the email address and the message, and thanks the visitor; it says so when a
+// only the name, the email address and the message, then the form gives way to the thanks and a
+// button to send another, which isn't there after 3 in a row, until the pause is over; it says so when a
 // message doesn't go through, when the database is pausing the visitor and when a field is blank;
 // the pills and menus lead to it; and on a phone and without JavaScript it's an ordinary page.
 // Only the live site talks to the database, so the sending checks open the page as if it were on
@@ -22,8 +23,10 @@ const THANKS = (to) => `Thanks! I got your message and will write back to ${to} 
 
 // Opens the Contact page as if on dmaksimoff.com with a fake database, and returns what was sent
 // to it. `post` is the status the database answers with, `posted` what it says back, and `hold`
-// a promise the answer waits for (to catch the form while it's sending).
-async function openLive(page, { post = 201, posted, hold } = {}) {
+// a promise the answer waits for (to catch the form while it's sending); or `answers`, one
+// { status, json } for each message in turn. With `clock`, the page's clock is Playwright's, to
+// move on by hand.
+async function openLive(page, { post = 201, posted, hold, answers, clock } = {}) {
   const calls = { posts: [], other: [] };
   await page.route('https://dmaksimoff.com/**', (route) => {
     const file = new URL(route.request().url()).pathname.slice(1) || 'index.html';
@@ -38,8 +41,10 @@ async function openLive(page, { post = 201, posted, hold } = {}) {
     }
     calls.posts.push({ url: req.url(), body: req.postDataJSON(), headers: req.headers() });
     if (hold) await hold;
-    return route.fulfill({ status: post, headers: CORS, ...(posted ? { json: posted } : { body: '' }) });
+    const { status, json } = answers?.[calls.posts.length - 1] ?? { status: post, json: posted };
+    return route.fulfill({ status, headers: CORS, ...(json ? { json } : { body: '' }) });
   });
+  if (clock) await page.clock.install();
   await page.goto(LIVE);
   await expect(page.locator('#contact-title')).toBeInViewport();
   return calls;
@@ -47,6 +52,9 @@ async function openLive(page, { post = 201, posted, hold } = {}) {
 
 const status = (page) => page.locator('[data-contact-status]');
 const send = (page) => page.locator('.contact-form__button');
+// What shows once a message is sent, in the form's place
+const thanks = (page) => page.locator('[data-contact-sent-text]');
+const again = (page) => page.getByRole('button', { name: 'Send another message' });
 async function fill(page, { name = 'Alex Doe', from = 'alex@example.com', message = 'Hi Denis, let’s talk about a role.' } = {}) {
   await page.locator('#contact-name').fill(name);
   await page.locator('#contact-email').fill(from);
@@ -95,7 +103,7 @@ test.describe('the Contact page on a desktop', () => {
     expect(form.y + form.height).toBeLessThan(toolbar.y);
     // (0.99: at 90% an edge can land a hair past a whole pixel)
     for (const sel of ['#contact', '#message', '.contact-form__button']) await expect(page.locator(sel)).toBeInViewport({ ratio: 0.99 });
-    await expect(page.locator('#message-title')).toHaveText('Send a message');
+    await expect(page.locator('#message-title')).toHaveText('Send me a message');
 
     // Only these two sections, one over the other, joined by a line that's drawn
     await expect(page.locator('main > .board-section')).toHaveCount(2);
@@ -133,12 +141,20 @@ test.describe('the Contact page on a desktop', () => {
     await expect(status(page)).toHaveText('');
   });
 
-  test('sending posts only the name, the email and the message, then thanks the visitor and empties the form', async ({ page }) => {
+  test('sending posts only the name, the email and the message, then the form gives way to the thanks, with a button that brings it back for another', async ({ page }) => {
     const calls = await openLive(page);
+    await expect(page.locator('[data-contact-sent]')).toBeHidden();
     await fill(page, { name: '  Alex Doe ', from: 'alex@example.com', message: '  Hi Denis!\nLet’s talk.  ' });
     await send(page).click();
 
-    await expect(status(page)).toHaveText(THANKS('alex@example.com'));
+    // In the form's place: the thanks, focused so a screen reader reads it out, and the button
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
+    await expect(thanks(page)).toBeFocused();
+    await expect(page.locator('.contact-form')).toBeHidden();
+    await expect(again(page)).toBeVisible();
+    const sentBox = await thanks(page).boundingBox();
+    expect((await again(page).boundingBox()).y).toBeGreaterThan(sentBox.y + sentBox.height);   // under it
+    await expect(status(page)).toHaveText('');
     expect(calls.posts).toHaveLength(1);
     expect(calls.posts[0].url).toBe(api);
     expect(calls.posts[0].body).toEqual({ name: 'Alex Doe', email: 'alex@example.com', message: 'Hi Denis!\nLet’s talk.' });
@@ -147,8 +163,56 @@ test.describe('the Contact page on a desktop', () => {
     expect(calls.posts[0].headers['x-notes-visitor']).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     // Nothing is ever read from the messages table
     expect(calls.other).toEqual([]);
-    for (const id of ['#contact-name', '#contact-email', '#contact-message']) await expect(page.locator(id)).toHaveValue('');
+
+    // The button brings the form back: the message empty and ready to write in (with no red edge
+    // for being empty), the name and the address still there
+    await again(page).click();
+    await expect(page.locator('.contact-form')).toBeVisible();
+    await expect(page.locator('[data-contact-sent]')).toBeHidden();
+    await expect(page.locator('#contact-message')).toBeFocused();
+    await expect(page.locator('#contact-message')).toHaveValue('');
+    await expect(page.locator('#contact-message')).not.toHaveCSS('border-top-color', 'rgb(209, 36, 47)');
+    await expect(page.locator('#contact-name')).toHaveValue('Alex Doe');
+    await expect(page.locator('#contact-email')).toHaveValue('alex@example.com');
     await expect(send(page)).toHaveText('Send message');
+    await page.locator('#contact-message').fill('One more thing.');
+    await send(page).click();
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
+    expect(calls.posts[1].body).toEqual({ name: 'Alex Doe', email: 'alex@example.com', message: 'One more thing.' });
+  });
+
+  test('after 3 messages in a row there\'s no button to send another, until the pause is over; the count lasts from page to page', async ({ page, context }) => {
+    await openLive(page, { clock: true });
+    await fill(page);
+    await send(page).click();
+    await again(page).click();
+    await page.locator('#contact-message').fill('Second');
+    await send(page).click();
+    await expect(again(page)).toBeVisible();
+
+    // The third, from another page in the same browser: the thanks, but no button
+    const later = await context.newPage();
+    await openLive(later, { clock: true });
+    await fill(later, { message: 'Third' });
+    await send(later).click();
+    await expect(thanks(later)).toHaveText(THANKS('alex@example.com'));
+    await expect(again(later)).toBeHidden();
+    // ...until the 60 minutes are up
+    await later.clock.fastForward('59:00');
+    await expect(again(later)).toBeHidden();
+    await later.clock.fastForward('01:01');
+    await expect(again(later)).toBeVisible();
+  });
+
+  test('a pause the database reports is kept: a message that goes through during it doesn\'t offer another', async ({ page }) => {
+    const turnedAway = { code: 'PT429', message: 'Too many notes', details: '2501', hint: 'browser' };
+    await openLive(page, { answers: [{ status: 429, json: turnedAway }, { status: 201 }] });
+    await fill(page);
+    await send(page).click();
+    await expect(status(page)).toHaveText('That’s the limit of 3 messages for now. You can send another in 42 minutes.');
+    await send(page).click();
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
+    await expect(again(page)).toBeHidden();
   });
 
   test('while sending, the button says so and a second press sends nothing more', async ({ page }) => {
@@ -163,7 +227,7 @@ test.describe('the Contact page on a desktop', () => {
     await send(page).click({ force: true });
     await page.keyboard.press('ControlOrMeta+Enter');
     answer();
-    await expect(status(page)).toHaveText(THANKS('alex@example.com'));
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
     expect(calls.posts).toHaveLength(1);
     await expect(page.locator('#contact-message')).toHaveJSProperty('readOnly', false);
   });
@@ -173,7 +237,7 @@ test.describe('the Contact page on a desktop', () => {
     await fill(page);
     await page.locator('#contact-message').focus();
     await page.keyboard.press('ControlOrMeta+Enter');
-    await expect(status(page)).toHaveText(THANKS('alex@example.com'));
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
     expect(calls.posts).toHaveLength(1);
   });
 
@@ -219,7 +283,7 @@ test.describe('the Contact page on a desktop', () => {
     const calls = await openLive(page);
     await fill(page);
     await send(page).click();
-    await expect(status(page)).toHaveText(THANKS('alex@example.com'));
+    await expect(thanks(page)).toHaveText(THANKS('alex@example.com'));
     // The ID the notes wall keeps in this browser (src/scripts/database.ts)
     expect(calls.posts[0].headers['x-notes-visitor']).toBe(await page.evaluate(() => localStorage.getItem('notes-visitor')));
   });

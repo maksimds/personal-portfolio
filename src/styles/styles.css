@@ -2334,6 +2334,7 @@ html[data-page="contact"] main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px 16px;
 }
+.contact-form[hidden] { display: none; }   /* sent: the thanks shows instead */
 .contact-form__field { display: grid; gap: 6px; }
 .contact-form__field--wide,
 .contact-form__send { grid-column: 1 / -1; }
@@ -2341,7 +2342,8 @@ html[data-page="contact"] main {
 /* 16px at least, or a phone zooms in on the field when it's tapped */
 .contact-form input,
 .contact-form textarea,
-.contact-form button { font: inherit; font-size: 1rem; }
+.contact-form button,
+.contact-sent button { font: inherit; font-size: 1rem; }
 .contact-form input,
 .contact-form textarea {
   display: block;
@@ -2369,10 +2371,20 @@ html[data-page="contact"] main {
 .contact-form textarea:user-invalid:focus { box-shadow: 0 0 0 1px var(--invalid); }
 
 .contact-form__send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 4px; }
-.contact-form__button { height: 40px; padding: 0 16px; border: 0; cursor: pointer; }
+.contact-form__button,
+.contact-sent__again { height: 40px; padding: 0 16px; border: 0; cursor: pointer; }
 .contact-form__button[aria-disabled="true"] { cursor: progress; }
 /* Always in the layout, even empty, so screen readers never miss what's put in it */
 .contact-form__status { flex: 1 1 16em; margin: 0; font-weight: 550; line-height: 1.45; }
+
+/* Once a message is sent, in the form's place: the thanks, a little bigger than the text, and
+   under it the button to send another. The thanks is focused for screen readers, but it isn't
+   something to press, so it draws no ring. */
+.contact-sent { display: grid; justify-items: start; gap: 24px; }
+.contact-sent[hidden],
+.contact-sent__again[hidden] { display: none; }
+.contact-sent__text { max-width: 32em; margin: 0; font-size: 1.125rem; font-weight: 550; line-height: 1.5; text-wrap: pretty; }
+.contact-sent__text:focus { outline: none; }
 
 /* Without JavaScript the form can't send, so only the line with the email address shows */
 html:not(.js) .contact-form { display: none; }
