@@ -1511,18 +1511,30 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .about-hobbies .stamp + .stamp { margin-left: -6px; }
 
 /* The hobby stickers: pointed at (or tapped), a sticker plays a short scene once through
-   (src/scripts/hobbies.ts adds is-playing, and takes it off when the scene ends). While it plays
-   it's above the stickers beside it, so what flies out of it isn't hidden under them.
-   🎾 (src/components/about/HobbyTennis.astro): a racket swings in from the left around the end of
-   its grip, which sits off the sticker's bottom-left corner. It winds up, swings through and hits
-   the ball at the 38% mark (0.57s in): its frame meets the ball's left side, the ball squashes, a
-   little burst shows where they met, and the ball flies off up to the right, spinning, while the
-   racket follows through and fades. Then the ball drops back into the sticker and bounces. The
-   racket is drawn 22 × 55; left and top put the end of its grip 12.5px left of the sticker's
-   padding corner and 55.7px down, worked out so the frame meets the ball at the contact angle (20deg). */
+   (src/scripts/hobbies.ts adds is-playing, and takes it off when the scene ends). The scene is
+   cut to the circle inside the white ring (.hobby__scene), so all of it happens on the sticker:
+   what leaves it goes out through the edge.
+   🎾 (src/components/about/HobbyTennis.astro) is a forehand, seen from the side, the player
+   hitting to the right. Places are in px from the circle's top-left corner (it's 40 across, the
+   ball sitting in the middle at 20, 20). The racket is drawn 7.6 × 19 and placed by the hand:
+   translate is where the hand is, rotate which way the racket points from it (0 is straight up,
+   and it only ever turns one way, anticlockwise, in one loop). Meanwhile the ball shrinks to half
+   its size and bounces once into the hitting spot, right of the middle.
+   - 0–14%: the racket comes in, taken back high behind the hand (the unit turn)
+   - 14–33%: the head drops behind and below the hand, and lags there as the hand comes forward
+   - 33–38%: the whip: it swings forward and up through the ball, meeting it in front, at 38% (0.65s)
+   - 38–60%: the ball squashes and flies off right, out through the edge; the racket carries on
+     up and wraps over the shoulder, its head pointing back, then fades
+   - 60–100%: the ball drops back in from the top, full size, lands in the middle and bounces */
 .hobby { position: relative; }
-.hobby.is-playing { z-index: 2; }
-.hobby__ball { display: inline-block; }
+.hobby__scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  clip-path: circle(50%);
+}
+.hobby__ball { position: relative; z-index: 1; display: inline-block; }   /* in front of the racket */
 .hobby__racket,
 .hobby__pow {
   position: absolute;
@@ -1530,42 +1542,46 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   pointer-events: none;
 }
 .hobby__racket {
-  left: calc(-12.5px - 11px);
-  top: calc(55.7px - 55px);
+  left: -3.8px;                  /* the hand's place on the racket at the circle's corner, so translate places the hand */
+  top: -17.4px;
   overflow: visible;
-  transform-origin: 50% 100%;
-  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25));
+  transform-origin: 3.8px 17.4px;
 }
-.hobby__pow { left: 4.5px; top: 13px; }
+.hobby__pow { left: 21px; top: 11px; }   /* round the ball where it's hit, at 31, 21 */
 @media (prefers-reduced-motion: no-preference) {
-  .hobby--tennis.is-playing .hobby__racket { animation: racket-swing 1.5s both; }
-  .hobby--tennis.is-playing .hobby__ball { animation: ball-hit 1.5s both; }
-  .hobby--tennis.is-playing .hobby__pow { animation: ball-pow 1.5s both; }
+  .hobby--tennis.is-playing .hobby__racket { animation: racket-forehand 1.7s both; }
+  .hobby--tennis.is-playing .hobby__ball { animation: ball-forehand 1.7s both; }
+  .hobby--tennis.is-playing .hobby__pow { animation: ball-pow 1.7s both; }
 }
-@keyframes racket-swing {
-  0% { opacity: 0; rotate: -35deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }
+@keyframes racket-forehand {
+  0% { opacity: 0; translate: 14px 26px; rotate: 325deg; scale: 0.75 1; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
   10% { opacity: 1; }
-  24% { rotate: -75deg; animation-timing-function: cubic-bezier(0.55, 0, 0.95, 0.65); }   /* wound up: then faster and faster */
-  38% { rotate: 20deg; animation-timing-function: cubic-bezier(0.3, 0.3, 0.5, 1); }       /* the hit */
-  54% { opacity: 1; rotate: 95deg; }
-  66%, 100% { opacity: 0; rotate: 100deg; }
+  14% { translate: 13px 25px; rotate: 315deg; animation-timing-function: cubic-bezier(0.45, 0, 0.6, 0.6); }   /* taken back */
+  26% { translate: 15px 26px; rotate: 250deg; animation-timing-function: cubic-bezier(0.4, 0, 0.7, 1); }   /* the head drops behind... */
+  33% { translate: 17px 26px; rotate: 232deg; animation-timing-function: cubic-bezier(0.35, 0, 0.75, 0.7); }   /* ...and lags as the hand comes forward; then the whip */
+  38% { translate: 18px 25px; rotate: 75deg; scale: 1 1; animation-timing-function: cubic-bezier(0.15, 0.55, 0.4, 1); }   /* the hit, face square to the ball */
+  48% { translate: 22px 16px; rotate: -30deg; }
+  60% { opacity: 1; translate: 24px 12px; rotate: -105deg; scale: 0.55 1; }   /* wrapped over the shoulder, the face rolled over */
+  72%, 100% { opacity: 0; translate: 24px 12px; rotate: -105deg; scale: 0.55 1; }
 }
-@keyframes ball-hit {
-  0%, 37.5% { translate: 0 0; rotate: 0deg; scale: 1; opacity: 1; }
-  38.5% { translate: 2px 0; scale: 0.72 1.18; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* squashed on the strings */
-  41% { translate: 14px -7px; scale: 1.05 0.95; rotate: 100deg; animation-timing-function: cubic-bezier(0.3, 0.5, 0.6, 1); }
-  55% { opacity: 1; }   /* solid for most of the way, then gone */
-  62% { translate: 72px -42px; rotate: 620deg; scale: 0.8; opacity: 0; }
-  63% { translate: 0 -46px; rotate: 0deg; scale: 1; opacity: 0; }
-  70% { translate: 0 -40px; opacity: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* falls back in... */
-  83% { translate: 0 0; scale: 1.14 0.84; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }  /* ...lands... */
-  91% { translate: 0 -7px; scale: 0.97 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }   /* ...and bounces once */
-  100% { translate: 0 0; scale: 1; }
+@keyframes ball-forehand {
+  0% { translate: 0 0; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  10% { translate: 6px -5px; scale: 0.6; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* up, half size... */
+  20% { translate: 8px 6px; scale: 0.56 0.44; rotate: 90deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* ...a bounce... */
+  30% { translate: 10px -1px; scale: 0.5; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.6); }   /* ...and up into the hitting spot */
+  38% { translate: 11px 1px; scale: 0.5; rotate: 160deg; }
+  38.6% { translate: 12px 1px; scale: 0.32 0.6; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* squashed on the strings */
+  41% { translate: 16px -1px; scale: 0.5; rotate: 260deg; animation-timing-function: cubic-bezier(0.3, 0.5, 0.6, 1); }
+  52% { translate: 34px -12px; scale: 0.5; rotate: 700deg; animation-timing-function: steps(1, end); }   /* gone through the edge */
+  53%, 66% { translate: 0 -32px; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* above the circle, out of sight; then it falls... */
+  82% { translate: 0 0; scale: 1.14 0.84; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* ...lands... */
+  91% { translate: 0 -6px; scale: 0.97 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }   /* ...and bounces once */
+  100% { translate: 0 0; scale: 1; rotate: 0deg; }
 }
 @keyframes ball-pow {
-  0%, 37.5% { opacity: 0; scale: 0.4; }
-  39% { opacity: 1; scale: 1; }
-  47%, 100% { opacity: 0; scale: 1.3; }
+  0%, 38% { opacity: 0; scale: 0.5; }
+  39.5% { opacity: 1; scale: 1; }
+  47%, 100% { opacity: 0; scale: 1.25; }
 }
 
 /* The playlist: the Spotify mark, then the words; underlined when pointed at */

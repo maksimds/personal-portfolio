@@ -1,48 +1,47 @@
 ---
 // What's inside the 🎾 sticker on "Who I am" (src/pages/about.astro): the ball, and a racket
 // drawn in the style of an emoji (there isn't a racket emoji), a Wilson Blade v10 in its
-// Championship Green, with the black stencil "W" on the strings and the infrared hot spot on the
-// throat. The racket and the burst at the moment it hits are hidden until the sticker is pointed
-// at (src/scripts/hobbies.ts); then the racket winds up from the left, swings through the ball and
-// knocks it out of the sticker, and the ball drops back in. The styles are "The hobby stickers"
+// Championship Green, with the infrared hot spot on the throat. All of it is in .hobby__scene,
+// which is cut to the sticker's circle, so nothing ever shows outside it. The racket and the
+// burst at the moment it hits are hidden until the sticker is pointed at (src/scripts/hobbies.ts);
+// then the racket plays a forehand and the ball drops back in. The styles are "The hobby stickers"
 // in src/styles/styles.css.
-// Drawn upright, the end of the grip at the bottom centre, which is the point it swings around.
+// The racket is drawn upright; the hand holds it near the end of the grip (12, 55), the point it
+// swings around. Its lines are drawn heavier than on a real racket, so they still show at 19px.
 ---
-<span class="hobby__ball">🎾</span>
-<svg class="hobby__racket" viewBox="0 0 24 60" width="22" height="55" focusable="false">
-  <defs>
-    <linearGradient id="racket-green" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#5fd67c" />
-      <stop offset="0.5" stop-color="#22a24a" />
-      <stop offset="1" stop-color="#0f6e31" />
-    </linearGradient>
-    <clipPath id="racket-bed"><ellipse cx="12" cy="14.5" rx="8.8" ry="11.8" /></clipPath>
-    <clipPath id="racket-grip"><rect x="9.7" y="42" width="4.6" height="16" rx="1.1" /></clipPath>
-  </defs>
-  {/* The strings: a pale bed, then the mains and crosses, then the stencil */}
-  <g clip-path="url(#racket-bed)">
-    <rect x="2" y="2" width="20" height="26" fill="#fff" opacity="0.4" />
-    <g stroke="#f2f2f2" stroke-width="0.5">
-      <path d="M4.8 2v26M7.2 2v26M9.6 2v26M12 2v26M14.4 2v26M16.8 2v26M19.2 2v26" />
-      <path d="M2 5.2h20M2 7.8h20M2 10.4h20M2 13h20M2 15.6h20M2 18.2h20M2 20.8h20M2 23.4h20M2 26h20" />
+<span class="hobby__scene">
+  <span class="hobby__ball">🎾</span>
+  <svg class="hobby__racket" viewBox="0 0 24 60" width="7.6" height="19" focusable="false">
+    <defs>
+      <linearGradient id="racket-green" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#5fd67c" />
+        <stop offset="0.5" stop-color="#22a24a" />
+        <stop offset="1" stop-color="#0f6e31" />
+      </linearGradient>
+      <clipPath id="racket-bed"><ellipse cx="12" cy="14.5" rx="8.6" ry="11.6" /></clipPath>
+    </defs>
+    {/* The strings: a pale bed with a few mains and crosses */}
+    <g clip-path="url(#racket-bed)">
+      <rect x="2" y="2" width="20" height="26" fill="#fff" opacity="0.55" />
+      <g stroke="#d9d9d9" stroke-width="1">
+        <path d="M6 2v26M9 2v26M12 2v26M15 2v26M18 2v26" />
+        <path d="M2 6h20M2 10h20M2 14h20M2 18h20M2 22h20" />
+      </g>
     </g>
-    <path d="M7.2 11 9.5 17.8 12 12.4 14.5 17.8 16.8 11" fill="none" stroke="#1c1c1c" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="miter" />
-  </g>
-  {/* The throat: two arms down to the shaft, each with its infrared hot spot */}
-  <path d="M6.3 24.2Q9.7 30.4 10.8 37M17.7 24.2Q14.3 30.4 13.2 37" fill="none" stroke="url(#racket-green)" stroke-width="2.3" stroke-linecap="round" />
-  <path d="M8.5 29l0.5 1.1M15.5 29l-0.5 1.1" stroke="#ff5233" stroke-width="2.3" stroke-linecap="butt" />
-  <rect x="10.2" y="35.6" width="3.6" height="7" rx="1" fill="url(#racket-green)" />
-  {/* The frame, with a shine along its top left */}
-  <ellipse cx="12" cy="14.5" rx="10" ry="13" fill="none" stroke="url(#racket-green)" stroke-width="2.4" />
-  <path d="M3.4 10.6A10 13 0 0 1 9.4 2" fill="none" stroke="#fff" stroke-width="0.7" stroke-linecap="round" opacity="0.7" />
-  {/* The grip: black wrap, a green collar and a black butt cap */}
-  <rect x="9.7" y="42" width="4.6" height="16" rx="1.1" fill="#232323" />
-  <g clip-path="url(#racket-grip)" stroke="#474747" stroke-width="0.6">
-    <path d="M9 44.4l6-1.6M9 46.8l6-1.6M9 49.2l6-1.6M9 51.6l6-1.6M9 54l6-1.6M9 56.4l6-1.6M9 58.8l6-1.6" />
-  </g>
-  <rect x="9.4" y="41.5" width="5.2" height="1.4" rx="0.5" fill="#0f6e31" />
-  <rect x="9.3" y="57.4" width="5.4" height="2.4" rx="1" fill="#111" />
-</svg>
-<svg class="hobby__pow" viewBox="0 0 14 14" width="14" height="14" focusable="false">
-  <path d="M7 4V1M4.9 4.9 2.8 2.8M4.9 9.1 2.8 11.2M7 10v3" stroke="#1c1c1c" stroke-width="1.3" stroke-linecap="round" />
-</svg>
+    {/* The throat: two arms down to the shaft, each with its infrared hot spot */}
+    <path d="M6.3 24.2Q9.7 30.4 10.8 37M17.7 24.2Q14.3 30.4 13.2 37" fill="none" stroke="url(#racket-green)" stroke-width="2.8" stroke-linecap="round" />
+    <path d="M8.4 28.8l0.6 1.3M15.6 28.8l-0.6 1.3" stroke="#ff5233" stroke-width="2.8" stroke-linecap="butt" />
+    <rect x="10" y="35.6" width="4" height="7" rx="1" fill="url(#racket-green)" />
+    {/* The frame, with a shine along its top left */}
+    <ellipse cx="12" cy="14.5" rx="10" ry="13" fill="none" stroke="url(#racket-green)" stroke-width="3.2" />
+    <path d="M3.4 10.6A10 13 0 0 1 9.4 2" fill="none" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity="0.7" />
+    {/* The grip: black wrap, a green collar and a black butt cap */}
+    <rect x="9.4" y="42" width="5.2" height="16" rx="1.2" fill="#232323" />
+    <path d="M9.4 46.4l5.2-1.4M9.4 50.4l5.2-1.4M9.4 54.4l5.2-1.4" stroke="#4a4a4a" stroke-width="0.9" />
+    <rect x="9.2" y="41.4" width="5.6" height="1.6" rx="0.6" fill="#0f6e31" />
+    <rect x="9" y="57.2" width="6" height="2.6" rx="1" fill="#111" />
+  </svg>
+  <svg class="hobby__pow" viewBox="0 0 20 20" width="20" height="20" focusable="false">
+    <path d="M10 3.5V1M14.6 5.4l1.8-1.8M16.5 10H19M14.6 14.6l1.8 1.8M10 16.5V19" stroke="#1c1c1c" stroke-width="1.1" stroke-linecap="round" />
+  </svg>
+</span>
