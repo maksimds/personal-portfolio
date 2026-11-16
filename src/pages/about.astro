@@ -8,6 +8,7 @@ import WashiTape from '../components/board/WashiTape.astro';
 import Widget from '../components/board/Widget.astro';
 import Connector from '../components/board/Connector.astro';
 import Notes from '../components/about/Notes.astro';
+import HobbyTennis from '../components/about/HobbyTennis.astro';
 import { playlistUrl } from '../data/links';
 
 // How wide the photo print's picture is drawn: on the canvas, on a tablet, on a phone
@@ -50,9 +51,10 @@ const photoSizes = '(min-width: 1024px) 296px, (min-width: 768px) 224px, 216px';
   {/* ===== Who I am / What I do / What I believe in: a section each, its heading in the tab ===== */}
   <Section class="about-block about-block--who" color="yellow" id="who" tabAs="h2" tabId="who-i-am" name="Who I am" dropIn drag="who">
     <p class="text-block">Born and raised in Moscow, Russia, I moved to the United States at the age of 17 to pursue my dreams. Almost 5 years have flown by since then, and now I’m a senior at the University of Cincinnati majoring in IT/Software Development, graduating (hopefully) in May 2027. My adventure in technology and design began a while before that, when I was 15 and got my hands on Figma for the first time. I fell in love with the concept of digital design and started learning the basics of UI/UX, typography, colors, and other topics in this area, which then led me to land my first freelance project at 16. I also realized shortly after that I have a technical side apart from my creative side, which influenced my decision to major in information technology. Some of personal hobbies include tennis, chess, reading, and travel.</p>
-    {/* The four hobbies again as stickers, for show: the sentence above is the one that's read out */}
+    {/* The four hobbies again as stickers, for show: the sentence above is the one that's read out.
+        A sticker with class="hobby" plays a scene when pointed at (src/scripts/hobbies.ts). */}
     <div class="about-hobbies" aria-hidden="true">
-      <Stamp small color="green" tilt={-9} decorative>🎾</Stamp>
+      <Stamp small color="green" tilt={-9} decorative class="hobby hobby--tennis"><HobbyTennis /></Stamp>
       <Stamp small color="violet" tilt={6} decorative>♟️</Stamp>
       <Stamp small color="orange" tilt={-5} decorative>📚</Stamp>
       <Stamp small color="blue" tilt={10} decorative>✈️</Stamp>
