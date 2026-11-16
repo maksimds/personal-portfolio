@@ -20,6 +20,7 @@ function lastChanged(url) {
     if (git('rev-parse', '--is-shallow-repository') === 'true') return undefined;
     if (caseStudy) return changed('--', `src/content/projects/${caseStudy[1]}.mdx`) || undefined;
     if (pathname === '/about.html') return changed('--', 'src/pages/about.astro') || undefined;
+    if (pathname === '/contact.html') return changed('--', 'src/pages/contact.astro') || undefined;
     // The home page: its own files, and the lines of each case study that appear in its row
     return [
       changed('--', 'src/pages/index.astro', 'src/components/home'),

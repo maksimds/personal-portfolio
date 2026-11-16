@@ -27,6 +27,7 @@
   --accent-3: #f1e5ff;               /* light wash */
   --accent-text: #8638e5;
   --select: #0d99ff;                 /* selection boxes and focus rings only */
+  --invalid: #d1242f;                /* the edge of a form field the browser turned away (5.2:1 on white) */
   --link: #0b6fd1;                   /* a shade darker than #007be5, which is 3.9:1 on the board */
   --tooltip-bg: #1e1e1e;
   --charcoal: #1e1e1e;               /* all text on board objects */
@@ -2128,6 +2129,93 @@ html:not(.js) .notes { display: none; }
   .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
   .case-nav { flex-direction: column; }
   .case-nav__link { max-width: none; }
+}
+
+/* ---------- Contact ----------
+   Two sections in one column, "Let’s talk" over the form (src/pages/contact.astro), with a line
+   from one down to the other in the gap between them. As a document: the column is 640px wide at
+   most. As a canvas: the same column in the middle of a 2400 × 2000 board, and the footer at the
+   column's bottom right as on the other boards. The page opens at 90% (`zoom` in contact.astro),
+   on the two sections: from the top of the "Contact" tab (570) to the bottom of the form (1311)
+   is about 740px, 670px on screen, which sits midway between the pills and the toolbar of a
+   900px-tall screen when the starting point is 900. */
+html[data-page="contact"] {
+  --board-w: 2400px;
+  --board-h: 2000px;
+  --start-x: 1200px;           /* the middle of the column: the layer's padding (880) + half its width (320) */
+  --start-y: 900px;
+}
+html[data-page="contact"] main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 80px;               /* room for the form's tab and the line that leads to it */
+  width: min(640px, 100% - 32px);
+  margin: 0 auto;
+}
+.is-canvas[data-page="contact"] .board__layer { padding: 600px 880px 0; }
+.is-canvas[data-page="contact"] main { width: auto; }
+
+.contact-intro { margin-top: 32px; }   /* room above for the tab */
+.is-canvas .contact-intro { margin-top: 0; }
+.contact-intro__text { max-width: 32em; margin: 20px 0 0; line-height: 1.6; text-wrap: pretty; }
+
+/* The form: the name and the email side by side, the message under them, then Send. White fields
+   on the section's tint, each with its name over it. Their edges are dark enough to find (3:1 on
+   white). As with the notes, focus draws no blue ring: the field's edge turns Charcoal and thicker. */
+.contact-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+.contact-form__field { display: grid; gap: 6px; }
+.contact-form__field--wide,
+.contact-form__send { grid-column: 1 / -1; }
+.contact-form label { font-size: 0.875rem; font-weight: 600; line-height: 1.3; }
+/* 16px at least, or a phone zooms in on the field when it's tapped */
+.contact-form input,
+.contact-form textarea,
+.contact-form button { font: inherit; font-size: 1rem; }
+.contact-form input,
+.contact-form textarea {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1.5px solid rgb(0 0 0 / 0.42);
+  border-radius: var(--r-sm);
+  background: #fff;
+  color: var(--charcoal);
+  line-height: 1.4;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.contact-form textarea { min-height: 9.5em; resize: vertical; }
+.contact-form ::placeholder { color: rgb(30 30 30 / 0.6); opacity: 1; }
+.contact-form input:hover,
+.contact-form textarea:hover { border-color: rgb(0 0 0 / 0.6); }
+.contact-form input:focus,
+.contact-form textarea:focus { outline: none; border-color: var(--charcoal); box-shadow: 0 0 0 1px var(--charcoal); }
+/* A field the browser turned away on Send (empty, or not an email address): a red edge, alongside
+   the browser's own message */
+.contact-form input:user-invalid,
+.contact-form textarea:user-invalid { border-color: var(--invalid); }
+.contact-form input:user-invalid:focus,
+.contact-form textarea:user-invalid:focus { box-shadow: 0 0 0 1px var(--invalid); }
+
+.contact-form__send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 4px; }
+.contact-form__button { height: 40px; padding: 0 16px; border: 0; cursor: pointer; }
+.contact-form__button[aria-disabled="true"] { cursor: progress; }
+/* Always in the layout, even empty, so screen readers never miss what's put in it */
+.contact-form__status { flex: 1 1 16em; margin: 0; font-weight: 550; line-height: 1.45; }
+
+/* Without JavaScript the form can't send, so only the line with the email address shows */
+html:not(.js) .contact-form { display: none; }
+.js .contact-message__nojs { display: none; }
+
+@media (max-width: 767px) {
+  html[data-page="contact"] main { row-gap: 64px; }
+}
+@media (max-width: 559px) {
+  .contact-form { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- 404 ----------

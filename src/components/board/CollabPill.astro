@@ -1,8 +1,9 @@
 ---
 // The top-right pill: a stack of "viewers" (the portrait, plus a made-up "U" for show, in the
 // Charcoal of the visitor's own "Me" cursor), the live Cincinnati clock in a timer-style chip, the
-// CV, LinkedIn and GitHub links, and the violet Contact button, which writes an email.
+// CV, LinkedIn and GitHub links, and the violet Contact button, which opens the Contact page.
 import { site } from '../../data/site';
+import { isCurrentPage } from '../../data/pages';
 import Img from '../Img.astro';
 import Icon from '../icons/Icon.astro';
 import Cv from '../icons/Cv.astro';
@@ -26,5 +27,5 @@ import Tooltip from './Tooltip.astro';
     <span class="tool"><a class="icon-button" href={site.githubUrl} target="_blank" rel="noopener" aria-label="GitHub"><GitHub /></a><Tooltip name="GitHub" below decorative /></span>
   </div>
 
-  <a class="button-primary" href={`mailto:${site.email}`} target="_blank" rel="noopener">Contact</a>
+  <a class="button-primary" href="/contact.html" aria-current={isCurrentPage('/contact.html', Astro.url.pathname) ? 'page' : undefined}>Contact</a>
 </div>
