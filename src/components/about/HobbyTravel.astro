@@ -1,0 +1,14 @@
+---
+// What's inside the ✈️ sticker on "Who I am" (src/pages/about.astro): the plane, and the world it
+// flies around, both emoji. The world turns as it goes (🌍, 🌎, 🌏, then 🌍 again), each face on
+// top of the one before. All of it is in .hobby__scene, which is cut to the sticker's circle, so
+// nothing ever shows outside it. The world is hidden until the sticker is pointed at
+// (src/scripts/hobbies.ts). The plane's route and timing are "The hobby stickers" in
+// src/styles/styles.css.
+// The plane is in two parts: the outer one follows the route, turned to face along it; the emoji
+// inside it shrinks and grows with how far away it is.
+---
+<span class="hobby__scene">
+  <span class="hobby__globe"><span>🌍</span><span>🌎</span><span>🌏</span></span>
+  <span class="hobby__plane"><span>✈️</span></span>
+</span>

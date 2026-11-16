@@ -10,6 +10,8 @@ import Connector from '../components/board/Connector.astro';
 import Notes from '../components/about/Notes.astro';
 import HobbyTennis from '../components/about/HobbyTennis.astro';
 import HobbyChess from '../components/about/HobbyChess.astro';
+import HobbyBooks from '../components/about/HobbyBooks.astro';
+import HobbyTravel from '../components/about/HobbyTravel.astro';
 import { playlistUrl } from '../data/links';
 
 // How wide the photo print's picture is drawn: on the canvas, on a tablet, on a phone
@@ -57,8 +59,8 @@ const photoSizes = '(min-width: 1024px) 296px, (min-width: 768px) 224px, 216px';
     <div class="about-hobbies" aria-hidden="true">
       <Stamp small color="green" tilt={-9} decorative class="hobby hobby--tennis"><HobbyTennis /></Stamp>
       <Stamp small color="violet" tilt={6} decorative class="hobby hobby--chess"><HobbyChess /></Stamp>
-      <Stamp small color="orange" tilt={-5} decorative>📚</Stamp>
-      <Stamp small color="blue" tilt={10} decorative>✈️</Stamp>
+      <Stamp small color="orange" tilt={-5} decorative class="hobby hobby--books"><HobbyBooks /></Stamp>
+      <Stamp small color="blue" tilt={10} decorative class="hobby hobby--travel"><HobbyTravel /></Stamp>
     </div>
   </Section>
 
