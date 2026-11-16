@@ -2335,6 +2335,9 @@ html[data-page="contact"] main {
   gap: 20px 16px;
 }
 .contact-form[hidden] { display: none; }   /* sent: the thanks shows instead */
+/* Both, the form and the thanks: 2px over each side, so a field's focus ring isn't cut off while
+   it's clipped to the height it eases to (src/scripts/contact.ts) */
+.contact-message__views { margin: -2px; padding: 2px; }
 .contact-form__field { display: grid; gap: 6px; }
 .contact-form__field--wide,
 .contact-form__send { grid-column: 1 / -1; }

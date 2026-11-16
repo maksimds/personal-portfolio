@@ -181,6 +181,56 @@ test.describe('the Contact page on a desktop', () => {
     expect(calls.posts[1].body).toEqual({ name: 'Alex Doe', email: 'alex@example.com', message: 'One more thing.' });
   });
 
+  test('the form and the thanks swap smoothly, both ways: one fades, and the section eases to the other\'s height as it fades in; at once with reduced motion', async ({ page }) => {
+    // Presses `press`, then for 1.5s notes every frame the section's height and how far the view
+    // coming in (`coming`) has faded in
+    const watch = (press, coming) => page.evaluate(async ([press, coming]) => {
+      const views = document.querySelector('[data-contact-views]');
+      const next = document.querySelector(coming);
+      const seen = [{ height: views.offsetHeight, shown: 0 }];
+      document.querySelector(press).click();
+      const start = performance.now();
+      while (performance.now() - start < 1500) {
+        await new Promise(requestAnimationFrame);
+        seen.push({ height: views.offsetHeight, shown: next.hidden ? 0 : Number(getComputedStyle(next).opacity) });
+      }
+      return { seen, overflow: views.style.overflow };
+    }, [press, coming]);
+    const eased = (seen, from, to) => seen.filter((f) => f.height > Math.min(from, to) + 1 && f.height < Math.max(from, to) - 1).length;
+    const fading = (seen) => seen.filter((f) => f.shown > 0.05 && f.shown < 0.95).length;
+
+    await openLive(page);
+    await fill(page);
+    const sending = await watch('.contact-form__button', '[data-contact-sent]');
+    const formHeight = sending.seen[0].height;
+    const thanksHeight = sending.seen.at(-1).height;
+    expect(thanksHeight).toBeLessThan(formHeight - 100);
+    // Only ever shrinking, through a run of heights between, as the thanks fades in
+    for (let i = 1; i < sending.seen.length; i++) expect(sending.seen[i].height).toBeLessThanOrEqual(sending.seen[i - 1].height + 0.5);
+    expect(eased(sending.seen, formHeight, thanksHeight)).toBeGreaterThan(5);
+    expect(fading(sending.seen)).toBeGreaterThan(3);
+    expect(sending.seen.at(-1).shown).toBe(1);
+    expect(sending.overflow).toBe('');   // nothing's left clipped
+    await expect(thanks(page)).toBeFocused();
+
+    // ...and back to the form, growing
+    const back = await watch('[data-contact-again]', '.contact-form');
+    expect(back.seen.at(-1).height).toBe(formHeight);
+    for (let i = 1; i < back.seen.length; i++) expect(back.seen[i].height).toBeGreaterThanOrEqual(back.seen[i - 1].height - 0.5);
+    expect(eased(back.seen, thanksHeight, formHeight)).toBeGreaterThan(5);
+    expect(fading(back.seen)).toBeGreaterThan(3);
+    expect(back.overflow).toBe('');
+    await expect(page.locator('#contact-message')).toBeFocused();
+
+    // With reduced motion they swap at once
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.locator('#contact-message').fill('Again');
+    const calm = await watch('.contact-form__button', '[data-contact-sent]');
+    expect(eased(calm.seen, formHeight, thanksHeight)).toBe(0);
+    expect(fading(calm.seen)).toBe(0);
+    expect(calm.seen.at(-1).height).toBe(thanksHeight);
+  });
+
   test('after 3 messages in a row there\'s no button to send another, until the pause is over; the count lasts from page to page', async ({ page, context }) => {
     await openLive(page, { clock: true });
     await fill(page);

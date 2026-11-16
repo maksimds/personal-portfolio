@@ -10,7 +10,9 @@
      between all its browsers. The database holds them to it and answers 429; the form says how
      long is left and keeps what was written.
    - Once a message is sent, the form gives way to the thanks and a "Send another message" button,
-     which brings the form back with the name and email address still in it. The button isn't
+     which brings the form back with the name and email address still in it. Each swap is eased:
+     the one showing fades out, then the section eases to the other's height as it fades in (at
+     once with reduced motion). The button isn't
      there while this browser is paused; it comes back when the pause is over. The database only
      says it's paused when a message is turned away, so the browser keeps a count of its own, the
      same way (see countSent).
@@ -18,6 +20,9 @@
 import { messagesApi, messagesKey, MESSAGES_IN_A_ROW, MESSAGES_PAUSE_MINUTES } from '../data/contact';
 import { site } from '../data/site';
 import { SITE, connected, visitorId, pause } from './database';
+
+const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';   // --ease-out in styles.css, as the notes wall's form uses
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
 
 // This browser's messages, counted as the database counts them (private.count_note in
 // supabase/notes-limit.sql): after MESSAGES_IN_A_ROW, a pause, then from 0 again; and one that
@@ -63,12 +68,51 @@ export function initContactForm(): void {
   const email = form.querySelector<HTMLInputElement>('input[name="email"]')!;
   const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]')!;
   const fields = [name, email, message];
+  const views = document.querySelector<HTMLElement>('[data-contact-views]')!;
   const done = document.querySelector<HTMLElement>('[data-contact-sent]')!;
   const thanks = done.querySelector<HTMLElement>('[data-contact-sent-text]')!;
   const again = done.querySelector<HTMLButtonElement>('[data-contact-again]')!;
 
   let sending = false;
   let paused: number | undefined;
+  let motion: Animation[] = [];
+
+  // Swaps the view showing (the form, or the thanks) for `next`: the one showing fades out, a
+  // little up; then, swapped, the section eases from its height to the new one's as that fades in,
+  // rising into place. `ready` runs as they swap, to put the keyboard's place in the new one. A
+  // swap started during another takes over from wherever that one has got to.
+  function show(next: HTMLElement, ready: () => void): void {
+    const current = next === form ? done : form;
+    motion.forEach((a) => a.cancel());
+    motion = [];
+    views.style.overflow = '';
+    const swap = (): void => {
+      current.hidden = true;
+      next.hidden = false;
+      ready();
+    };
+    if (calm.matches || !('animate' in views) || current.hidden) return swap();
+
+    const from = views.offsetHeight;
+    const out = current.animate([{ opacity: 1 }, { opacity: 0, translate: '0 -4px' }], { duration: 160, easing: 'ease-in', fill: 'forwards' });
+    motion = [out];
+    out.onfinish = () => {
+      swap();
+      out.cancel();
+      const to = views.offsetHeight;
+      views.style.overflow = 'hidden';   // what's coming in shows only as the section makes room for it
+      const grow = views.animate([{ height: `${from}px` }, { height: `${to}px` }], { duration: 420, easing: EASE });
+      const appear = next.animate(
+        [{ opacity: 0, translate: '0 8px' }, { opacity: 0, translate: '0 8px', offset: 0.15 }, { opacity: 1, translate: '0 0' }],
+        { duration: 420, easing: EASE },
+      );
+      motion = [grow, appear];
+      grow.onfinish = () => {
+        views.style.overflow = '';
+        motion = [];
+      };
+    };
+  }
 
   // The form gives way to the thanks; the button to send another shows when this browser can
   function sentTo(address: string, nextAt: number): void {
@@ -76,17 +120,11 @@ export function initContactForm(): void {
     clearTimeout(paused);
     again.hidden = nextAt > Date.now();
     if (again.hidden) paused = window.setTimeout(() => { again.hidden = false; }, nextAt - Date.now());
-    form.hidden = true;
-    done.hidden = false;
-    thanks.focus();
+    show(done, () => thanks.focus());
   }
 
   // Back to the form, its message empty, for the next one
-  again.addEventListener('click', () => {
-    done.hidden = true;
-    form.hidden = false;
-    message.focus();
-  });
+  again.addEventListener('click', () => show(form, () => message.focus()));
 
   // What happened, read out by screen readers. With `offerEmail`, the email address follows as a
   // link, for when the form can't get the message through.

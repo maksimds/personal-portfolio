@@ -25,6 +25,9 @@ import { NAME_MAX, EMAIL_MAX, MESSAGE_MAX } from '../data/contact';
   <Section class="contact-message" color="blue" id="message" tabAs="h2" tabId="message-title" name="Send me a message" dropIn drag="message">
     <p class="contact-message__nojs">Turn on JavaScript to send a message here, or email me at <a class="link" href={`mailto:${site.email}`}>{site.email}</a>.</p>
 
+    {/* The form, and in its place once a message is sent, the thanks: the section eases from one's
+        height to the other's as they swap */}
+    <div class="contact-message__views" data-contact-views>
     <form class="contact-form" data-contact-form>
       <div class="contact-form__field">
         <label for="contact-name">Name</label>
@@ -51,6 +54,7 @@ import { NAME_MAX, EMAIL_MAX, MESSAGE_MAX } from '../data/contact';
     <div class="contact-sent" data-contact-sent hidden>
       <p class="contact-sent__text" data-contact-sent-text tabindex="-1"></p>
       <button type="button" class="button-primary contact-sent__again" data-contact-again>Send another message</button>
+    </div>
     </div>
   </Section>
 
