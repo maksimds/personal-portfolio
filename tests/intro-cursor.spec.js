@@ -1,9 +1,11 @@
 // Checks the scene the "Denis" cursor plays in the home page's intro (src/scripts/intro-cursor.ts).
-// On a desktop canvas it has four parts: hello (a wave and the chat bubble), and one for each
-// sticky, where it goes to the end of the marked words, double-clicks, deletes them a letter at a
-// time, types them back and clicks away. Hello always comes first; the stickies follow in a new
-// order on every visit, never starting with the sticky the visit before started with. The words themselves never leave the page.
-// As a list, with reduced motion and on a phone, nothing plays.
+// On a desktop canvas it opens with the welcome, played once: it drags out the welcome sign just
+// above the intro from its top-left corner to its bottom-right, types "Welcome to my portfolio"
+// into it and clicks away, and the sign stays. Then it goes round the stickies, over and over: on
+// each it goes to the end of the marked words, double-clicks, deletes them a letter at a time,
+// types them back and clicks away. The stickies come in a new order on every visit, never
+// starting with the sticky the visit before started with. Their words never leave the page.
+// As a list, with reduced motion and on a phone, nothing plays and there's no sign.
 const { test, expect } = require('@playwright/test');
 
 // The stickies in the page's order: the whole line, and the words of it that are retyped
@@ -12,30 +14,52 @@ const STICKIES = [
   { text: 'Design roles after graduation in May ’27', words: 'May ’27' },
   { text: 'Mobile apps, websites, platforms & design systems', words: 'design systems' },
 ];
+const WELCOME = 'Welcome to my portfolio';
 const cursor = (page) => page.locator('.home-cursor');
+const sign = (page) => page.locator('[data-cursor-welcome]');
 const words = (page) => page.locator('[data-cursor-edit]');
-const running = (page) => cursor(page).evaluate((el) => el.getAnimations({ subtree: true }).length);
-// The order the parts are playing in, as the script remembers it: "0312" is hello, the third
-// sticky, the first, the second
+// The scene's animations: the cursor's place and its arrow's clicks, the welcome's and the
+// rounds', and the sign's size as it's drawn
+const running = (page) => page.evaluate(() => [
+  ...document.querySelector('.home-cursor').getAnimations({ subtree: true }),
+  ...document.querySelector('[data-cursor-welcome]').getAnimations(),
+].length);
+// The order the parts are playing in, as the script remembers it: "0312" is the welcome, the
+// third sticky, the first, the second
 const order = (page) => page.evaluate(() => localStorage.getItem('intro-cursor-order'));
 
-// Plays the scene through once, a tenth of a second at a time, and returns what there was to see
-// at each moment: the chat bubble, and for each sticky the words that show, the page's own text,
-// the outline, the caret, how far the arrow's tip is from the end of the words, and its lines' places
+// Plays the scene through once (the welcome and the first round), a tenth of a second at a time,
+// and returns what there was to see at each moment: the sign, and for each sticky the words that
+// show, the page's own text, the outline, the caret, how far the arrow's tip is from the end of
+// the words, and its lines' places. Then a few moments of later rounds, to see the sign stays.
 const watch = (page) => page.evaluate(async () => {
   const cursor = document.querySelector('.home-cursor');
+  const sign = document.querySelector('[data-cursor-welcome]');
   const targets = [...document.querySelectorAll('[data-cursor-edit]')];
-  const animations = cursor.getAnimations({ subtree: true });
-  const length = animations[0].effect.getComputedTiming().duration;
+  const animations = [...cursor.getAnimations({ subtree: true }), ...sign.getAnimations()];
+  const timing = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming();
+  const first = timing.delay;
+  const round = timing.duration;
   animations.forEach((a) => a.pause());
-  const seen = [];
-  for (let t = 0; t < length; t += 100) {
+  const look = async (t) => {
     animations.forEach((a) => { a.currentTime = t; });
     await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
-    const tip = cursor.querySelector('.cursor__arrow').getBoundingClientRect();
-    seen.push({
+    const arrow = cursor.querySelector('.cursor__arrow').getBoundingClientRect();
+    const tip = { x: arrow.left + 2.4, y: arrow.top + 2.4 };
+    const box = sign.getBoundingClientRect();
+    const text = sign.querySelector('.shape__text');
+    return {
       t,
-      chat: Number(getComputedStyle(cursor.querySelector('.cursor__chat')).opacity) > 0.5,
+      cursor: [Math.round(cursor.getBoundingClientRect().left), Math.round(cursor.getBoundingClientRect().top)].join(' '),
+      sign: {
+        seen: Number(getComputedStyle(sign).opacity) > 0.5,
+        box: { left: box.left, top: box.top, width: box.width, height: box.height },
+        shown: [...text.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).map((node) => node.data).join(''),
+        outlined: getComputedStyle(sign).outlineStyle === 'solid',
+        caret: !!text.querySelector('.type-caret'),
+        // How far the arrow's tip is from the sign's bottom-right corner
+        fromCorner: Math.hypot(tip.x - box.right, tip.y - box.bottom),
+      },
       stickies: targets.map((target) => {
         const sticky = target.closest('.sticky');
         const strong = sticky.querySelector('strong');
@@ -46,31 +70,40 @@ const watch = (page) => page.evaluate(async () => {
           text: strong.textContent,
           outlined: getComputedStyle(sticky).outlineStyle === 'solid',
           caret: !!target.querySelector('.type-caret'),
-          fromEnd: Math.round(Math.hypot(tip.left + 2.4 - end.right, tip.top + 2.4 - (end.top + end.height / 2))),
+          fromEnd: Math.round(Math.hypot(tip.x - end.right, tip.y - (end.top + end.height / 2))),
           // Where the sticky and each line of its text are: none of it may move
-          layout: [sticky, strong].flatMap((el) => [...el.getClientRects()]).map((box) => [box.left, box.top, box.width, box.height].map(Math.round).join(' ')).join(', '),
+          layout: [sticky, strong].flatMap((el) => [...el.getClientRects()]).map((b) => [b.left, b.top, b.width, b.height].map(Math.round).join(' ')).join(', '),
         };
       }),
-    });
-  }
+    };
+  };
+  const seen = [];
+  for (let t = 0; t < first + round; t += 100) seen.push(await look(t));
+  const later = [];
+  for (const t of [first + round + 50, first + round * 1.5, first + round * 3 + 1234]) later.push({ ...(await look(t)), again: await look(t - round) });
+  const intro = document.querySelector('[data-drag="intro"]').getBoundingClientRect();
   animations.forEach((a) => { a.currentTime = 0; });
-  return { length, seen };
+  return { first, round, seen, later, intro: { left: intro.left, top: intro.top, width: intro.width } };
 });
 
-// Any moments of the scene when part of the cursor (the arrow, the name, the chat bubble while it
-// shows) is outside the intro
+// Any moments of the scene (the welcome and one round) when part of the cursor (the arrow, the
+// name) is outside the intro, or above it but higher than the sign (and the arc of the move up to
+// its corner)
 const outside = (page) => page.evaluate(() => {
   const cursor = document.querySelector('.home-cursor');
+  const sign = document.querySelector('[data-cursor-welcome]');
   const intro = document.querySelector('[data-drag="intro"]').getBoundingClientRect();
-  const animations = cursor.getAnimations({ subtree: true });
-  const length = animations[0].effect.getComputedTiming().duration;
+  const animations = [...cursor.getAnimations({ subtree: true }), ...sign.getAnimations()];
+  const timing = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming();
   const out = [];
-  for (let t = 0; t < length; t += 50) {
-    animations.forEach((a) => { a.pause(); a.currentTime = t; });
+  animations.forEach((a) => { a.pause(); a.currentTime = 0; });
+  const top = sign.getBoundingClientRect().top - 8;
+  for (let t = 0; t < timing.delay + timing.duration; t += 50) {
+    animations.forEach((a) => { a.currentTime = t; });
     for (const el of cursor.children) {
-      if (Number(getComputedStyle(el).opacity) < 0.5) continue;
+      if (Number(getComputedStyle(el).opacity) < 0.5 || getComputedStyle(el).display === 'none') continue;
       const b = el.getBoundingClientRect();
-      if (b.left < intro.left || b.top < intro.top || b.right > intro.right || b.bottom > intro.bottom) out.push(`${el.getAttribute('class')} at ${t}ms`);
+      if (b.left < intro.left || b.top < top || b.right > intro.right || b.bottom > intro.bottom) out.push(`${el.getAttribute('class')} at ${t}ms`);
     }
   }
   animations.forEach((a) => { a.currentTime = 0; a.play(); });
@@ -80,36 +113,83 @@ const outside = (page) => page.evaluate(() => {
 test.describe('on a desktop', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('index.html');
-    await expect.poll(() => running(page)).toBe(3);
+    await expect.poll(() => running(page)).toBe(5);
   });
 
-  test('it says hello, then retypes the words on each sticky, one part at a time, in the order it picked', async ({ page }) => {
+  test('it draws the welcome sign above the intro and types into it, then retypes the words on each sticky, one at a time, in the order it picked', async ({ page }) => {
     const played = await order(page);
     expect(played).toMatch(/^0[123]{3}$/);
     expect(played.split('').sort().join('')).toBe('0123');
-    const { length, seen } = await watch(page);
-    expect(length, `order ${played}`).toBeGreaterThan(25000);
-    expect(length, `order ${played}`).toBeLessThan(50000);
+    const { first, round, seen, later, intro } = await watch(page);
+    expect(first, `order ${played}`).toBeGreaterThan(5000);
+    expect(first, `order ${played}`).toBeLessThan(12000);
+    expect(round, `order ${played}`).toBeGreaterThan(20000);
+    expect(round, `order ${played}`).toBeLessThan(40000);
 
-    const hello = seen.filter((s) => s.chat);
-    expect(hello.length).toBeGreaterThan(20);
-    const starts = [hello[0].t];        // when each part starts to show: hello, then the stickies in the page's order
+    // The sign: not there until it's drawn, and from then on there for good
+    const drawn = seen.findIndex((s) => s.sign.seen);
+    expect(drawn).toBeGreaterThan(0);
+    expect(seen.slice(drawn).every((s) => s.sign.seen)).toBe(true);
+    const full = seen.at(-1).sign.box;
+    expect(Math.round(full.width)).toBe(320);
+    expect(Math.round(full.height)).toBe(64);
+    // ...just above the intro, centred over it
+    expect(full.top + full.height).toBeLessThan(intro.top);
+    expect(intro.top - (full.top + full.height)).toBeLessThan(40);
+    expect(Math.abs(full.left + full.width / 2 - (intro.left + intro.width / 2))).toBeLessThan(2);
 
+    // Dragged out from its top-left corner, which stays put, by its bottom-right one, which
+    // follows the arrow's tip (once it's bigger than its own border); it only grows, to its full size
+    const growing = seen.filter((s) => s.sign.seen && s.sign.box.width < full.width - 0.5);
+    expect(growing.length).toBeGreaterThan(2);
+    for (const s of seen.slice(drawn)) {
+      expect(Math.abs(s.sign.box.left - full.left)).toBeLessThan(0.5);
+      expect(Math.abs(s.sign.box.top - full.top)).toBeLessThan(0.5);
+    }
+    for (const s of growing.filter((g) => g.sign.box.width > 8 && g.sign.box.height > 8)) expect(s.sign.fromCorner, `at ${s.t}ms`).toBeLessThan(3);
+    for (let n = drawn + 1; n < seen.length; n++) {
+      expect(seen[n].sign.box.width).toBeGreaterThanOrEqual(seen[n - 1].sign.box.width - 0.01);
+      expect(seen[n].sign.box.height).toBeGreaterThanOrEqual(seen[n - 1].sign.box.height - 0.01);
+    }
+
+    // Selected from the moment it's drawn until the click away, once; typed into only while
+    // selected, the words only ever growing, always the start of the welcome, until it's whole
+    const selected = seen.filter((s) => s.sign.outlined);
+    expect(selected[0].t).toBe(seen[drawn].t);
+    expect(selected.at(-1).t - selected[0].t).toBe((selected.length - 1) * 100);
+    expect(selected.every((s) => s.sign.seen && s.stickies.every((x) => !x.outlined && !x.caret))).toBe(true);
+    const typing = seen.filter((s) => s.sign.caret);
+    expect(typing.length).toBeGreaterThan(20);
+    expect(typing.every((s) => s.sign.outlined)).toBe(true);
+    expect(typing[0].sign.shown).toBe('');
+    expect(typing.every((s) => WELCOME.startsWith(s.sign.shown))).toBe(true);
+    for (let n = 1; n < typing.length; n++) expect(typing[n].sign.shown.length).toBeGreaterThanOrEqual(typing[n - 1].sign.shown.length);
+    expect(typing.at(-1).sign.shown).toBe(WELCOME);
+    expect(seen.filter((s) => s.sign.seen && !s.sign.outlined).every((s) => s.sign.shown === WELCOME)).toBe(true);
+
+    // Later rounds leave it as it is, and play just as the first one did
+    for (const s of later) {
+      expect(s.sign).toMatchObject({ seen: true, shown: WELCOME, outlined: false, caret: false });
+      expect(s.cursor, `at ${s.t}ms`).toBe(s.again.cursor);
+    }
+
+    const starts = [seen[drawn].t];       // when each part starts: the welcome, then the stickies in the page's order
     STICKIES.forEach(({ text, words: whole }, i) => {
-      const at = seen.map((s) => ({ t: s.t, chat: s.chat, ...s.stickies[i] }));
+      const at = seen.map((s) => ({ t: s.t, sign: s.sign, ...s.stickies[i] }));
       const where = `order ${played}, "${whole}"`;
 
       // The page's own text is whole at every moment, whatever shows, and nothing on the sticky moves
       expect([...new Set(at.map((s) => s.text))], where).toEqual([text]);
       expect([...new Set(at.map((s) => s.layout))], where).toHaveLength(1);
 
-      // It's selected for one stretch of the scene, with nothing else going on meanwhile: no chat
-      // bubble, and no other sticky outlined or with a caret
-      const selected = at.filter((s) => s.outlined);
-      starts.push(selected[0].t);
-      expect(selected.at(-1).t - selected[0].t, where).toBe((selected.length - 1) * 100);
-      const meanwhile = seen.filter((s) => s.t >= selected[0].t && s.t <= selected.at(-1).t);
-      expect(meanwhile.some((s) => s.chat || s.stickies.some((other, j) => j !== i && (other.outlined || other.caret))), where).toBe(false);
+      // It's selected for one stretch of a round, after the welcome, with nothing else going on
+      // meanwhile: the sign let go of, and no other sticky outlined or with a caret
+      const picked = at.filter((s) => s.outlined);
+      starts.push(picked[0].t);
+      expect(picked[0].t, where).toBeGreaterThan(selected.at(-1).t);
+      expect(picked.at(-1).t - picked[0].t, where).toBe((picked.length - 1) * 100);
+      const meanwhile = seen.filter((s) => s.t >= picked[0].t && s.t <= picked.at(-1).t);
+      expect(meanwhile.some((s) => s.sign.outlined || s.stickies.some((other, j) => j !== i && (other.outlined || other.caret))), where).toBe(false);
 
       // The caret arrives with the arrow's tip at the end of the words, and only ever shows on
       // the outlined sticky; without it, the words are all there
@@ -138,25 +218,25 @@ test.describe('on a desktop', () => {
     await expect(words(page).locator('*')).toHaveCount(0);
   });
 
-  test('every visit opens with hello, then goes round the stickies in a new order, starting with a different one, and stays inside the intro', async ({ page }) => {
+  test('every visit opens with the welcome, then goes round the stickies in a new order, starting with a different one, and stays over the intro and the sign', async ({ page }) => {
     const orders = [await order(page)];
     expect(await outside(page)).toEqual([]);
     for (let visit = 0; visit < 7; visit++) {
       await page.reload();
-      await expect.poll(() => running(page)).toBe(3);
+      await expect.poll(() => running(page)).toBe(5);
       orders.push(await order(page));
       expect(await outside(page), `order ${orders.at(-1)}`).toEqual([]);
     }
     // Coming back to it from another page...
     await page.goto('about.html');
     await page.goBack();
-    await expect.poll(() => running(page)).toBe(3);
+    await expect.poll(() => running(page)).toBe(5);
     orders.push(await order(page));
     // ...and a page the browser kept as it was left and shows again (the back/forward cache, which
     // the test browser has turned off; its "pageshow" event is played here on the page itself)
     await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true })));
     await expect.poll(() => order(page)).not.toBe(orders.at(-1));
-    await expect.poll(() => running(page)).toBe(3);
+    await expect.poll(() => running(page)).toBe(5);
     orders.push(await order(page));
     await expect(words(page).locator('*')).toHaveCount(0);
 
@@ -171,16 +251,16 @@ test.describe('on a desktop', () => {
   test('it moves like a hand: in arcs, never in a jump, and to a stop between moves', async ({ page }) => {
     const path = await page.evaluate(() => {
       const cursor = document.querySelector('.home-cursor');
-      const animation = cursor.getAnimations()[0];
-      const length = animation.effect.getComputedTiming().duration;
-      animation.pause();
+      const animations = cursor.getAnimations();
+      const timing = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming();
+      animations.forEach((a) => a.pause());
       const points = [];
-      for (let t = 0; t < length; t += 20) {
-        animation.currentTime = t;
+      for (let t = 0; t < timing.delay + timing.duration; t += 20) {
+        animations.forEach((a) => { a.currentTime = t; });
         const box = cursor.getBoundingClientRect();
         points.push({ x: box.left, y: box.top });
       }
-      animation.currentTime = 0;
+      animations.forEach((a) => { a.currentTime = 0; });
       return points;
     });
     const steps = path.slice(1).map((p, i) => Math.hypot(p.x - path[i].x, p.y - path[i].y));
@@ -205,13 +285,36 @@ test.describe('on a desktop', () => {
     }
   });
 
+  test('scrolled out of sight and back, it carries on where it was, and the sign stays drawn', async ({ page }) => {
+    // Past the welcome: the sign is drawn, and its animation is over
+    await page.evaluate(async () => {
+      const animations = [...document.querySelector('.home-cursor').getAnimations({ subtree: true }), ...document.querySelector('[data-cursor-welcome]').getAnimations()];
+      const first = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming().delay;
+      animations.forEach((a) => { a.currentTime = first + 500; });
+      await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+    });
+    await expect(sign(page)).toHaveCSS('opacity', '1');
+    await expect(sign(page)).toHaveText(WELCOME);
+    // Off screen and back on (the board panned away and back)
+    await page.mouse.move(700, 450);
+    await page.mouse.wheel(0, 900);
+    await expect(cursor(page)).not.toBeInViewport();
+    await page.mouse.wheel(0, -900);
+    await expect(cursor(page)).toBeInViewport();
+    await page.waitForTimeout(400);
+    await expect(sign(page)).toHaveCSS('opacity', '1');
+    await expect(sign(page)).toHaveText(WELCOME);
+    expect(await sign(page).evaluate((el) => Math.round(el.getBoundingClientRect().width))).toBe(320);
+    await expect(sign(page)).not.toHaveCSS('outline-style', 'solid');
+  });
+
   test('"View as list" stops it and leaves the words as they were; back on the canvas it starts again', async ({ page }) => {
     // Left in the middle of an edit, with some of the words gone
     await page.evaluate(async () => {
-      const animations = document.querySelector('.home-cursor').getAnimations({ subtree: true });
+      const animations = [...document.querySelector('.home-cursor').getAnimations({ subtree: true }), ...document.querySelector('[data-cursor-welcome]').getAnimations()];
       animations.forEach((a) => a.pause());
-      const length = animations[0].effect.getComputedTiming().duration;
-      for (let t = 0; t < length && !document.querySelector('[data-cursor-edit] .type-rest'); t += 50) {
+      const timing = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming();
+      for (let t = 0; t < timing.delay + timing.duration && !document.querySelector('[data-cursor-edit] .type-rest'); t += 50) {
         animations.forEach((a) => { a.currentTime = t; });
         await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
       }
@@ -222,6 +325,7 @@ test.describe('on a desktop', () => {
     await page.locator('#help-button').click();
     await page.locator('[data-pref="list"]').click();
     await expect(cursor(page)).toBeHidden();
+    await expect(sign(page)).toBeHidden();
     await expect(words(page).locator('*')).toHaveCount(0);
     await expect(words(page)).toHaveText(STICKIES.map((s) => s.words));
     await expect(page.locator('.intro .sticky.is-edited')).toHaveCount(0);
@@ -229,23 +333,25 @@ test.describe('on a desktop', () => {
 
     await page.locator('[data-pref="list"]').click();
     await expect(cursor(page)).toBeVisible();
-    await expect.poll(() => running(page)).toBe(3);
+    await expect.poll(() => running(page)).toBe(5);
   });
 
-  test('with reduced motion it never starts', async ({ page }) => {
+  test('with reduced motion it never starts, and there\'s no sign', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.reload();
     await expect(cursor(page)).toBeHidden();
+    await expect(sign(page)).toBeHidden();
     await page.waitForTimeout(600);
     expect(await running(page)).toBe(0);
     await expect(words(page).locator('*')).toHaveCount(0);
   });
 });
 
-test('on a phone there\'s no cursor, and the words are plain text', { tag: '@phone' }, async ({ page, isMobile }) => {
+test('on a phone there\'s no cursor and no sign, and the words are plain text', { tag: '@phone' }, async ({ page, isMobile }) => {
   test.skip(!isMobile, 'the phone\'s check');
   await page.goto('index.html');
   await expect(cursor(page)).toBeHidden();
+  await expect(sign(page)).toBeHidden();
   await page.waitForTimeout(600);
   expect(await running(page)).toBe(0);
   await expect(words(page)).toHaveText(STICKIES.map((s) => s.words));

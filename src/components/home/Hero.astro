@@ -3,10 +3,13 @@
 // lines, each on its own sticky. A taped portrait hangs off the top-right corner (decoration, so
 // it has no alt text; it's left out on phones). A made-up visitor's cursor moves about inside it,
 // on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
-// It plays a scene in four parts (src/scripts/intro-cursor.ts): it says hello, then on each
-// sticky, in a new order on every visit, deletes the words in the data-cursor-edit span and types
-// them back. To have it retype other words, move that span (keep it at the end of the sticky's text,
-// and to a few words). A sticky without the span is left alone.
+// It plays a scene (src/scripts/intro-cursor.ts): once, as the page opens, it draws the welcome
+// sign (data-cursor-welcome) just above the intro and types the sign's words into it; then, round
+// and round, on each sticky, in a new order on every visit, it deletes the words in the
+// data-cursor-edit span and types them back. To have it retype other words, move that span (keep
+// it at the end of the sticky's text, and to a few words). A sticky without the span is left
+// alone. The sign's words are the ones in it here; where it sits and its size are .intro__welcome
+// in the styles. Like the cursor, it's decoration, and only there while the cursor is.
 // A pink sticker, "Leave me a note", links to the notes wall on the About page, as the toolbar's
 // Notes button does: on the canvas it hangs off the intro's left edge (and moves with it), and on
 // a page that scrolls it sits under the stickies.
@@ -37,5 +40,7 @@ import Stamp from '../board/Stamp.astro';
   </figure>
   {/* One span around the words: a stamp centres its contents as a grid, which would put each piece on a row of its own */}
   <Stamp large color="pink" tilt={-10} href="/about.html#notes" class="intro__hint drop-in"><span>Leave me<br>a note <span aria-hidden="true">✍️</span></span></Stamp>
-  <Cursor name="Denis" color="violet" chat="Welcome to my board" script="intro" class="home-cursor canvas-only" />
+  {/* A rectangle, as a board's shape tool draws one (see board/Shape.astro), that the cursor drags out and types into */}
+  <div class="shape shape--rect shape--violet intro__welcome canvas-only" aria-hidden="true" data-cursor-welcome><span class="shape__text">Welcome to my portfolio</span></div>
+  <Cursor name="Denis" color="violet" script="intro" class="home-cursor canvas-only" />
 </Section>

@@ -55,35 +55,45 @@ test.describe('the home page on a desktop', () => {
     await expect.poll(() => lineStart(page)).toEqual({ x: line.x + 100, y: line.y + 60 });
   });
 
-  test('the "Denis" cursor stays over the intro all the way round its loop, and goes with it when it\'s moved', async ({ page }) => {
+  test('the "Denis" cursor stays over the intro (and the welcome sign it draws above it) all the way through its scene, and goes with it, sign too, when it\'s moved', async ({ page }) => {
     // Steps through its scene (src/scripts/intro-cursor.ts starts it once the stickies have
-    // settled), noting any moment when part of it (the arrow, the name, the chat bubble while it
-    // shows) is outside the intro; then leaves it paused at the start
-    await expect.poll(() => page.locator('.home-cursor').evaluate((el) => el.getAnimations({ subtree: true }).length)).toBe(3);
+    // settled): the welcome and one round of the stickies, noting any moment when part of it (the
+    // arrow, the name) is outside the intro, or above it but higher than the sign; then leaves it
+    // paused at the start
+    await expect.poll(() => page.evaluate(() => [
+      ...document.querySelector('.home-cursor').getAnimations({ subtree: true }),
+      ...document.querySelector('[data-cursor-welcome]').getAnimations(),
+    ].length)).toBe(5);
     const outside = () => page.evaluate(() => {
       const cursor = document.querySelector('.home-cursor');
+      const sign = document.querySelector('[data-cursor-welcome]');
       const intro = document.querySelector('[data-drag="intro"]').getBoundingClientRect();
-      const animations = cursor.getAnimations({ subtree: true });
-      const length = animations[0].effect.getComputedTiming().duration;
+      const animations = [...cursor.getAnimations({ subtree: true }), ...sign.getAnimations()];
+      const timing = animations.find((a) => a.effect.getTiming().iterations === Infinity).effect.getTiming();
+      const top = sign.getBoundingClientRect().top - 8;
       const out = [];
-      for (let t = 0; t < length; t += 100) {
+      for (let t = 0; t < timing.delay + timing.duration; t += 100) {
         animations.forEach((a) => { a.pause(); a.currentTime = t; });
         for (const el of cursor.children) {
-          if (Number(getComputedStyle(el).opacity) < 0.5) continue;
+          if (Number(getComputedStyle(el).opacity) < 0.5 || getComputedStyle(el).display === 'none') continue;
           const b = el.getBoundingClientRect();
-          if (b.left < intro.left || b.top < intro.top || b.right > intro.right || b.bottom > intro.bottom) out.push(`${el.getAttribute('class')} at ${t}ms`);
+          if (b.left < intro.left || b.top < top || b.right > intro.right || b.bottom > intro.bottom) out.push(`${el.getAttribute('class')} at ${t}ms`);
         }
       }
       animations.forEach((a) => { a.currentTime = 0; });
       return out;
     });
-    const cursor = page.locator('.home-cursor');
+    // Where the cursor and the sign's top-left corner are
+    const places = () => page.evaluate(() => ['.home-cursor', '[data-cursor-welcome]'].map((s) => {
+      const box = document.querySelector(s).getBoundingClientRect();
+      return { x: box.left, y: box.top };
+    }));
     expect(await outside()).toEqual([]);
-    const before = await cursor.boundingBox();
+    const before = await places();
     await drag(page, page.locator('.intro__title'), 100, 60);
     await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
-    const after = await cursor.boundingBox();
-    expect({ x: Math.round(after.x - before.x), y: Math.round(after.y - before.y) }).toEqual({ x: 100, y: 60 });
+    const after = await places();
+    expect(after.map((p, i) => ({ x: Math.round(p.x - before[i].x), y: Math.round(p.y - before[i].y) }))).toEqual([{ x: 100, y: 60 }, { x: 100, y: 60 }]);
     expect(await outside()).toEqual([]);
   });
 

@@ -1043,10 +1043,9 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   50%, 100% { opacity: 0; scale: 0.6; }
 }
 /* A cursor that plays a scene written in a script (the home page's, src/scripts/intro-cursor.ts)
-   has no route of its own: it waits where it's placed, its chat bubble shut, for the script. */
-.cursor--scripted,
-.cursor--scripted .cursor__chat { animation: none; }
-.cursor--scripted .cursor__chat { opacity: 0; scale: 0.6; }
+   has no route of its own and no chat bubble: it waits where it's placed for the script. */
+.cursor--scripted { animation: none; }
+.cursor--scripted .cursor__chat { display: none; }
 /* What such a cursor is editing: the sticky is outlined in the cursor's colour, as someone
    else's selection is on a shared board, and a caret stands in its text. The caret takes up no
    room, and the words the cursor has "deleted" (.type-rest) are only see-through, still in
@@ -1069,7 +1068,8 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   50% { opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cursor { display: none; }
+  .cursor,
+  .intro__welcome { display: none; }
 }
 
 /* ---------- The visitor's own cursor ----------
@@ -1241,7 +1241,7 @@ html[data-page="home"] {
   --board-w: 4000px;
   --board-h: 3000px;
   --start-x: 2000px;           /* the middle of the intro */
-  --start-y: 1396px;
+  --start-y: 1352px;           /* the middle of the intro and the welcome sign above it (see .intro__welcome) */
 }
 html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 .is-canvas[data-page="home"] .board__layer { padding: 1160px 1448px 0; }
@@ -1420,9 +1420,32 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
 
 /* The made-up visitor's cursor, inside the intro (so it moves with it): it starts, and rests
    between rounds, to the right of the greeting. Where it goes from there is a scene in
-   src/scripts/intro-cursor.ts (up beside the clock to say hello, and to each sticky's words),
-   which keeps the whole of it, chat bubble too, inside the section and clear of the portrait. */
+   src/scripts/intro-cursor.ts (up to draw the welcome sign, then to each sticky's words), which
+   keeps the whole of it inside the section, or the sign's strip above it, and clear of the portrait. */
 .home-cursor { left: 516px; top: 102px; }
+/* The welcome sign: a violet rectangle that cursor draws just above the intro, centred over it,
+   and types "Welcome to my portfolio" into, as the page opens. The script reads its place and size
+   from here, so moving or resizing it is done here. Until it's drawn it isn't seen; the script
+   grows it from its top-left corner as it's dragged out, and outlines it in the cursor's colour,
+   a little outside its edge, as a selection, while it's being drawn and typed into. Clicks go
+   through it to the board. */
+.intro__welcome {
+  position: absolute;
+  left: 296px;                 /* centred over the intro: (912 - 320) / 2 */
+  top: -88px;                  /* its bottom 24px above the intro's top */
+  width: 320px;
+  height: 64px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.intro__welcome.is-edited { outline: 2px solid var(--tab-violet); outline-offset: 3px; }
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet
