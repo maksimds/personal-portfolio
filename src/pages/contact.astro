@@ -1,0 +1,64 @@
+---
+// The Contact page: "Let’s talk" over a form for a name, an email address and a message, with a
+// line from one to the other. On a wide screen it's a canvas like Home and About, opening on both
+// at 90%.
+// src/scripts/contact.ts sends the form to the database (supabase/messages.sql), where messages
+// wait in Supabase's Table Editor; the field limits are in src/data/contact.ts.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/board/Section.astro';
+import Connector from '../components/board/Connector.astro';
+import { site } from '../data/site';
+import { NAME_MAX, EMAIL_MAX, MESSAGE_MAX } from '../data/contact';
+---
+<BaseLayout title="Contact — Denis Maksimov" description="Get in touch with Denis Maksimov, Product Designer: send a message about a role, a project or a question." canonicalPath="/contact.html" board="canvas" page="contact" zoom={0.9}>
+
+  {/* ===== Let's talk ===== */}
+  <Section class="contact-intro" color="violet" name="Contact" id="contact" labelledby="contact-title" drag="contact">
+    <h1 id="contact-title" class="contact-intro__title drop-in">Let’s talk</h1>
+    <p class="contact-intro__text drop-in">Have a role, a project or just a question in mind? Fill out the form below and tell me a little about it. I promise to reach out as soon as I can.</p>
+  </Section>
+
+  {/* ===== The form =====
+      The browser checks that every field is filled in and the email looks like one; the script
+      sends it. Once it's sent, the form gives way to the thanks. Without JavaScript the form can't
+      send, so the email address shows instead. */}
+  <Section class="contact-message" color="blue" id="message" tabAs="h2" tabId="message-title" name="Send me a message" dropIn drag="message">
+    <p class="contact-message__nojs">Turn on JavaScript to send a message here, or email me at <a class="link" href={`mailto:${site.email}`}>{site.email}</a>.</p>
+
+    {/* The form, and in its place once a message is sent, the thanks: the section eases from one's
+        height to the other's as they swap */}
+    <div class="contact-message__views" data-contact-views>
+    <form class="contact-form" data-contact-form>
+      <div class="contact-form__field">
+        <label for="contact-name">Name</label>
+        <input id="contact-name" name="name" type="text" maxlength={NAME_MAX} required autocomplete="name">
+      </div>
+      <div class="contact-form__field">
+        <label for="contact-email">Email</label>
+        <input id="contact-email" name="email" type="email" maxlength={EMAIL_MAX} required autocomplete="email" spellcheck="false">
+      </div>
+      <div class="contact-form__field contact-form__field--wide">
+        <label for="contact-message">Message</label>
+        <textarea id="contact-message" name="message" rows="6" maxlength={MESSAGE_MAX} required placeholder="What would you like to talk about?"></textarea>
+      </div>
+      <div class="contact-form__send">
+        <button type="submit" class="button-primary contact-form__button">Send message</button>
+        {/* What happened to the message, read out by screen readers */}
+        <p class="contact-form__status" data-contact-status role="status"></p>
+      </div>
+    </form>
+
+    {/* After a message is sent: the thanks (focused, so a screen reader reads it out), and a button
+        that brings the form back for another, unless this browser has sent as many as it can for
+        now; then the button comes back when the pause is over */}
+    <div class="contact-sent" data-contact-sent hidden>
+      <p class="contact-sent__text" data-contact-sent-text tabindex="-1"></p>
+      <button type="button" class="button-primary contact-sent__again" data-contact-again>Send another message</button>
+    </div>
+    </div>
+  </Section>
+
+  {/* Decoration, hidden from screen readers: a line from "Let’s talk" down to the form */}
+  <Connector from="contact" to="message" color="violet" />
+
+</BaseLayout>

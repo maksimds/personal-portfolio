@@ -27,6 +27,7 @@
   --accent-3: #f1e5ff;               /* light wash */
   --accent-text: #8638e5;
   --select: #0d99ff;                 /* selection boxes and focus rings only */
+  --invalid: #d1242f;                /* the edge of a form field the browser turned away (5.2:1 on white) */
   --link: #0b6fd1;                   /* a shade darker than #007be5, which is 3.9:1 on the board */
   --tooltip-bg: #1e1e1e;
   --charcoal: #1e1e1e;               /* all text on board objects */
@@ -1510,6 +1511,318 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 .about-hobbies { position: absolute; right: 24px; bottom: -22px; display: flex; }
 .about-hobbies .stamp + .stamp { margin-left: -6px; }
 
+/* The hobby stickers: pointed at (or tapped), a sticker plays a short scene once through
+   (src/scripts/hobbies.ts adds is-playing, and takes it off when the scene ends). The scene is
+   cut to the circle inside the white ring (.hobby__scene), so all of it happens on the sticker:
+   what leaves it goes out through the edge.
+   🎾 (src/components/about/HobbyTennis.astro) is a forehand, seen from the side, the player
+   hitting to the right. Places are in px from the circle's top-left corner (it's 40 across, the
+   ball sitting in the middle at 20, 20). The racket is drawn 7.6 × 19 and placed by the hand:
+   translate is where the hand is, rotate which way the racket points from it (0 is straight up,
+   and it only ever turns one way, anticlockwise, in one loop). Meanwhile the ball shrinks to half
+   its size and bounces once into the hitting spot, right of the middle.
+   - 0–14%: the racket comes in, taken back high behind the hand (the unit turn)
+   - 14–33%: the head drops behind and below the hand, and lags there as the hand comes forward
+   - 33–38%: the whip: it swings forward and up through the ball, meeting it in front, at 38% (0.65s)
+   - 38–60%: the ball squashes and flies off right, out through the edge; the racket carries on
+     up and wraps over the shoulder, its head pointing back, then fades
+   - 60–100%: the ball drops back in from the top, full size, lands in the middle and bounces
+   ♞ (src/components/about/HobbyChess.astro) takes a queen, on a faint board of 8px squares that
+   shows while it plays (5 across, the middle one at 16–24, the dark ones those the queen and the
+   knight end their moves on). A piece stands at the bottom of its square, so a place is where
+   the middle of its base is: the knight stands at 20, 30 at rest, the queen's square is 12, 24.
+   translate on .hobby__knight is where it stands, from its place at rest; on the piece inside
+   it, how high it's off the board, and the piece leans and shrinks about its base.
+   - 0–21%: the board fades in, and the knight shrinks to fit a square and hops onto one, 28, 32
+   - 14–30%: the queen glides in from the left along her row, straight onto her square
+   - 32–38%: the knight crouches, leaning back
+   - 38–50%: it jumps an L, two squares left and one up, and lands on the queen at 50% (1s)
+   - 50–62%: she's knocked out, spinning, up and out through the edge, a burst where she stood
+   - 62–72%: the board fades out; 68–100%: the knight hops home, back to full size, and bounces
+   📚 (src/components/about/HobbyBooks.astro) is a stack of three books, green on top. The green
+   one is placed by its middle (19.5, 14.5 at rest): it turns about it, and its standing drawing
+   is centred on it. A leaf (a page, the front cover) turns over on the spine by its width going
+   from 1 to -1, eased like a turn at a steady speed; its back shows from halfway, when it's edge on.
+   - 0–8%: the green book lifts off; 4–21%: the red and the blue fly out, left and right, spinning
+   - 8–18%: the green one goes to the middle; 18–26%: it turns to face us (edge on at 22%)
+   - 28–38%: the cover opens, the book sliding right so it's open about the middle
+   - 42–52%: a page turns; 58–68%: it closes, the page and the cover together
+   - 68–80%: it turns back and rises over its place; 72–87%: the blue and the red slide back
+     in under it, from the sides they left by; 88–100%: it drops onto them and settles
+   ✈️ (src/components/about/HobbyTravel.astro) flies around the world, drawn like 🌍. Its route (offset-path) starts and
+   ends in the middle, nose up-right as the emoji's is, so it's never turned at rest. Between, it
+   goes once and a quarter round an orbit, an ellipse 29 × 12 tipped up 18° to the right, clockwise:
+   right end, the near side (in front of the world, bigger), the left end, the far side (behind
+   it, smaller), the right end, and the near side again, where it hooks round, left and up, into
+   the middle. Where it is on the route (offset-distance) is from measuring it: the right end at
+   14.37%, then a quarter every 14.81%, the near side the last time at 88.4%.
+   - 0–14%: it takes off up-right, shrinking, onto the right end; the world pops up (3–13%)
+   - 14–74%: round the orbit at one speed, a quarter every 12%; behind the world 38–62%
+   - the world turns once, west to east, at one speed, while it shows (3–84%): its map slides
+     right by a turn, 122.52 (2π × its radius, 19.5, in its own units; see scripts/globe.mjs)
+   - 74–100%: the plane hooks home, back to full size; 72–84%: the world shrinks away */
+.hobby { position: relative; }
+.hobby__scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  clip-path: circle(50%);
+}
+.hobby__ball { position: relative; z-index: 1; display: inline-block; }   /* in front of the racket */
+.hobby__racket,
+.hobby__pow,
+.hobby__board,
+.hobby__queen,
+.hobby__globe {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.hobby__racket {
+  left: -3.8px;                  /* the hand's place on the racket at the circle's corner, so translate places the hand */
+  top: -17.4px;
+  overflow: visible;
+  transform-origin: 3.8px 17.4px;
+}
+.hobby--tennis .hobby__pow { left: 21px; top: 11px; }   /* round the ball where it's hit, at 31, 21 */
+@media (prefers-reduced-motion: no-preference) {
+  .hobby--tennis.is-playing .hobby__racket { animation: racket-forehand 1.7s both; }
+  .hobby--tennis.is-playing .hobby__ball { animation: ball-forehand 1.7s both; }
+  .hobby--tennis.is-playing .hobby__pow { animation: ball-pow 1.7s both; }
+}
+@keyframes racket-forehand {
+  0% { opacity: 0; translate: 14px 26px; rotate: 325deg; scale: 0.75 1; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  10% { opacity: 1; }
+  14% { translate: 13px 25px; rotate: 315deg; animation-timing-function: cubic-bezier(0.45, 0, 0.6, 0.6); }   /* taken back */
+  26% { translate: 15px 26px; rotate: 250deg; animation-timing-function: cubic-bezier(0.4, 0, 0.7, 1); }   /* the head drops behind... */
+  33% { translate: 17px 26px; rotate: 232deg; animation-timing-function: cubic-bezier(0.35, 0, 0.75, 0.7); }   /* ...and lags as the hand comes forward; then the whip */
+  38% { translate: 18px 25px; rotate: 75deg; scale: 1 1; animation-timing-function: cubic-bezier(0.15, 0.55, 0.4, 1); }   /* the hit, face square to the ball */
+  48% { translate: 22px 16px; rotate: -30deg; }
+  60% { opacity: 1; translate: 24px 12px; rotate: -105deg; scale: 0.55 1; }   /* wrapped over the shoulder, the face rolled over */
+  72%, 100% { opacity: 0; translate: 24px 12px; rotate: -105deg; scale: 0.55 1; }
+}
+@keyframes ball-forehand {
+  0% { translate: 0 0; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  10% { translate: 6px -5px; scale: 0.6; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* up, half size... */
+  20% { translate: 8px 6px; scale: 0.56 0.44; rotate: 90deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* ...a bounce... */
+  30% { translate: 10px -1px; scale: 0.5; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.6); }   /* ...and up into the hitting spot */
+  38% { translate: 11px 1px; scale: 0.5; rotate: 160deg; }
+  38.6% { translate: 12px 1px; scale: 0.32 0.6; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* squashed on the strings */
+  41% { translate: 16px -1px; scale: 0.5; rotate: 260deg; animation-timing-function: cubic-bezier(0.3, 0.5, 0.6, 1); }
+  52% { translate: 34px -12px; scale: 0.5; rotate: 700deg; animation-timing-function: steps(1, end); }   /* gone through the edge */
+  53%, 66% { translate: 0 -32px; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* above the circle, out of sight; then it falls... */
+  82% { translate: 0 0; scale: 1.14 0.84; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* ...lands... */
+  91% { translate: 0 -6px; scale: 0.97 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }   /* ...and bounces once */
+  100% { translate: 0 0; scale: 1; rotate: 0deg; }
+}
+@keyframes ball-pow {
+  0%, 38% { opacity: 0; scale: 0.5; }
+  39.5% { opacity: 1; scale: 1; }
+  47%, 100% { opacity: 0; scale: 1.25; }
+}
+
+/* ♞: the board's dark squares are the odd ones (their column and row, counted from 0, add up odd) */
+.hobby__board {
+  inset: 0;
+  background: repeating-conic-gradient(rgb(76 36 170 / 0.2) 0 25%, rgb(255 255 255 / 0.28) 0 50%) 0 0 / 16px 16px;
+}
+.hobby__knight { position: relative; z-index: 1; }   /* in front of the queen it lands on */
+.hobby__knight svg { display: block; transform-origin: 50% 100%; }
+.hobby__queen { left: 6.6px; top: 12px; transform-origin: 50% 60%; }   /* on her square: her base at 12, 24 */
+.hobby--chess .hobby__pow { left: 2px; top: 8px; }   /* round the queen, at 12, 18 */
+@media (prefers-reduced-motion: no-preference) {
+  .hobby--chess.is-playing .hobby__board { animation: board-show 2s both; }
+  .hobby--chess.is-playing .hobby__knight { animation: knight-moves 2s both; }
+  .hobby--chess.is-playing .hobby__knight svg { animation: knight-jumps 2s both; }
+  .hobby--chess.is-playing .hobby__queen { animation: queen-taken 2s both; }
+  .hobby--chess.is-playing .hobby__pow { animation: capture-pow 2s both; }
+}
+@keyframes board-show {
+  0% { opacity: 0; }
+  12%, 62% { opacity: 1; }
+  72%, 100% { opacity: 0; }
+}
+/* Where the knight stands. Off the board it goes at one speed, so its jumps are true arcs */
+@keyframes knight-moves {
+  0% { translate: 0 0; animation-timing-function: linear; }
+  16%, 38% { translate: 8px 2px; animation-timing-function: linear; }   /* on its square */
+  50%, 68% { translate: -8px -6px; animation-timing-function: linear; }   /* on the queen's */
+  84%, 100% { translate: 0 0; }   /* home */
+}
+/* How high it is, and how it leans and squashes. Up is easing out, down easing in */
+@keyframes knight-jumps {
+  0% { translate: 0 0; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }
+  8% { translate: 0 -5px; scale: 0.72; rotate: -6deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }
+  16% { translate: 0 0; scale: 0.62 0.48; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* lands on its square */
+  21%, 32% { scale: 0.55; rotate: 0deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  38% { translate: 0 0; scale: 0.6 0.47; rotate: 8deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }   /* crouched, leaning back */
+  41% { scale: 0.5 0.62; rotate: -8deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }   /* springs up, stretched */
+  44% { translate: 0 -10px; scale: 0.55; rotate: -14deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }   /* over the top */
+  50% { translate: 0 0; scale: 0.66 0.44; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* lands on the queen */
+  55% { scale: 0.53 0.58; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  60% { scale: 0.55; }
+  68% { translate: 0 0; scale: 0.55; rotate: 0deg; animation-timing-function: cubic-bezier(0.33, 0.67, 0.6, 1); }
+  76% { translate: 0 -6px; scale: 0.8; rotate: 6deg; animation-timing-function: cubic-bezier(0.4, 0, 0.67, 0.33); }
+  84% { translate: 0 0; scale: 1.12 0.86; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* home */
+  91% { translate: 0 -3px; scale: 0.97 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }   /* and a bounce */
+  100% { translate: 0 0; scale: 1; rotate: 0deg; }
+}
+@keyframes queen-taken {
+  0%, 14% { opacity: 1; translate: -24px 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.25, 1.2, 0.5, 1); }   /* off the board, left */
+  30%, 50% { translate: 0 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1); }   /* on her square, until she's taken */
+  62%, 100% { opacity: 1; translate: -22px -26px; rotate: -420deg; }   /* gone through the edge */
+}
+@keyframes capture-pow {
+  0%, 50% { opacity: 0; scale: 0.5; }
+  51.2% { opacity: 1; scale: 1; }
+  58%, 100% { opacity: 0; scale: 1.25; }
+}
+
+/* 📚: the stack is 20 across and 16 high, its middle at 20, 19.75 */
+.hobby__book { position: absolute; }
+.hobby__book--bottom { left: 10px; top: 22.25px; }
+.hobby__book--middle { left: 11.5px; top: 17.25px; }
+.hobby__book--top { left: 19.5px; top: 14.5px; rotate: -4deg; }   /* a point, its middle; what's in it is centred on it */
+.hobby__spine { position: absolute; left: -8.5px; top: -2.75px; }
+.hobby__open { position: absolute; left: -6.5px; top: -8.5px; width: 13px; height: 17px; opacity: 0; }
+.hobby__open svg,
+.hobby__leaf { position: absolute; left: 0; top: 0; }
+.hobby__leaf { transform-origin: 0 50%; }   /* the spine */
+.hobby__leaf--page { top: 0.5px; width: 12.3px; height: 16px; z-index: 1; }
+.hobby__leaf--cover { width: 13px; height: 17px; z-index: 2; }
+.hobby__leaf svg + svg { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hobby--books.is-playing .hobby__book--middle { animation: book-red 2.6s both; }
+  .hobby--books.is-playing .hobby__book--bottom { animation: book-blue 2.6s both; }
+  .hobby--books.is-playing .hobby__book--top { animation: book-green 2.6s both; }
+  .hobby--books.is-playing .hobby__spine { animation: book-lying 2.6s both; }
+  .hobby--books.is-playing .hobby__open { animation: book-standing 2.6s both; }
+  .hobby--books.is-playing .hobby__leaf--cover { animation: book-cover 2.6s both; }
+  .hobby--books.is-playing .hobby__leaf--cover svg + svg { animation: book-cover-inside 2.6s both; }
+  .hobby--books.is-playing .hobby__leaf--page { animation: book-page 2.6s both; }
+  .hobby--books.is-playing .hobby__leaf--page svg + svg { animation: book-page-back 2.6s both; }
+}
+/* The red one flies out left, up and over; out of sight it's put back level, and it slides back in */
+@keyframes book-red {
+  0%, 4% { translate: 0 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  10% { translate: -8px -7px; rotate: -60deg; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6); }
+  18% { translate: -36px 3px; rotate: -220deg; animation-timing-function: steps(1, start); }
+  75% { translate: -34px 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.25, 1.15, 0.5, 1); }
+  87%, 100% { translate: 0 0; rotate: 0deg; }
+}
+@keyframes book-blue {
+  0%, 7% { translate: 0 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  13% { translate: 9px -8px; rotate: 70deg; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6); }
+  21% { translate: 38px 2px; rotate: 240deg; animation-timing-function: steps(1, start); }
+  72% { translate: 34px 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.25, 1.15, 0.5, 1); }
+  84%, 100% { translate: 0 0; rotate: 0deg; }
+}
+/* The green one: where it is, and its turns to face us and back, as its height going through 0 */
+@keyframes book-green {
+  0% { translate: 0 0; rotate: -4deg; scale: 1; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  8% { translate: 0 -4px; rotate: 0deg; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }   /* lifted off */
+  18% { translate: 0.5px 5.5px; scale: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* in the middle */
+  22% { scale: 1.05 0; animation-timing-function: cubic-bezier(0.1, 0.5, 0.5, 1); }   /* edge on */
+  26%, 68% { scale: 1.1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* facing us */
+  69% { translate: 0.5px 5.5px; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  72% { scale: 1.05 0; animation-timing-function: cubic-bezier(0.1, 0.5, 0.5, 1); }   /* edge on, turning back */
+  76% { scale: 1; }
+  80%, 88% { translate: 0 -4px; rotate: 0deg; scale: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }   /* over its place, until the others are back */
+  93% { translate: 0 0; scale: 1.06 0.84; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* lands on them */
+  97% { translate: 0 -1px; scale: 0.98 1.03; animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.5); }
+  100% { translate: 0 0; rotate: -4deg; scale: 1; }
+}
+/* Which drawing shows: lying until it's edge on at 22%, standing until it's edge on again at 72% */
+@keyframes book-lying {
+  0%, 22% { opacity: 1; animation-timing-function: steps(1, start); }
+  72% { opacity: 0; animation-timing-function: steps(1, start); }
+  100% { opacity: 1; }
+}
+@keyframes book-standing {
+  0%, 22% { opacity: 0; animation-timing-function: steps(1, start); }
+  28% { translate: 0 0; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  38%, 58% { translate: 6.5px 0; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }   /* open, about the middle */
+  68% { translate: 0 0; }
+  72% { opacity: 1; animation-timing-function: steps(1, start); }
+  100% { opacity: 0; translate: 0 0; }
+}
+@keyframes book-cover {
+  0%, 28% { scale: 1 1; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  38%, 58% { scale: -1 1; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  68%, 100% { scale: 1 1; }
+}
+@keyframes book-cover-inside {
+  0%, 33% { opacity: 0; animation-timing-function: steps(1, start); }
+  63% { opacity: 1; animation-timing-function: steps(1, start); }
+  100% { opacity: 0; }
+}
+/* The page goes over the cover once the cover's open, as it lands on it, and under it again as
+   they close together, once they're edge on */
+@keyframes book-page {
+  0%, 38% { z-index: 1; }
+  38.5% { z-index: 3; }
+  42% { scale: 1 1; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  52%, 58% { scale: -1 1; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  63% { z-index: 3; }
+  63.5% { z-index: 1; }
+  68%, 100% { scale: 1 1; }
+}
+@keyframes book-page-back {
+  0%, 47% { opacity: 0; animation-timing-function: steps(1, start); }
+  63% { opacity: 1; animation-timing-function: steps(1, start); }
+  100% { opacity: 0; }
+}
+
+/* ✈️: the world is the size of the emoji, in the middle */
+.hobby__globe { left: 10px; top: 10px; z-index: 1; }
+.hobby__plane { position: absolute; left: 8px; top: 8px; z-index: 2; display: grid; place-items: center; width: 24px; height: 24px; line-height: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  /* At the scene's top-left corner, so the route's points are the scene's, however a browser
+     reads them; its start, 20, 20, is where the plane is at rest */
+  .hobby--travel.is-playing .hobby__plane {
+    left: 0;
+    top: 0;
+    offset-path: path("M20 20C24.95 15.05 32.55 11.72 33.79 15.52A14.5 6 -18 0 1 21.85 25.71A14.5 6 -18 0 1 6.21 24.48A14.5 6 -18 0 1 18.15 14.29A14.5 6 -18 0 1 33.79 15.52A14.5 6 -18 0 1 21.85 25.71C14.24 28.18 15.05 24.95 20 20");
+    offset-rotate: auto 45deg;   /* the emoji's nose points up-right, 45° up from along the route */
+    animation: plane-route 2.4s both;
+  }
+  .hobby--travel.is-playing .hobby__plane span { animation: plane-size 2.4s both; }
+  .hobby--travel.is-playing .hobby__globe { animation: globe-shows 2.4s both; }
+  .hobby--travel.is-playing .hobby__land { animation: world-turns 2.4s both; }
+}
+@keyframes plane-route {
+  0% { offset-distance: 0%; z-index: 2; animation-timing-function: cubic-bezier(0.45, 0, 0.8, 0.75); }
+  14% { offset-distance: 14.37%; animation-timing-function: linear; }   /* on the orbit, its right end */
+  38% { z-index: 2; }
+  38.5%, 62% { z-index: 0; }   /* the far side, behind the world */
+  62.5% { z-index: 2; }
+  74% { offset-distance: 88.4%; animation-timing-function: cubic-bezier(0.18, 0.5, 0.4, 1); }   /* off it, on the near side */
+  100% { offset-distance: 100%; z-index: 2; }
+}
+/* How big it is: biggest on the near side (26%, 74%), smallest on the far side (50%) */
+@keyframes plane-size {
+  0% { scale: 1; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  14% { scale: 0.5; animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  26% { scale: 0.62; animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  38% { scale: 0.5; animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  50% { scale: 0.4; animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0); }
+  62% { scale: 0.5; animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1); }
+  74% { scale: 0.62; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  94% { scale: 1.06; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  100% { scale: 1; }
+}
+@keyframes globe-shows {
+  0%, 3% { opacity: 0; scale: 0.3; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  9% { opacity: 1; scale: 1.08; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  13%, 72% { opacity: 1; scale: 1; animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5); }
+  84%, 100% { opacity: 0; scale: 0.3; }
+}
+@keyframes world-turns {
+  0%, 3% { translate: 0 0; animation-timing-function: linear; }
+  84%, 100% { translate: 122.52px 0; }   /* once round: Europe and Africa face us again */
+}
+
 /* The playlist: the Spotify mark, then the words; underlined when pointed at */
 .about-playlist { justify-self: start; min-width: min(304px, 100%); }
 .playlist-link { display: inline-flex; align-items: center; gap: 12px; font-weight: 600; }
@@ -1983,6 +2296,108 @@ html:not(.js) .notes { display: none; }
   .case-embed__frame { aspect-ratio: 3 / 4; }   /* taller on phones, for the app screens */
   .case-nav { flex-direction: column; }
   .case-nav__link { max-width: none; }
+}
+
+/* ---------- Contact ----------
+   Two sections in one column, "Let’s talk" over the form (src/pages/contact.astro), with a line
+   from one down to the other in the gap between them. As a document: the column is 640px wide at
+   most. As a canvas: the same column in the middle of a 2400 × 2000 board, and the footer at the
+   column's bottom right as on the other boards. The page opens at 90% (`zoom` in contact.astro),
+   on the two sections: from the top of the "Contact" tab (570) to the bottom of the form (1311)
+   is about 740px, 670px on screen, which sits midway between the pills and the toolbar of a
+   900px-tall screen when the starting point is 900. */
+html[data-page="contact"] {
+  --board-w: 2400px;
+  --board-h: 2000px;
+  --start-x: 1200px;           /* the middle of the column: the layer's padding (880) + half its width (320) */
+  --start-y: 900px;
+}
+html[data-page="contact"] main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 80px;               /* room for the form's tab and the line that leads to it */
+  width: min(640px, 100% - 32px);
+  margin: 0 auto;
+}
+.is-canvas[data-page="contact"] .board__layer { padding: 600px 880px 0; }
+.is-canvas[data-page="contact"] main { width: auto; }
+
+.contact-intro { margin-top: 32px; }   /* room above for the tab */
+.is-canvas .contact-intro { margin-top: 0; }
+.contact-intro__text { max-width: 32em; margin: 20px 0 0; line-height: 1.6; text-wrap: pretty; }
+
+/* The form: the name and the email side by side, the message under them, then Send. White fields
+   on the section's tint, each with its name over it. Their edges are dark enough to find (3:1 on
+   white). As with the notes, focus draws no blue ring: the field's edge turns Charcoal and thicker. */
+.contact-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+.contact-form[hidden] { display: none; }   /* sent: the thanks shows instead */
+/* Both, the form and the thanks: 2px over each side, so a field's focus ring isn't cut off while
+   it's clipped to the height it eases to (src/scripts/contact.ts) */
+.contact-message__views { margin: -2px; padding: 2px; }
+.contact-form__field { display: grid; gap: 6px; }
+.contact-form__field--wide,
+.contact-form__send { grid-column: 1 / -1; }
+.contact-form label { font-size: 0.875rem; font-weight: 600; line-height: 1.3; }
+/* 16px at least, or a phone zooms in on the field when it's tapped */
+.contact-form input,
+.contact-form textarea,
+.contact-form button,
+.contact-sent button { font: inherit; font-size: 1rem; }
+.contact-form input,
+.contact-form textarea {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1.5px solid rgb(0 0 0 / 0.42);
+  border-radius: var(--r-sm);
+  background: #fff;
+  color: var(--charcoal);
+  line-height: 1.4;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.contact-form textarea { min-height: 9.5em; resize: vertical; }
+.contact-form ::placeholder { color: rgb(30 30 30 / 0.6); opacity: 1; }
+.contact-form input:hover,
+.contact-form textarea:hover { border-color: rgb(0 0 0 / 0.6); }
+.contact-form input:focus,
+.contact-form textarea:focus { outline: none; border-color: var(--charcoal); box-shadow: 0 0 0 1px var(--charcoal); }
+/* A field the browser turned away on Send (empty, or not an email address): a red edge, alongside
+   the browser's own message */
+.contact-form input:user-invalid,
+.contact-form textarea:user-invalid { border-color: var(--invalid); }
+.contact-form input:user-invalid:focus,
+.contact-form textarea:user-invalid:focus { box-shadow: 0 0 0 1px var(--invalid); }
+
+.contact-form__send { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 4px; }
+.contact-form__button,
+.contact-sent__again { height: 40px; padding: 0 16px; border: 0; cursor: pointer; }
+.contact-form__button[aria-disabled="true"] { cursor: progress; }
+/* Always in the layout, even empty, so screen readers never miss what's put in it */
+.contact-form__status { flex: 1 1 16em; margin: 0; font-weight: 550; line-height: 1.45; }
+
+/* Once a message is sent, in the form's place: the thanks, a little bigger than the text, and
+   under it the button to send another. The thanks is focused for screen readers, but it isn't
+   something to press, so it draws no ring. */
+.contact-sent { display: grid; justify-items: start; gap: 24px; }
+.contact-sent[hidden],
+.contact-sent__again[hidden] { display: none; }
+.contact-sent__text { max-width: 32em; margin: 0; font-size: 1.125rem; font-weight: 550; line-height: 1.5; text-wrap: pretty; }
+.contact-sent__text:focus { outline: none; }
+
+/* Without JavaScript the form can't send, so only the line with the email address shows */
+html:not(.js) .contact-form { display: none; }
+.js .contact-message__nojs { display: none; }
+
+@media (max-width: 767px) {
+  html[data-page="contact"] main { row-gap: 64px; }
+}
+@media (max-width: 559px) {
+  .contact-form { grid-template-columns: minmax(0, 1fr); }
 }
 
 /* ---------- 404 ----------

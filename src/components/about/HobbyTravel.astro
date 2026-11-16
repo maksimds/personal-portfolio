@@ -1,0 +1,58 @@
+---
+// What's inside the ✈️ sticker on "Who I am" (src/pages/about.astro): the plane, the emoji, and the
+// world it flies around, drawn in the style of 🌍 (blue sea, yellow-green land, a dark rim) so it
+// can turn smoothly; an emoji only comes in three fixed views. All of it is in .hobby__scene,
+// which is cut to the sticker's circle, so nothing ever shows outside it. The world is hidden
+// until the sticker is pointed at (src/scripts/hobbies.ts). The plane's route and timing are "The
+// hobby stickers" in src/styles/styles.css.
+// The plane is in two parts: the outer one follows the route, turned to face along it; the emoji
+// inside it shrinks and grows with how far away it is.
+// The world: its land is a flat map (.hobby__land, two copies side by side, a turn apart) that
+// slides behind the globe, and the filter world-round bends it onto the ball with a displacement
+// map. The land, the map and the numbers come from src/data/globe.json, which scripts/globe.mjs
+// makes (`node scripts/globe.mjs`); it says how.
+import globe from '../../data/globe.json';
+---
+<span class="hobby__scene">
+  <svg class="hobby__globe" viewBox="0 0 40 40" width="20" height="20" focusable="false">
+    <defs>
+      <radialGradient id="world-sea" cx="0.4" cy="0.34" r="0.7">
+        <stop offset="0" stop-color="#63b4ff" />
+        <stop offset="0.55" stop-color="#2a6ee0" />
+        <stop offset="1" stop-color="#1a3d9c" />
+      </radialGradient>
+      {/* Over everything: a dark rim, so it's round, and a shine at the top left */}
+      <radialGradient id="world-rim" cx="0.44" cy="0.4" r="0.62">
+        <stop offset="0.62" stop-color="#0a1a5c" stop-opacity="0" />
+        <stop offset="1" stop-color="#0a1a5c" stop-opacity="0.6" />
+      </radialGradient>
+      <radialGradient id="world-shine" cx="0.33" cy="0.27" r="0.42">
+        <stop offset="0" stop-color="#fff" stop-opacity="0.45" />
+        <stop offset="1" stop-color="#fff" stop-opacity="0" />
+      </radialGradient>
+      <clipPath id="world-disc"><circle cx="20" cy="20" r="19.5" /></clipPath>
+      <clipPath id="world-coasts"><path d={globe.land} /></clipPath>
+      {/* Takes in the map from as far out as it reaches (a quarter turn either side of the middle) */}
+      <filter id="world-round" x="-12" y="-8" width="64" height="60" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feImage href={globe.map} x="0" y="0" width="40" height="40" preserveAspectRatio="none" result="map" />
+        <feDisplacementMap in="SourceGraphic" in2="map" scale={globe.scale} xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <g id="world-map">
+        <path d={globe.land} fill="#9fcb52" />
+        <path d={globe.deserts} fill="#e3d47f" clip-path="url(#world-coasts)" />
+      </g>
+    </defs>
+    <circle cx="20" cy="20" r="19.5" fill="url(#world-sea)" />
+    <g clip-path="url(#world-disc)">
+      <g filter="url(#world-round)">
+        <g class="hobby__land">
+          <use href="#world-map" />
+          <use href="#world-map" x={-globe.turn} />
+        </g>
+      </g>
+    </g>
+    <circle cx="20" cy="20" r="19.5" fill="url(#world-rim)" />
+    <circle cx="20" cy="20" r="19.5" fill="url(#world-shine)" />
+  </svg>
+  <span class="hobby__plane"><span>✈️</span></span>
+</span>

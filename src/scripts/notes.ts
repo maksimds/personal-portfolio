@@ -3,46 +3,25 @@
    from the database and shows each as a sticky, and sends a new note from the form. A new note
    isn't shown straight away: it waits for approval in Supabase's Table Editor, so after posting
    the section just thanks the visitor.
-   - Only the live site (dmaksimoff.com) and `npm run dev` talk to the database. A built copy
-     anywhere else (the browser checks, `npm run preview`) never does, so the checks don't depend
-     on it and can't post to it; there the section says where the notes are.
+   - Only the live site (dmaksimoff.com) and `npm run dev` talk to the database
+     (src/scripts/database.ts). A built copy anywhere else (the browser checks, `npm run preview`)
+     never does, so the checks don't depend on it and can't post to it; there the section says
+     where the notes are.
    - Visitors' words and names go on the page as plain text, never as markup.
    - A note is sent with `Prefer: return=minimal`: the database won't hand back a note it hasn't
      approved, so asking for it back would fail the whole post (see supabase/notes.sql).
    - The database counts each browser's notes (supabase/notes-limit.sql): 3, then a 60-minute pause.
-     So each browser gets a random ID, kept in localStorage and sent with a note in the
-     `x-notes-visitor` header; it says nothing about who the visitor is. One internet address (a
-     home's or an office's Wi-Fi) gets 10 an hour between all its browsers. Past either limit the
-     database answers 429 with the seconds left and which limit it was; the form says so in minutes. */
+     So each browser's random ID (src/scripts/database.ts) goes with a note in the `x-notes-visitor`
+     header; it says nothing about who the visitor is. One internet address (a home's or an office's
+     Wi-Fi) gets 10 an hour between all its browsers. Past either limit the database answers 429
+     with the seconds left and which limit it was; the form says so in minutes. */
 import { notesApi, notesKey, NOTES_IN_A_ROW, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
+import { SITE, connected, visitorId, pause } from './database';
 
 interface Note { id: string; author_name: string; message: string; color: string; }
 
-const SITE = 'dmaksimoff.com';
 const EASE = 'cubic-bezier(0.2, 0.8, 0.2, 1)';   // --ease-out in styles.css, as the objects dropping in use
 const calm = matchMedia('(prefers-reduced-motion: reduce)');
-const connected = (): boolean => import.meta.env.DEV || location.hostname === SITE || location.hostname === 'www.' + SITE;
-
-// This browser's random ID for the database's count of notes, the same on every visit. Without
-// localStorage (a private window that blocks it) it's new for each page, which only loosens this
-// browser's own limit; the one per address still holds.
-function visitorId(): string {
-  const KEY = 'notes-visitor';
-  const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-  const fresh = (): string => crypto.randomUUID?.()
-    // Older browsers without randomUUID: the same random version-4 shape from getRandomValues
-    ?? '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) =>
-      (Number(c) ^ (crypto.getRandomValues(new Uint8Array(1))[0]! & (15 >> (Number(c) / 4)))).toString(16));
-  try {
-    const saved = localStorage.getItem(KEY);
-    if (saved && UUID.test(saved)) return saved;
-    const id = fresh();
-    localStorage.setItem(KEY, id);
-    return id;
-  } catch {
-    return fresh();
-  }
-}
 
 // A slight turn for each note, the same every time it's shown: from its id, -1.5 to 1.5 degrees
 // (the Sticky component's range). It only shows on the canvas, without reduced motion (styles.css).
@@ -206,13 +185,10 @@ export function initNotes(): void {
         body: JSON.stringify(note),
       });
       if (res.status === 429) {
-        // Paused: `details` is the seconds left (if it's missing, the whole pause: 60 minutes), and
-        // `hint` says whether it's this browser's limit or the one for its whole network
-        const { details, hint } = await res.json().catch(() => ({ details: '', hint: '' }));
-        const minutes = Math.max(1, Math.ceil(Number(details) / 60) || 60);
-        const wait = `You can post another in ${minutes} minute${minutes === 1 ? '' : 's'}.`;
+        // Paused, by this browser's limit or the one for its whole network
+        const { wait, network } = await pause(res, 'post');
         busy(false);
-        status.textContent = hint === 'network'
+        status.textContent = network
           ? `Lots of notes have come from your network in the last hour. ${wait}`
           : `That’s the limit of ${NOTES_IN_A_ROW} notes for now. ${wait}`;
         return;

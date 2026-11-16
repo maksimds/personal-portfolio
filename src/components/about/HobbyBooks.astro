@@ -1,0 +1,101 @@
+---
+// What's inside the 📚 sticker on "Who I am" (src/pages/about.astro): a stack of three books in the
+// style of the emoji (green on top, red, blue at the bottom, their pages showing), drawn so each
+// can move on its own. All of it is in .hobby__scene, which is cut to the sticker's circle, so
+// nothing ever shows outside it. Pointed at (src/scripts/hobbies.ts), the two books under the
+// green one fly out through the edge; the green one turns to face us and opens, a page turns, it
+// closes and turns back, and the other two slide back in under it. The styles are "The hobby
+// stickers" in src/styles/styles.css.
+// The green book has two drawings: lying on the stack (.hobby__spine), and standing, facing us
+// (.hobby__open): its pages, and two leaves hinged on the spine at its left edge, a page and the
+// front cover, each with a front and a back (the second svg, shown once it's turned over).
+---
+<span class="hobby__scene">
+  <svg class="hobby__book hobby__book--bottom" viewBox="0 0 40 11" width="20" height="5.5" focusable="false">
+    <defs>
+      <linearGradient id="book-blue" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6c95f2" />
+        <stop offset="1" stop-color="#2853b8" />
+      </linearGradient>
+    </defs>
+    <rect width="40" height="11" rx="2.2" fill="url(#book-blue)" />
+    <rect x="3" y="2" width="35.4" height="7" rx="0.8" fill="#fbf7ef" />
+    <path d="M4 4.4h33.4M4 6.6h33.4" stroke="#d9d3c7" stroke-width="0.6" />
+  </svg>
+  <svg class="hobby__book hobby__book--middle" viewBox="0 0 36 10" width="18" height="5" focusable="false">
+    <defs>
+      <linearGradient id="book-red" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ff6d5f" />
+        <stop offset="1" stop-color="#c92f25" />
+      </linearGradient>
+    </defs>
+    <rect width="36" height="10" rx="2" fill="url(#book-red)" />
+    <rect x="2.8" y="1.8" width="31.6" height="6.4" rx="0.8" fill="#fbf7ef" />
+    <path d="M3.8 4h29.6M3.8 6h29.6" stroke="#d9d3c7" stroke-width="0.6" />
+  </svg>
+  <span class="hobby__book hobby__book--top">
+    {/* Lying on the stack, seen a little from above: the top of its cover, then its pages */}
+    <svg class="hobby__spine" viewBox="0 0 34 11" width="17" height="5.5" focusable="false">
+      <defs>
+        <linearGradient id="book-green" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#6fd46a" />
+          <stop offset="1" stop-color="#22862c" />
+        </linearGradient>
+      </defs>
+      <rect width="34" height="11" rx="2" fill="url(#book-green)" />
+      <rect x="2.6" y="3.6" width="29.8" height="5.6" rx="0.8" fill="#fbf7ef" />
+      <path d="M3.6 6.4h27.8" stroke="#d9d3c7" stroke-width="0.6" />
+      <path d="M3 1.6h26" stroke="#fff" stroke-width="0.9" stroke-linecap="round" opacity="0.4" />
+    </svg>
+    {/* Standing, facing us: 13 × 17, the spine down its left edge */}
+    <span class="hobby__open">
+      <svg viewBox="0 0 26 34" width="13" height="17" focusable="false">
+        <defs>
+          <linearGradient id="book-gutter" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#000" stop-opacity="0.16" />
+            <stop offset="1" stop-color="#000" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <rect width="26" height="34" rx="2" fill="#1f7a28" />
+        <rect y="1" width="24.6" height="32" fill="#fffaf0" />
+        <rect y="1" width="3" height="32" fill="url(#book-gutter)" />
+        <path d="M4.5 7h16M4.5 11h17M4.5 15h14M4.5 19h17M4.5 23h15M4.5 27h10" stroke="#cfc6b6" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+      {/* A page: the same as the one under it, and on its back more lines, flush with the outer edge once it's over */}
+      <span class="hobby__leaf hobby__leaf--page">
+        <svg viewBox="0 0 24.6 32" width="12.3" height="16" focusable="false">
+          <rect width="24.6" height="32" fill="#fffaf0" />
+          <rect width="3" height="32" fill="url(#book-gutter)" />
+          <path d="M4.5 6h16M4.5 10h17M4.5 14h14M4.5 18h17M4.5 22h15M4.5 26h10" stroke="#cfc6b6" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        <svg viewBox="0 0 24.6 32" width="12.3" height="16" focusable="false">
+          <rect width="24.6" height="32" fill="#fffaf0" />
+          <rect width="3" height="32" fill="url(#book-gutter)" />
+          <path d="M3.5 6H20.5M5.5 10H20.5M3.5 14H20.5M8.5 18H20.5M3.5 22H20.5M10.5 26H20.5" stroke="#cfc6b6" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+      </span>
+      {/* The front cover: green, a darker spine and a cream label; inside, a pale endpaper */}
+      <span class="hobby__leaf hobby__leaf--cover">
+        <svg viewBox="0 0 26 34" width="13" height="17" focusable="false">
+          <defs>
+            <linearGradient id="book-cover" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#7ddc77" />
+              <stop offset="0.5" stop-color="#36a83a" />
+              <stop offset="1" stop-color="#1f7a28" />
+            </linearGradient>
+          </defs>
+          <rect width="26" height="34" rx="2" fill="url(#book-cover)" />
+          <rect width="3.6" height="34" rx="1.2" fill="#1f7a28" />
+          <rect x="8" y="8" width="13" height="7" rx="1.2" fill="#fff3d9" />
+          <path d="M10.5 10.6h8M10.5 12.6h5" stroke="#3c8a3c" stroke-width="1.1" stroke-linecap="round" />
+          <path d="M5.6 3.4h17" stroke="#fff" stroke-width="1.1" stroke-linecap="round" opacity="0.45" />
+        </svg>
+        <svg viewBox="0 0 26 34" width="13" height="17" focusable="false">
+          <rect width="26" height="34" rx="2" fill="#2b9431" />
+          <rect y="1.4" width="24.4" height="31.2" rx="0.6" fill="#e9f5e2" />
+          <rect y="1.4" width="3" height="31.2" fill="url(#book-gutter)" />
+        </svg>
+      </span>
+    </span>
+  </span>
+</span>

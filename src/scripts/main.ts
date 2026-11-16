@@ -9,8 +9,9 @@
    - the board's connectors (lines between objects), its drifting cursors, the scene the "Denis"
      cursor plays in the home page's intro, and the visitor's own cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
-   - the dots that switch the photo on the About page
+   - the dots that switch the photo on the About page, and the hobby stickers' scenes there
    - the notes wall on the About page: visitors' notes, and the form for leaving one
+   - the contact form on the Contact page
    The inline script in the <head> of BaseLayout adds the "js" class to <html> before the page is
    drawn; everything here runs a moment later.
    ========================================================================== */
@@ -28,7 +29,9 @@ import { initEmbeds } from './embeds';
 import { initBackLinks } from './back-links';
 import { initYear } from './year';
 import { initPhotoDots } from './photos';
+import { initHobbies } from './hobbies';
 import { initNotes } from './notes';
+import { initContactForm } from './contact';
 
 initChrome();
 initMenu();
@@ -43,4 +46,6 @@ initEmbeds();
 initBackLinks();
 initYear();
 initPhotoDots();
+initHobbies();
 initNotes();
+initContactForm();
