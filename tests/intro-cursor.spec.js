@@ -1,6 +1,6 @@
 // Checks the scene the "Denis" cursor plays in the home page's intro (src/scripts/intro-cursor.ts).
 // On a desktop canvas it opens with the welcome, played once: it drags out the welcome sign just
-// above the intro from its top-left corner to its bottom-right, types "Welcome to my portfolio"
+// above the intro from its top-left corner to its bottom-right, types "Welcome to my portfolio 🎯"
 // into it and clicks away, and the sign stays. Then it goes round the stickies, over and over: on
 // each it goes to the end of the marked words, double-clicks, deletes them a letter at a time,
 // types them back and clicks away. The stickies come in a new order on every visit, never
@@ -14,7 +14,7 @@ const STICKIES = [
   { text: 'Design roles after graduation in May ’27', words: 'May ’27' },
   { text: 'Mobile apps, websites, platforms & design systems', words: 'design systems' },
 ];
-const WELCOME = 'Welcome to my portfolio';
+const WELCOME = 'Welcome to my portfolio 🎯';
 const cursor = (page) => page.locator('.home-cursor');
 const sign = (page) => page.locator('[data-cursor-welcome]');
 const words = (page) => page.locator('[data-cursor-edit]');
@@ -163,6 +163,9 @@ test.describe('on a desktop', () => {
     expect(typing.every((s) => s.sign.outlined)).toBe(true);
     expect(typing[0].sign.shown).toBe('');
     expect(typing.every((s) => WELCOME.startsWith(s.sign.shown))).toBe(true);
+    // The emoji goes in with one key, whole: never half of it on its own
+    expect(typing.filter((s) => /[\uD800-\uDBFF]$/.test(s.sign.shown)).map((s) => s.t)).toEqual([]);
+    expect(typing.some((s) => s.sign.shown === WELCOME.replace(/ 🎯$/, ' '))).toBe(true);
     for (let n = 1; n < typing.length; n++) expect(typing[n].sign.shown.length).toBeGreaterThanOrEqual(typing[n - 1].sign.shown.length);
     expect(typing.at(-1).sign.shown).toBe(WELCOME);
     expect(seen.filter((s) => s.sign.seen && !s.sign.outlined).every((s) => s.sign.shown === WELCOME)).toBe(true);
