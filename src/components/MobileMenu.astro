@@ -9,8 +9,8 @@ import GitHub from './icons/GitHub.astro';
 import Icon from './icons/Icon.astro';
 
 const pages = await getPages();
-// Home and About head the list as main links; the case studies follow as the board's other pages
-const caseStudies = pages.slice(2);
+// Home, About and Contact head the list as main links; the case studies follow as the board's other pages
+const caseStudies = pages.filter((page) => page.href.startsWith('/projects/'));
 const current = (href: string) => (isCurrentPage(href, Astro.url.pathname) ? 'page' : undefined);
 ---
 <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
@@ -19,6 +19,7 @@ const current = (href: string) => (isCurrentPage(href, Astro.url.pathname) ? 'pa
       <li><a class="menu__item" href="/" aria-current={current('/')}><Icon name="check" size={16} class="menu__check" />Home</a></li>
       <li><a class="menu__item" href="/#work"><Icon name="check" size={16} class="menu__check" />Work</a></li>
       <li><a class="menu__item" href="/about.html" aria-current={current('/about.html')}><Icon name="check" size={16} class="menu__check" />About</a></li>
+      <li><a class="menu__item" href="/contact.html" aria-current={current('/contact.html')}><Icon name="check" size={16} class="menu__check" />Contact</a></li>
     </ul>
     <hr class="menu__rule">
     <ul>
