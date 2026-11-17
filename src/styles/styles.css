@@ -1261,13 +1261,13 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 .is-canvas[data-page="home"]:has(#side-projects:target) .board__layer {
   transform: translate(calc(50vw - 2616px * var(--start-zoom, 1)), calc(120px - 1825px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
-/* The footer under "Work", at its bottom right, 152px below it as on the other boards. Its right
-   edge is Work's, 1936 on the board (see .works-row), so it starts at 1936 − 512 = 1424, 24 left
+/* The footer under "Work", centred under it, 152px below it as on the other boards. Work's middle
+   is 1384 on the board (see .works-row), so the footer starts at 1384 − 512 / 2 = 1128, 320 left
    of the intro's column. It comes after the two sections in the page, so it would start below the
    taller, "Side projects" (two rows of cards, 640 tall; "Work" is one row and the years line,
    368): it's pulled up by the difference, 152 − (640 − 368) = −120. Beside it, "Side projects"
    carries on down, clear of it. */
-.is-canvas[data-page="home"] .site-footer { margin: -120px 0 0 -24px; }
+.is-canvas[data-page="home"] .site-footer { margin: -120px 0 0 -320px; }
 
 /* Intro: where and when in small technical type, the greeting, then a sticky for each status line */
 .intro__location {

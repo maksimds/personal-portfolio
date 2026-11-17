@@ -167,7 +167,7 @@ test.describe('the home page on a desktop', () => {
     expect(Math.abs(turblend.left - polka.left)).toBeLessThan(4);
   });
 
-  test('the sections are 193px under the intro, and the footer is under "Work", at its right, clear of "Side projects"', async ({ page }) => {
+  test('the sections are 193px under the intro, and the footer is centred under "Work", clear of "Side projects"', async ({ page }) => {
     // Once everything has dropped in, which moves it a few pixels
     await page.waitForFunction(() => document.getAnimations().every((a) => a.animationName !== 'drop-in' || a.playState === 'finished'));
     const { intro, work, side, footer, zoom } = await page.evaluate(() => {
@@ -176,7 +176,7 @@ test.describe('the home page on a desktop', () => {
     });
     expect(Math.round((work.top - intro.bottom) / zoom)).toBe(193);
     expect(Math.abs((footer.top - work.bottom) / zoom - 152)).toBeLessThan(1);
-    expect(Math.abs(footer.right - work.right)).toBeLessThan(1);
+    expect(Math.abs((footer.left + footer.right) / 2 - (work.left + work.right) / 2)).toBeLessThan(1);
     expect(footer.right).toBeLessThan(side.left);
   });
 
