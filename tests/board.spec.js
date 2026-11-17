@@ -145,6 +145,9 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('#work-title')).toHaveText('Work');
     await expect(page.locator('#side-projects-title')).toHaveText('Side projects');
     await expect(page.locator('#side-projects .work-card').first()).toContainText('Designed and developed a macOS app that lives in the notch');
+    // Polka's card (a screenshot rather than a logo) leads to its case study
+    await expect(page.locator('#side-projects .work-card').first().locator('.work-card__link')).toHaveAttribute('href', '/projects/polka-case-study.html');
+    await expect(page.locator('#side-projects .work-card').first().locator('.work-card__thumb--wide')).toHaveCount(1);
 
     const boxes = await page.evaluate(() => {
       const box = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };

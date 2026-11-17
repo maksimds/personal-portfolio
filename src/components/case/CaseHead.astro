@@ -1,11 +1,11 @@
 ---
 // The top of a case study: the title as big board text, the subtitle under it, and the status as
-// a round stamp beside the title (green once it says "Completed", yellow until then).
+// a round stamp beside the title (green once it says "Completed" or "released", yellow until then).
 import Stamp from '../board/Stamp.astro';
 
 interface Props { title: string; subtitle: string; status: string; }
 const { title, subtitle, status } = Astro.props;
-const done = /complete/i.test(status);
+const done = /complete|released/i.test(status);
 ---
 <header class="case-head">
   <h1 class="drop-in">{title}</h1>

@@ -30,6 +30,9 @@ const projects = defineCollection({
     // How far the logo sits from the thumbnail's edges (--logo-inset) and its corner radius (--logo-radius)
     thumbInset: z.string().optional(),
     thumbRadius: z.string().optional(),
+    // A wide picture with no space round it (a screenshot, as on Polka) instead of a square logo:
+    // as tall as the other logos' marks and as wide as it is
+    thumbWide: z.boolean().default(false),
 
     // The big image under the heading. With logo: true it's a logo on the page background, sized
     // with logoWidth (--logo-width) and logoTrim (--logo-trim, the share of empty space around it).
