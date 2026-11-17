@@ -122,12 +122,14 @@ export function initBoard(): BoardView | null {
   /* ----- Places ----- */
 
   // Where the page starts: the board's point (--start-x, --start-y) in the middle of the screen
-  // and a little above its centre. The CSS draws the layer there before this script runs.
+  // and a little above its centre, or --start-top (in px) down from the screen's top when the page
+  // sets it. The CSS draws the layer there before this script runs.
   function start(): { x: number; y: number } {
     const style = getComputedStyle(root);
     const sx = parseFloat(style.getPropertyValue('--start-x')) || layer!.offsetWidth / 2;
     const sy = parseFloat(style.getPropertyValue('--start-y')) || layer!.offsetHeight / 2;
-    return { x: innerWidth / 2 - sx * zoom, y: innerHeight * START_Y - sy * zoom };
+    const top = parseFloat(style.getPropertyValue('--start-top'));
+    return { x: innerWidth / 2 - sx * zoom, y: (Number.isNaN(top) ? innerHeight * START_Y : top) - sy * zoom };
   }
 
   // The place that shows a section linked to: centred, its top just below the pills. A section
@@ -368,14 +370,17 @@ export function initBoard(): BoardView | null {
 
   tools.forEach((tool) => tool.addEventListener('click', () => setTool(tool.dataset.tool ?? 'select')));
 
-  // The zoom pill: a tenth at a time, and the percentage itself goes back to 100%. Each click
-  // counts from where the last one was heading, so quick clicks add up while the zoom is still easing.
+  // The zoom pill: a tenth at a time, and the percentage itself goes back to 100%. From between
+  // two tenths (75%, or wherever a pinch left it) it goes to the next one, up or down (80% or 70%).
+  // Each click counts from where the last one was heading, so quick clicks add up while the zoom
+  // is still easing.
   let aim = 1;
-  let aimed = 0;
+  let aimed = -Infinity;   // not 0: a click in the page's first 0.4s would count from 100%, not from the zoom it opened at
   document.querySelectorAll<HTMLElement>('[data-zoom]').forEach((button) => {
     button.addEventListener('click', () => {
-      const tenths = Math.round((performance.now() - aimed < 400 ? aim : zoom) * 10);
-      aim = clampZoom({ out: (tenths - 1) / 10, in: (tenths + 1) / 10, reset: 1 }[button.dataset.zoom ?? 'reset'] ?? 1);
+      const tenths = (performance.now() - aimed < 400 ? aim : zoom) * 10;
+      const next = { out: (Math.ceil(tenths - 0.01) - 1) / 10, in: (Math.floor(tenths + 0.01) + 1) / 10, reset: 1 };
+      aim = clampZoom(next[(button.dataset.zoom ?? 'reset') as keyof typeof next] ?? 1);
       aimed = performance.now();
       zoomAt(aim, undefined, undefined, true);
     });

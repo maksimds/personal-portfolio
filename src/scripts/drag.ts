@@ -1,6 +1,6 @@
 /* ---------- Moving the board's objects ----------
-   On a page shown as a canvas, the big objects (marked data-drag: the home page's intro, works
-   and footer; the About page's sections, photo, playlist and footer) can be picked up with the
+   On a page shown as a canvas, the big objects (marked data-drag: the home page's intro, Work,
+   Side projects and footer; the About page's sections, photo, playlist and footer) can be picked up with the
    pointer tool and put anywhere on the board, as in FigJam. Press on one and move more than a few
    pixels: it follows the pointer, comes to the front and has a blue selection outline. A plain
    click still does what it did (a link opens, a dot switches the photo); the click that ends a

@@ -22,8 +22,9 @@ const projects = defineCollection({
     // For search results (<meta name="description">)
     description: z.string(),
 
-    // The home page row
+    // The home page card. side: true puts it in "Side projects" instead of "Work".
     listDescription: z.string(),
+    side: z.boolean().default(false),
     // Images are file names in src/assets/images/, e.g. "kalorie-app.png"
     thumb: z.string(),
     // How far the logo sits from the thumbnail's edges (--logo-inset) and its corner radius (--logo-radius)

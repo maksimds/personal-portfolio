@@ -1,4 +1,4 @@
-// Checks moving the board's objects (src/scripts/drag.ts): on a desktop canvas the intro, the works,
+// Checks moving the board's objects (src/scripts/drag.ts): on a desktop canvas the intro, Work, Side projects,
 // the About page's sections, photo and playlist, and the footer can be picked up with the pointer
 // tool and put somewhere else. A plain click still works and the lines follow. The places last only
 // while the page is open: coming back to it, or reloading it, shows everything where it started.
@@ -23,6 +23,8 @@ async function drag(page, locator, dx, dy) {
   await page.mouse.move(x + dx, y + dy, { steps: 8 });
   await page.mouse.up();
 }
+// The home page opens at 75%, so a move of 75px on the screen is 100px on the board
+const ZOOM = 0.75;
 // Where the "see my work" line starts on the board
 const lineStart = (page) => page.locator('[data-from="intro-notes"] .connector__line').evaluate((el) => {
   const [x, y] = el.getAttribute('d').slice(1).split(' ').map(Number);
@@ -42,7 +44,7 @@ test.describe('the home page on a desktop', () => {
     const title = await page.locator('.intro__title').boundingBox();
     await page.mouse.move(title.x + 40, title.y + title.height / 2);
     await page.mouse.down();
-    await page.mouse.move(title.x + 140, title.y + title.height / 2 + 60, { steps: 8 });
+    await page.mouse.move(title.x + 40 + 100 * ZOOM, title.y + title.height / 2 + 60 * ZOOM, { steps: 8 });
     // Picked up: a selection outline, and the text isn't being selected
     await expect(page.locator('[data-drag="intro"]')).toHaveClass(/\bis-dragged\b/);
     await expect(page.locator('[data-drag="intro"]')).toHaveCSS('outline-color', 'rgb(13, 153, 255)');
@@ -90,18 +92,18 @@ test.describe('the home page on a desktop', () => {
     }));
     expect(await outside()).toEqual([]);
     const before = await places();
-    await drag(page, page.locator('.intro__title'), 100, 60);
+    await drag(page, page.locator('.intro__title'), 100 * ZOOM, 60 * ZOOM);
     await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
     const after = await places();
-    expect(after.map((p, i) => ({ x: Math.round(p.x - before[i].x), y: Math.round(p.y - before[i].y) }))).toEqual([{ x: 100, y: 60 }, { x: 100, y: 60 }]);
+    expect(after.map((p, i) => ({ x: Math.round(p.x - before[i].x), y: Math.round(p.y - before[i].y) }))).toEqual([{ x: 75, y: 45 }, { x: 75, y: 45 }]);
     expect(await outside()).toEqual([]);
   });
 
-  test('"My works" moves when dragged by a card, without opening it; a click still opens it', async ({ page }) => {
+  test('"Work" moves when dragged by a card, without opening it; a click still opens it', async ({ page }) => {
     await page.locator('.toolbar [data-shortcut="w"]').click();
     await expect.poll(() => page.locator('#work').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(120);
     const card = page.locator('a.work-card__link').first();
-    await drag(page, card, 150, -50);
+    await drag(page, card, 150 * ZOOM, -50 * ZOOM);
     await expect.poll(() => moved(page, 'work')).toEqual({ x: 150, y: -50 });
     expect(page.url()).toMatch(/index\.html#work$/);
 
@@ -116,7 +118,7 @@ test.describe('the home page on a desktop', () => {
     const moveIntro = async () => {
       await page.keyboard.press('Home');
       await expect.poll(() => layer(page)).toEqual(start);
-      await drag(page, page.locator('.intro__title'), 100, 60);
+      await drag(page, page.locator('.intro__title'), 100 * ZOOM, 60 * ZOOM);
       await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
     };
 
@@ -152,7 +154,7 @@ test.describe('the home page on a desktop', () => {
     const board = await layer(page);
     await page.keyboard.press('h');
     await drag(page, page.locator('.intro__title'), -100, -60);
-    await expect.poll(() => layer(page)).toEqual({ x: board.x - 100, y: board.y - 60, zoom: 1 });
+    await expect.poll(() => layer(page)).toEqual({ x: board.x - 100, y: board.y - 60, zoom: ZOOM });
     expect(await moved(page, 'intro')).toEqual({ x: 0, y: 0 });
   });
 
@@ -165,13 +167,13 @@ test.describe('the home page on a desktop', () => {
     // The board pans until its left edge reaches the screen's...
     await expect.poll(() => layer(page).then((l) => l.x)).toBe(0);
     await page.mouse.up();
-    // ...and the intro stops 96px in from it
-    const left = await page.locator('[data-drag="intro"]').evaluate((el) => Math.round(el.getBoundingClientRect().left));
-    expect(left).toBe(96);
+    // ...and the intro stops 96px in from it (on the board: 72 on the screen)
+    const left = await page.locator('[data-drag="intro"]').evaluate((el) => el.getBoundingClientRect().left);
+    expect(Math.round(left / ZOOM)).toBe(96);
   });
 
   test('"View as list" puts everything back in the page\'s order, and the canvas brings the places back', async ({ page }) => {
-    await drag(page, page.locator('.intro__title'), 100, 60);
+    await drag(page, page.locator('.intro__title'), 100 * ZOOM, 60 * ZOOM);
     await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
     await page.locator('#help-button').click();
     await page.locator('[data-pref="list"]').click();

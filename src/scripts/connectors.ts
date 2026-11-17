@@ -5,7 +5,12 @@
    on the middle of the line. Everything is measured in the units of the element the connector is
    positioned in, so it stays right while the board is zoomed. Drawn again whenever the window or
    either object changes size, once the objects have finished dropping in, and while the visitor
-   moves an object (src/scripts/drag.ts). While its two objects overlap, it isn't shown. */
+   moves an object (src/scripts/drag.ts). While its two objects overlap, it isn't shown.
+   A connector to several objects (data-to="work side-projects") leaves its one object as a single
+   line, the trunk, then splits: a branch to each, with its own arrowhead. Going the same way (all
+   down, say), every branch turns off the trunk at the same place, halfway across the gap to the
+   nearest of them, and the label sits on that place. A branch whose object is moved
+   onto the one it comes from isn't drawn; the others still are. */
 
 type Side = 'top' | 'right' | 'bottom' | 'left';
 interface Point { x: number; y: number; }
@@ -52,16 +57,19 @@ function facing(a: Box, b: Box): Side {
 }
 
 const overlap = (a: Box, b: Box): boolean => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+const union = (a: Box, b: Box): Box => ({ left: Math.min(a.left, b.left), top: Math.min(a.top, b.top), right: Math.max(a.right, b.right), bottom: Math.max(a.bottom, b.bottom) });
+const upright = (side: Side): boolean => side === 'top' || side === 'bottom';
 
-// The corners of a right-angled route from `start` (leaving by side `a`) to `end` (arriving at side `b`)
-function elbow(start: Point, a: Side, end: Point, b: Side): Point[] {
-  const upright = (side: Side) => side === 'top' || side === 'bottom';
+// The corners of a right-angled route from `start` (leaving by side `a`) to `end` (arriving at side
+// `b`). Leaving and arriving the same way (both up or down, or both across), it turns halfway, or
+// at `turn` (a y for up and down, an x across) when it's one branch of a split.
+function elbow(start: Point, a: Side, end: Point, b: Side, turn?: number): Point[] {
   if (upright(a) && upright(b)) {
-    const y = (start.y + end.y) / 2;
+    const y = turn ?? (start.y + end.y) / 2;
     return [start, { x: start.x, y }, { x: end.x, y }, end];
   }
   if (!upright(a) && !upright(b)) {
-    const x = (start.x + end.x) / 2;
+    const x = turn ?? (start.x + end.x) / 2;
     return [start, { x, y: start.y }, { x, y: end.y }, end];
   }
   return upright(a) ? [start, { x: start.x, y: end.y }, end] : [start, { x: end.x, y: start.y }, end];
@@ -89,44 +97,60 @@ function rounded(points: Point[]): string {
 function draw(connector: HTMLElement): void {
   const parent = connector.offsetParent as HTMLElement | null;
   const from = document.getElementById(connector.dataset.from ?? '');
-  const to = document.getElementById(connector.dataset.to ?? '');
+  const shown = (el: HTMLElement | null): el is HTMLElement => !!el && el.getClientRects().length > 0;
+  const tos = (connector.dataset.to ?? '').split(/\s+/).map((id) => document.getElementById(id)).filter(shown);
   const line = connector.querySelector<SVGPathElement>('.connector__line');
   const head = connector.querySelector<SVGPathElement>('.connector__head');
-  // Not drawn when it isn't shown (phones), or when either object is missing or hidden
-  if (!parent || !from || !to || !line || !head || !from.getClientRects().length || !to.getClientRects().length) {
+  // Not drawn when it isn't shown (phones), or when its objects are missing or hidden
+  if (!parent || !shown(from) || !tos.length || !line || !head) {
     connector.classList.remove('is-ready');
     return;
   }
 
   const a = boxIn(from, parent);
-  const b = boxIn(to, parent);
-  // One object moved onto the other: there's no way between them to draw
-  const tangled = overlap(a, b);
+  // An object moved onto the one the line comes from: there's no way between them to draw
+  const boxes = tos.map((el) => boxIn(el, parent)).filter((b) => !overlap(a, b));
+  const tangled = !boxes.length;
   connector.classList.toggle('is-overlapping', tangled);
   if (tangled) return;
-  const fromSide = isSide(connector.dataset.fromSide) ? connector.dataset.fromSide : facing(a, b);
+  // To several objects, it leaves by the side that faces all of them together
+  const fromSide = isSide(connector.dataset.fromSide) ? connector.dataset.fromSide : facing(a, boxes.reduce(union));
   const toSide = isSide(connector.dataset.toSide) ? connector.dataset.toSide : OPPOSITE[fromSide];
   const start = anchor(a, fromSide);
-  const tip = anchor(b, toSide);
   // The line arrives straight at the side, so the arrowhead points the opposite way to "out"
   const dir = { x: -OUT[toSide].x, y: -OUT[toSide].y };
   const size = connector.classList.contains('connector--thick') ? 14 : 10;
-  // The line stops inside the arrowhead, so its round end doesn't show past the point
-  const end = { x: tip.x - dir.x * (size - 2), y: tip.y - dir.y * (size - 2) };
+  const branches = boxes.map((b) => {
+    const tip = anchor(b, toSide);
+    // The line stops inside the arrowhead, so its round end doesn't show past the point
+    return { tip, end: { x: tip.x - dir.x * (size - 2), y: tip.y - dir.y * (size - 2) } };
+  });
+
+  // Where a line that splits does, when its branches leave and arrive the same way: halfway
+  // across the gap to the nearest object (a y for up and down, an x across)
+  const axis = upright(fromSide) ? 'y' : 'x';
+  const split = branches.length > 1 && upright(fromSide) === upright(toSide) && !connector.hasAttribute('data-curved')
+    ? (start[axis] + branches.map((br) => br.end[axis]).reduce((p, q) => (Math.abs(q - start[axis]) < Math.abs(p - start[axis]) ? q : p))) / 2
+    : undefined;
 
   // Every point the line passes through or is pulled towards: the drawing fits inside their box
-  let points: Point[];
-  if (connector.hasAttribute('data-curved')) {
-    const reach = Math.max(40, Math.hypot(tip.x - start.x, tip.y - start.y) * 0.4);
-    const c1 = { x: start.x + OUT[fromSide].x * reach, y: start.y + OUT[fromSide].y * reach };
-    const c2 = { x: end.x + OUT[toSide].x * reach, y: end.y + OUT[toSide].y * reach };
-    line.setAttribute('d', `M${n(start.x)} ${n(start.y)} C${n(c1.x)} ${n(c1.y)} ${n(c2.x)} ${n(c2.y)} ${n(end.x)} ${n(end.y)}`);
-    points = [start, c1, c2, tip];
-  } else {
-    points = elbow(start, fromSide, end, toSide);
-    line.setAttribute('d', rounded(points));
-    points = [...points, tip];
-  }
+  const points: Point[] = [];
+  const paths = branches.map(({ tip, end }) => {
+    if (connector.hasAttribute('data-curved')) {
+      const reach = Math.max(40, Math.hypot(tip.x - start.x, tip.y - start.y) * 0.4);
+      const c1 = { x: start.x + OUT[fromSide].x * reach, y: start.y + OUT[fromSide].y * reach };
+      const c2 = { x: end.x + OUT[toSide].x * reach, y: end.y + OUT[toSide].y * reach };
+      points.push(start, c1, c2, tip);
+      return `M${n(start.x)} ${n(start.y)} C${n(c1.x)} ${n(c1.y)} ${n(c2.x)} ${n(c2.y)} ${n(end.x)} ${n(end.y)}`;
+    }
+    const route = elbow(start, fromSide, end, toSide, split);
+    points.push(...route, tip);
+    return rounded(route);
+  });
+  // The label goes on the middle of the first branch: measured on it alone, before the others join it
+  line.setAttribute('d', paths[0]!);
+  const middle = split === undefined ? line.getPointAtLength(line.getTotalLength() / 2) : null;
+  line.setAttribute('d', paths.join(' '));
 
   // The <svg> is sized to the drawing (plus room for the arrowhead and the line's width) and its
   // viewBox set to match, so the path's numbers stay the board's own. A drawing that only
@@ -142,15 +166,18 @@ function draw(connector: HTMLElement): void {
     svg.style.cssText = `left:${n(left)}px;top:${n(top)}px;width:${n(width)}px;height:${n(height)}px`;
   }
 
-  const back = { x: tip.x - dir.x * size, y: tip.y - dir.y * size };
   const half = size * 0.5;
-  head.setAttribute('d', `M${n(tip.x)} ${n(tip.y)} L${n(back.x - dir.y * half)} ${n(back.y + dir.x * half)} L${n(back.x + dir.y * half)} ${n(back.y - dir.x * half)}Z`);
+  head.setAttribute('d', branches.map(({ tip }) => {
+    const back = { x: tip.x - dir.x * size, y: tip.y - dir.y * size };
+    return `M${n(tip.x)} ${n(tip.y)} L${n(back.x - dir.y * half)} ${n(back.y + dir.x * half)} L${n(back.x + dir.y * half)} ${n(back.y - dir.x * half)}Z`;
+  }).join(' '));
 
+  // On the middle of the line, or where it splits, the branches leaving from under its sides
   const label = connector.querySelector<HTMLElement>('.connector__label');
   if (label) {
-    const middle = line.getPointAtLength(line.getTotalLength() / 2);
-    label.style.left = n(middle.x) + 'px';
-    label.style.top = n(middle.y) + 'px';
+    const at = middle ?? (axis === 'y' ? { x: start.x, y: split! } : { x: split!, y: start.y });
+    label.style.left = n(at.x) + 'px';
+    label.style.top = n(at.y) + 'px';
   }
   connector.classList.add('is-ready');
 }
@@ -177,7 +204,7 @@ export function initConnectors(): void {
   if ('ResizeObserver' in window) {
     const sizes = new ResizeObserver(updateConnectors);
     connectors.forEach((connector) => {
-      [connector.dataset.from, connector.dataset.to].forEach((id) => {
+      [connector.dataset.from, ...(connector.dataset.to ?? '').split(/\s+/)].forEach((id) => {
         const el = document.getElementById(id ?? '');
         if (el) sizes.observe(el);
       });

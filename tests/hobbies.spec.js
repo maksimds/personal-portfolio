@@ -39,6 +39,9 @@ test.describe('on a desktop', () => {
   test('pointing at 🎾 plays a forehand inside the sticker, once through, then it plays again', async ({ page }) => {
     await open(page);
     await expect(page.locator('.hobby__racket')).toHaveCSS('opacity', '0');
+    // The ball is drawn, not the 🎾 emoji, which Windows draws as a racket with a ball
+    await expect(tennis(page).locator('.hobby__ball svg')).toBeVisible();
+    await expect(tennis(page)).not.toContainText('🎾');
 
     // Everything happens in a scene cut to the circle inside the white ring
     const scene = await tennis(page).evaluate((el) => {

@@ -46,10 +46,13 @@ const canonical = canonicalPath && new URL(canonicalPath, Astro.site).href;
       preload={[{ subset: 'latin', style: 'normal' }]} to both. */}
   <Font cssVariable="--font-inter" />
   <Font cssVariable="--font-roboto-mono" />
-  <link rel="icon" href="/images/favicon.png" type="image/png">
-  <link rel="icon" href="/favicon.ico" sizes="48x48">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+  {/* The icons. ?v=2 is for the "dm" icon (November 2026): a browser keeps the icon it has for a
+      site as long as the address it came from is the same, so one that had the old navy "d" kept
+      showing it. A new address makes it fetch the icon again; next time they change, make it ?v=3 */}
+  <link rel="icon" href="/images/favicon.png?v=2" type="image/png">
+  <link rel="icon" href="/favicon.ico?v=2" sizes="48x48">
+  <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png?v=2">
   {/* Runs before anything is drawn: marks the page as having JavaScript (the CSS then hides the
       objects that drop in, and shows the tools that need it), remembers a visitor who turned the
       single-key shortcuts off, and decides whether the page is a canvas: only a page that asks to

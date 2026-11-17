@@ -6,10 +6,13 @@
 // are, unless fromSide and toSide say otherwise. src/scripts/connectors.ts draws it from the
 // objects' boxes, and again whenever they move or change size. It's decoration (screen readers
 // skip it), it isn't drawn on phones, and without JavaScript it doesn't show.
+// To several objects at once, `to` is a list: the line leaves the one object, then splits, a
+// branch with its own arrowhead to each, all turning off it at the same place:
+// <Connector from="intro-notes" to={['work', 'side-projects']} label="see my work" />
 type Side = 'top' | 'right' | 'bottom' | 'left';
 interface Props {
   from: string;
-  to: string;
+  to: string | string[];
   fromSide?: Side;
   toSide?: Side;
   // A small pill on the middle of the line, in the line's colour
@@ -23,7 +26,7 @@ interface Props {
 const { from, to, fromSide, toSide, label, color = 'black', thick = false, curved = false, class: className } = Astro.props;
 ---
 <div class:list={['connector', `connector--${color}`, { 'connector--thick': thick }, className]} aria-hidden="true"
-  data-connector data-from={from} data-to={to} data-from-side={fromSide} data-to-side={toSide} data-curved={curved ? '' : undefined}>
+  data-connector data-from={from} data-to={[to].flat().join(' ')} data-from-side={fromSide} data-to-side={toSide} data-curved={curved ? '' : undefined}>
   <svg class="connector__svg" focusable="false"><path class="connector__line" /><path class="connector__head" /></svg>
   {label && <span class="connector__label">{label}</span>}
 </div>
