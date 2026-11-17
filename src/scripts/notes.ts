@@ -17,6 +17,7 @@
      with the seconds left and which limit it was; the form says so in minutes. */
 import { notesApi, notesKey, NOTES_IN_A_ROW, NOTES_SHOWN, NOTE_COLORS } from '../data/notes';
 import { SITE, connected, visitorId, pause } from './database';
+import { initNotesView } from './notes-view';
 
 interface Note { id: string; author_name: string; message: string; color: string; }
 
@@ -43,6 +44,7 @@ export function initNotes(): void {
   const post = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
   const message = form.querySelector<HTMLTextAreaElement>('textarea')!;
   const name = form.querySelector<HTMLInputElement>('input')!;
+  const view = initNotesView();
 
   const showEmpty = (text: string): void => {
     empty.textContent = text;
@@ -60,6 +62,8 @@ export function initNotes(): void {
       item.querySelector('.sticky__author')!.textContent = note.author_name;
       return item;
     }));
+    // On the canvas they scroll inside the section past two rows (src/scripts/notes-view.ts)
+    view.refresh();
   }
 
   async function load(): Promise<void> {

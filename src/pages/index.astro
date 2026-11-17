@@ -53,7 +53,7 @@ const person = {
       <ul class="works__list">
         {work.map((project, i) => (
           <ProjectCard href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
-            desc={project.data.listDescription} thumb={project.data.thumb}
+            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide}
             logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[i % tilts.length]} />
         ))}
         {/* The Focal tile, with the same margin as the other logos; the hit area matches its rounded corners */}
@@ -64,13 +64,10 @@ const person = {
     <Section class="works works--side" color="green" id="side-projects" labelledby="side-projects-title" drag="side-projects">
       <h2 slot="tab" id="side-projects-title" class="board-section__tab">Side projects</h2>
       <ul class="works__list">
-        {/* The Polka tile (no case study yet): a screenshot of the app, its panel hanging from the
-            notch; the hit area is the panel, rounded at the bottom like it */}
-        <ProjectCard name="Polka" desc="Designed and developed a macOS app that lives in the notch" thumb="polka-app.png" wide logoInset="24px" logoRadius="0 0 5px 5px" tilt={-0.9} />
         {sideProjects.map((project, i) => (
           <ProjectCard href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
-            desc={project.data.listDescription} thumb={project.data.thumb}
-            logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[(i + 1) % tilts.length]} />
+            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide}
+            logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[i % tilts.length]} />
         ))}
       </ul>
     </Section>

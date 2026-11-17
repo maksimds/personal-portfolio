@@ -1,0 +1,185 @@
+---
+order: 3
+published: true
+
+title: "Polka"
+subtitle: "A macOS app that turns the MacBook notch into a little shelf for files, links, pictures and text"
+status: "v1.0 released"
+description: "Polka: a macOS app that turns the MacBook notch into a little shelf for files, links, pictures and text."
+
+# On the home page: a screenshot of the app, its panel cut out, as tall as the other logos' marks
+# and as wide as it is. The hit area is the panel, rounded at the bottom like it.
+listDescription: "Designed and developed a macOS app that lives in the notch"
+side: true
+thumb: "polka-app.png"
+thumbWide: true
+thumbInset: "24px"
+thumbRadius: "0 0 5px 5px"
+
+# The app icon, on the page background. The tile fills four fifths of the image (Apple's icon
+# grid), so it's set narrower than the other logos and comes out about as big.
+hero:
+  src: "polka-icon.png"
+  logo: true
+  logoWidth: "min(21%, 14rem)"
+  logoTrim: 0.0977
+
+facts:
+  - label: "Product"
+    value: "Polka, a native macOS app"
+  - label: "My role"
+    value: "Product Designer and Developer"
+  - label: "Timeline"
+    value: "November 2026"
+  - label: "Skills"
+    value: "Product design, Prototyping, Swift, SwiftUI, AppKit, AI-assisted engineering"
+  - label: "Team"
+    value: "Just me, with Claude Code as my engineering partner"
+    wide: true
+---
+
+{/* ===== Case study: Polka =====
+   To do: three images from the draft aren't here yet. Each has a note below where it goes, with
+   its block ready: put the file in src/assets/images/, fill in the alt text and take the block
+   out of its note.
+   - The Figma mock-up of the shelf's three states (Designing it in Figma first)
+   - The shelf opening from the notch (Hover to open, drag to catch)
+   - The shelf in a few custom colors (Color, transparency and glass) */}
+
+{/* Intro */}
+
+<CaseIntro>
+
+Polka is a personal project I designed and built from scratch: a native macOS app that lives in the MacBook notch. Move your pointer to the notch and a shelf opens, where you can keep files, folders, links, pictures and text, then drag them back out into any app. It was also my first time building a macOS app, and my first real project engineered with Claude Code. Polka went from an empty Xcode project to v1.0 in about a week, and it’s free and open source on GitHub.
+
+<ArrowLink href="https://github.com/maksimds/Polka">Polka on GitHub</ArrowLink>
+
+</CaseIntro>
+
+{/* Project details */}
+
+<CaseFacts facts={frontmatter.facts} />
+
+{/* Problem */}
+
+<CaseSection title="Problem: My files lived on the Desktop, my links lived in a dozen tabs, and I could never find either when I needed them">
+
+Every time I’m in the middle of something, my files end up scattered across the Desktop, next to a pile of screenshots I forgot to delete, and my links get lost somewhere among a dozen browser tabs. Then, right when I actually need them, for example when I’m applying to jobs and need my resume, cover letter and portfolio link all at once, I can’t find them right away.
+
+I’d end up searching Finder, scrolling through my browser history, or just downloading the same file again. It’s a small thing, but it gets frustrating fast, especially when you’re doing it ten times a day. Meanwhile, the notch at the top of my screen was always there and never did anything.
+
+</CaseSection>
+
+{/* Research */}
+
+<CaseSection title="Research">
+
+Before designing anything, I checked whether the idea was even possible on macOS, and what already existed in the notch.
+
+<CaseFindings items={[
+  { title: "Notch apps exist, but the shelf is a side feature", text: "Open-source apps like NotchDrop and Boring Notch already prove that the notch can hold files. But in most of them the shelf is temporary storage or one feature among music controls and calendar widgets. Nothing was built around the shelf itself, with links and permanent items." },
+  { title: "The hard part is the drag, not the shelf", text: "Showing a panel on hover is easy. Catching a drag the moment it starts anywhere on the screen, and opening the shelf before the pointer even reaches the notch, is where most of the risk was." },
+  { title: "It has to stay out of the way", text: "A shelf that steals focus, covers the menu bar or opens by accident would be more annoying than the Desktop mess it replaces." },
+]} />
+
+</CaseSection>
+
+<CaseQuote quote="I don’t need another app to organize my files. I need one place to put them for a moment and grab them again." caption="– What I kept telling myself while scoping v1" />
+
+{/* Solution */}
+
+<CaseSection title="Solution: A shelf in the notch, designed in Figma first and engineered with Claude Code">
+
+Polka turns the notch into a little shelf. Move your pointer to the notch and the shelf opens. Drag in anything you want to keep handy, and drag it back out into any app whenever you need it. The goals for v1 were simple:
+
+</CaseSection>
+
+<CaseFeatures items={[
+  "Reach any stored item in about two seconds",
+  "Drag in from Finder, browsers and other apps with no setup",
+  "Drag out into any app that accepts files or links",
+  "Stay out of the way: no focus stealing and no accidental opens",
+]} />
+
+{/* Feature deep dives */}
+
+<CaseDetail title="Designing it in Figma first">
+
+{/* Image to add: the Figma mock-up of the shelf's three states
+<CaseMedia caption="Closed, open, and ready to catch a drop" images={[
+  { src: "polka-figma.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+*/}
+
+As a designer, I started where I always do: in Figma. I designed a mock-up of the shelf and mapped out each of its states: closed, open, and ready to catch something you’re dragging toward it.
+
+Then I turned it into a prototype to see how opening, dropping and dragging would actually feel, and adjusted the sizes, timing and details until the shelf felt like a natural part of macOS rather than an extra window on top of it. That way I knew exactly what I wanted to build before writing a single line of code.
+
+</CaseDetail>
+
+<CaseDetail title="Hover to open, drag to catch">
+
+{/* Image to add: the shelf opening from the notch
+<CaseMedia caption="The shelf grows out of the notch after a short hover" images={[
+  { src: "polka-opening.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+*/}
+
+The shelf opens after a short pause on the notch, so passing the pointer by on the way to the menu bar doesn’t trigger it. When you start dragging a file or link anywhere on the screen, the shelf opens on its own as a drop zone, and a pair of eyes watches your pointer and blinks until you let go.
+
+</CaseDetail>
+
+<CaseDetail title="A shelf that works like Finder">
+
+{/* The same screenshot as the home page card, at the size it is on the Mac */}
+<CaseMedia variant="card" caption="Files, links, pictures and text on one shelf" images={[
+  { src: "polka-app.png", alt: "The open Polka shelf, a dark panel under the notch: Resume.pdf, LinkedIn and Portfolio pinned in the top row, and Supabase, GitHub, a cover letter, a job search page in Notion and Transcript.pdf below them", retina: true },
+]} />
+
+Items sit in a grid that feels familiar: move them around like apps on an iPhone, sort them by name, kind or date like a Finder window, or pin up to five to the top row. Right-click any item to rename it, preview it with Quick Look, share it with AirDrop, or convert a document to PDF. Removing an item turns it to dust, an animation inspired by Telegram.
+
+</CaseDetail>
+
+<CaseDetail title="Your files never move">
+
+Polka remembers where your files are instead of copying them, so your originals stay where they are and Polka even follows them if you rename or move them later. If a file gets deleted, its item shows as unavailable instead of quietly disappearing. For things you want to keep safe, **Keep a Copy** saves Polka’s own copy, and **Temporary** removes an item after 24 hours. New screenshots can go straight to the shelf, too.
+
+</CaseDetail>
+
+<CaseDetail title="Color, transparency and glass">
+
+{/* Image to add: the shelf in a few custom colors
+<CaseMedia caption="Pick any color, and the names stay readable" images={[
+  { src: "polka-colors.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+*/}
+
+The open shelf can be solid black or see-through glass that softly blurs your desktop, like the Finder sidebar. You can tint it any color from a color picker or a hex code, and Polka turns it into a deep, glassy gradient so the names on the shelf always stay easy to read. On a Mac without a notch, Polka shows a small dark bar at the top of the screen instead.
+
+</CaseDetail>
+
+<CaseDetail title="Engineering it with Claude Code">
+
+For the engineering side, I decided to dabble with Claude Code and build a native macOS app for the first time. I wrote a PRD, split the work into milestones, and built Polka step by step with Swift, SwiftUI and AppKit, testing every piece on my own Mac along the way. Every change went through its own branch and pull request, so the main version always worked.
+
+The trickiest part was making the notch catch a drag the moment it starts anywhere on the screen, without ever stealing focus from the app you’re working in. My first version of the drop zone didn’t accept drops at all, because the system tried to give the shelf focus and the shelf refused. Switching to a lower-level way of receiving drops fixed it, and kept the shelf from ever taking focus.
+
+</CaseDetail>
+
+<CaseDetail title="Private by design">
+
+Everything stays on your Mac, with no accounts and no cloud. Link previews never reach into your local network, and nothing you put on the shelf ends up in the app’s logs.
+
+</CaseDetail>
+
+<CaseRule />
+
+{/* Impact */}
+
+<CaseSection title="Impact: Designed, built, shipped, and my Desktop is finally clean (mostly)" afterRule>
+
+There are no download numbers to share yet, since Polka was built for me first. What I can say is that it went from an idea and a Figma prototype to a released v1.0 in about a week, and it’s now the first place I drop a file instead of the Desktop. Along the way I delivered a PRD, a Figma mock-up and prototype, a native macOS app, a user guide in the README, and a free, open-source release under the MIT license. I’m planning to keep improving it, so feature ideas are always welcome.
+
+**Try it:** download Polka from the <a class="link" href="https://github.com/maksimds/Polka/releases" target="_blank" rel="noopener">Releases page on GitHub</a>.
+
+</CaseSection>

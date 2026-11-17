@@ -144,6 +144,16 @@ export function initDrag(view: BoardView | null): void {
     if (held || !view.active() || e.pointerType === 'touch' || e.button !== 0 || e.ctrlKey || e.metaKey || e.altKey) return;
     // The hand tool and Space pan the board instead (src/scripts/board.ts); the stamp drops an emote
     if (root.matches('.tool-hand, .is-space, .is-stamping')) return;
+    // A handle on an object (the notes wall's resize grip and scrollbar, data-board-handle) works
+    // by itself; pressing it still brings the object to the front, over anything it grows across
+    if (e.target instanceof Element && e.target.closest('[data-board-handle]')) {
+      const name = e.target.closest<HTMLElement>('[data-drag]')?.dataset.drag;
+      if (name) {
+        if (!spots.has(name)) spots.set(name, { x: 0, y: 0, z: 1 });
+        raise(name);
+      }
+      return;
+    }
     // In a text field, a press and a move select its text
     if (e.target instanceof Element && e.target.closest('input, textarea, select, [contenteditable]')) return;
     const el = e.target instanceof Element ? e.target.closest<HTMLElement>('[data-drag]') : null;

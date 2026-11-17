@@ -1,7 +1,9 @@
 // Checks the notes wall on the About page (src/components/about/Notes.astro, src/scripts/notes.ts):
 // visitors' notes show as stickies, in plain text; posting one sends only a name and a message;
 // the section says so when there are no notes, when they can't load, when a note doesn't go
-// through and when the database is pausing the visitor after 3 notes; on the canvas it's a column to the left of "Who I am" that never moves the other blocks.
+// through and when the database is pausing the visitor after 3 notes; on the canvas it's a column to the left of "Who I am" that never moves the other blocks,
+// and past two rows its notes scroll inside it, the next row's tops peeking in at its bottom edge,
+// with a scrollbar of its own that shows on hover, and a grip in its corner that resizes it.
 // Only the live site talks to the database, so most checks open the page as if it were on
 // dmaksimoff.com (the built files in dist/ are handed to the browser for that address, as in
 // analytics.spec.js), and the database itself is always faked: no check reads from or posts to
@@ -355,6 +357,210 @@ test.describe('the notes wall on a desktop', () => {
     await expect(button).toBeFocused();
     expect(await ring(button)).toEqual({ focused: true, outline: 'none' });
     await expect(button).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0.5)');
+  });
+
+  test('past two rows the notes scroll inside the section, the next row\'s tops peeking in at its bottom edge', async ({ page, context }) => {
+    const list = page.locator('.notes__list');
+    // Six notes: two rows show in full, the third only its top 40px, at the section's bottom edge
+    await openLive(page, { notes: MANY.slice(0, 6).map((n, i) => ({ ...n, message: `Note ${i}` })) });
+    await expect(stickies(page)).toHaveCount(6);
+    await panToNotes(page);
+    await expect(page.locator('.notes__view')).toHaveClass(/\bnotes__view--scroll\b/);
+    const shown = await page.evaluate(() => {
+      const zoom = new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a;
+      const box = (el) => el.getBoundingClientRect();
+      const l = document.querySelector('.notes__list');
+      const items = [...l.children].map((el) => box(el));
+      return { zoom, list: box(l), section: box(document.querySelector('#notes')), items, scrolls: l.scrollHeight > l.clientHeight, tab: l.getAttribute('tabindex') };
+    });
+    expect(shown.scrolls).toBe(true);
+    expect(shown.tab).toBe('0');
+    // (each note has a slight tilt, so its box is a little bigger than it is)
+    for (const item of shown.items.slice(0, 4)) expect(item.bottom).toBeLessThan(shown.list.bottom);
+    for (const item of shown.items.slice(4)) expect((shown.list.bottom - item.top) / shown.zoom).toBeCloseTo(40, -1);
+    expect(Math.abs(shown.section.bottom - shown.list.bottom) / shown.zoom).toBeLessThan(3);
+
+    // The wheel over them scrolls them, not the board, down to the end and no further...
+    const board = await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    const box = await list.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    for (let i = 0; i < 10; i++) await page.mouse.wheel(0, 100);
+    await expect.poll(() => list.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1)).toBe(true);
+    expect(await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).toBe(board);
+    // ...where the last row has the section's padding under it
+    const end = await page.evaluate(() => {
+      const l = document.querySelector('.notes__list');
+      return (l.getBoundingClientRect().bottom - l.lastElementChild.getBoundingClientRect().bottom) / new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a;
+    });
+    expect(end).toBeGreaterThan(24);
+    // Once the wheel has rested, it pans the board again
+    await page.waitForTimeout(400);
+    await page.mouse.wheel(0, 100);
+    await expect.poll(() => page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).not.toBe(board);
+
+    // Tabbed to, the keys scroll it, not the board
+    await list.evaluate((el) => { el.scrollTop = 0; });
+    await list.focus();
+    const before = await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => list.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+    expect(await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).toBe(before);
+
+    // Four notes (two rows) fit: nothing to scroll, nothing to tab to
+    const few = await context.newPage();
+    await openLive(few, { notes: SOME.concat(note(4, 'Hi')) });
+    await expect(stickies(few)).toHaveCount(4);
+    await expect(few.locator('.notes__view')).not.toHaveClass(/\bnotes__view--scroll\b/);
+    await expect(few.locator('.notes__bar')).toBeHidden();
+    await expect(few.locator('.notes__list')).not.toHaveAttribute('tabindex');
+  });
+
+  test('however many notes there are, the section is no taller than two rows and a peek', async ({ page }) => {
+    await openLive(page, { notes: MANY });
+    await expect(stickies(page)).toHaveCount(12);
+    await droppedIn(page);
+    const { list, rows } = await page.evaluate(() => {
+      const l = document.querySelector('.notes__list');
+      const items = [...l.children];
+      return { list: l.clientHeight, rows: items[4].offsetTop };
+    });
+    expect(list).toBe(rows + 40);
+  });
+
+  test('the notes have a scrollbar of their own that shows while the pointer is over them, and works', async ({ page }) => {
+    const list = page.locator('.notes__list');
+    const bar = page.locator('.notes__bar');
+    const thumb = page.locator('.notes__thumb');
+    const scrolled = () => list.evaluate((el) => el.scrollTop);
+    const transform = () => page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    await openLive(page, { notes: MANY.map((n, i) => ({ ...n, message: `Note ${i}` })) });
+    await expect(stickies(page)).toHaveCount(12);
+    await panToNotes(page);
+
+    // Not seen until the pointer is over the notes; the browser's own is hidden
+    await page.mouse.move(5, 450);
+    await expect(bar).toHaveCSS('opacity', '0');
+    expect(await list.evaluate((el) => getComputedStyle(el).scrollbarWidth)).toBe('none');
+    const box = await list.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await expect(bar).toHaveCSS('opacity', '1');
+    // The thumb is as long, against its track, as the part of the list that shows
+    const sizes = await page.evaluate(() => {
+      const l = document.querySelector('.notes__list');
+      return { thumb: document.querySelector('.notes__thumb').offsetHeight, track: document.querySelector('.notes__bar').clientHeight, shown: l.clientHeight / l.scrollHeight };
+    });
+    expect(sizes.thumb / sizes.track).toBeCloseTo(sizes.shown, 2);
+
+    // Dragging the thumb down scrolls the notes, and doesn't pick the section up or pan the board
+    const board = await transform();
+    const notes = await page.locator('#notes').boundingBox();
+    const t = await thumb.boundingBox();
+    await page.mouse.move(t.x + t.width / 2, t.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(t.x + t.width / 2, t.y + 90, { steps: 6 });
+    await page.mouse.up();
+    expect(await scrolled()).toBeGreaterThan(100);
+    expect(await page.locator('#notes').boundingBox()).toEqual(notes);
+    expect(await transform()).toBe(board);
+    // The thumb follows: further down its track as the notes go further
+    const moved = await thumb.boundingBox();
+    expect(moved.y).toBeGreaterThan(t.y + 40);
+
+    // Pressing the track near its top jumps back there
+    const track = await bar.boundingBox();
+    await page.mouse.click(track.x + track.width / 2, track.y + 4);
+    await expect.poll(scrolled).toBeLessThan(5);
+
+    // The wheel over it scrolls the notes, not the board
+    await page.mouse.move(track.x + track.width / 2, track.y + track.height / 2);
+    await page.mouse.wheel(0, 200);
+    await expect.poll(scrolled).toBeGreaterThan(100);
+    expect(await transform()).toBe(board);
+  });
+
+  test('its bottom-right corner has a grip that makes it wider and taller, more columns as it widens', async ({ page }) => {
+    const notes = page.locator('#notes');
+    const grip = page.locator('.notes__resize');
+    const list = page.locator('.notes__list');
+    const zoom = 0.8;
+    await openLive(page, { notes: MANY.map((n, i) => ({ ...n, message: `Note ${i}` })) });
+    await expect(stickies(page)).toHaveCount(12);
+    await panToNotes(page);
+    const columns = () => list.evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+    const size = () => page.evaluate(() => ({ width: document.querySelector('#notes').offsetWidth, shown: document.querySelector('.notes__list').clientHeight, all: document.querySelector('.notes__list').scrollHeight }));
+
+    // The grip sits in the corner, in front of the notes; pointed at, the system's resize pointer
+    // shows instead of the "Me" arrow
+    const before = await notes.boundingBox();
+    const g = await grip.boundingBox();
+    expect(before.x + before.width - (g.x + g.width)).toBeLessThan(8);
+    expect(before.y + before.height - (g.y + g.height)).toBeLessThan(8);
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+    await expect(grip).toHaveCSS('cursor', 'nwse-resize');
+    await expect(page.locator('[data-user-cursor]')).toBeHidden();
+    const start = await size();
+    expect(start.width).toBe(592);
+    expect(await columns()).toBe(2);
+
+    // Pulled right and down: wider (a third column from 864px) and taller, its top-left corner
+    // where it was, and outlined while it's pulled
+    await page.mouse.down();
+    await page.mouse.move(g.x + g.width / 2 + 300 * zoom, g.y + g.height / 2 + 100 * zoom, { steps: 8 });
+    await expect(notes).toHaveClass(/\bis-resizing\b/);
+    await expect(notes).toHaveCSS('outline-style', 'solid');
+    await page.mouse.up();
+    await expect(notes).not.toHaveClass(/\bis-resizing\b/);
+    const wider = await size();
+    expect(wider.width).toBe(892);
+    expect(await columns()).toBe(3);
+    const after = await notes.boundingBox();
+    expect({ x: Math.round(after.x), y: Math.round(after.y) }).toEqual({ x: Math.round(before.x), y: Math.round(before.y) });
+    expect(wider.shown).toBeGreaterThan(start.shown + 99);
+
+    // Pulled further than the notes need, it stops where all of them show, and at four columns
+    const g2 = await grip.boundingBox();
+    await page.mouse.move(g2.x + g2.width / 2, g2.y + g2.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(g2.x + 900, g2.y + 900, { steps: 8 });
+    await page.mouse.up();
+    const most = await size();
+    expect(most.width).toBe(1136);
+    expect(await columns()).toBe(4);
+    expect(most.shown).toBe(most.all);
+    await expect(page.locator('.notes__bar')).toBeHidden();   // nothing left to scroll
+
+    // ...and pushed back past where it started, it stops at its starting size
+    const g3 = await grip.boundingBox();
+    await page.mouse.move(g3.x + g3.width / 2, g3.y + g3.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(g3.x - 1500, g3.y - 1500, { steps: 8 });
+    await page.mouse.up();
+    const least = await size();
+    expect(least.width).toBe(592);
+    expect(least.shown).toBe(start.shown);
+
+    // A reload starts it afresh
+    await page.mouse.move(g3.x - 300, g3.y);
+    await page.mouse.down();
+    await page.mouse.up();
+    await page.reload();
+    await expect(stickies(page)).toHaveCount(12);
+    expect((await size()).width).toBe(592);
+  });
+
+  test('with the hand tool, pressing the grip pans the board instead', async ({ page }) => {
+    await openLive(page, { notes: MANY.map((n, i) => ({ ...n, message: `Note ${i}` })) });
+    await expect(stickies(page)).toHaveCount(12);
+    await panToNotes(page);
+    await page.keyboard.press('h');
+    const board = await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    const g = await page.locator('.notes__resize').boundingBox();
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(g.x + 100, g.y + 60, { steps: 6 });
+    await page.mouse.up();
+    expect(await page.locator('#notes').evaluate((el) => el.offsetWidth)).toBe(592);
+    expect(await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).not.toBe(board);
   });
 
   test('the section can be moved like the others, and the line from "Who I am" follows', async ({ page }) => {
