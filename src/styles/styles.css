@@ -1234,9 +1234,10 @@ html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
 
 /* ---------- Home ----------
    As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
-   the works over the footer. As a canvas: the same three on a 4000 × 3000 board, the intro at the
-   middle, the works below it and the footer at the bottom right. The layer's padding is where
-   the column starts on the board; everything inside still flows, so nothing can overlap. */
+   "Work" over "Side projects" over the footer. As a canvas: the same on a 4000 × 3000 board, the
+   intro at the middle, the two sections side by side below it (.works-row) and the footer at the
+   bottom right. The layer's padding is where the column starts on the board; everything inside
+   still flows, so nothing can overlap. The page opens at 80% (`zoom` in index.astro). */
 html[data-page="home"] {
   --board-w: 4000px;
   --board-h: 3000px;
@@ -1246,10 +1247,19 @@ html[data-page="home"] {
 html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 .is-canvas[data-page="home"] .board__layer { padding: 1160px 1448px 0; }
 .is-canvas[data-page="home"] main { width: auto; }
-/* Arriving at /#work, the layer starts at the works instead: where the script would put it
-   (centred, its top 120px down the screen). The works' place on the board is fixed: the layer's
+/* Arriving at /#work, the layer starts at "Work" instead: where the script would put it (centred,
+   its top 120px down the screen), at the page's zoom. Its place on the board is fixed: across, the
+   layer's padding (1448) − 616 (see .works-row) + half its width (552) = 1384; down, the layer's
    padding (1160) + the intro's height (472) + the gap between them (168) = 1800. */
-.is-canvas[data-page="home"]:has(#work:target) .board__layer { transform: translate(calc(50vw - 2000px), -1680px); }
+.is-canvas[data-page="home"]:has(#work:target) .board__layer {
+  transform: translate(calc(50vw - 1384px * var(--start-zoom, 1)), calc(120px - 1800px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+}
+/* The same for /#side-projects (a side project's "All work"): 1384 + 1104 + 128 = 2616 across */
+.is-canvas[data-page="home"]:has(#side-projects:target) .board__layer {
+  transform: translate(calc(50vw - 2616px * var(--start-zoom, 1)), calc(120px - 1800px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+}
+/* The footer at the bottom right of the two sections, not of the intro's column */
+.is-canvas[data-page="home"] .site-footer { margin-right: -616px; }
 
 /* Intro: where and when in small technical type, the greeting, then a sticky for each status line */
 .intro__location {
@@ -1305,9 +1315,21 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
   .intro__title { margin-bottom: 28px; }
 }
 
-/* My works: a card for each project */
+/* Work and Side projects: a card for each project */
 .works { margin-top: 136px; }
-.is-canvas .works { margin-top: 168px; }
+/* On the canvas, side by side under the intro, 168px below it, and as wide as the two of them:
+   each is 1104 (three 304px cards, two 64px gaps and the section's padding), with 128 between
+   them, 2336 in all. That's 1232 wider than the intro's column, so it starts 616 to its left, and
+   the intro is centred over the pair. */
+.is-canvas .works-row {
+  display: grid;
+  grid-template-columns: 1104px 1104px;
+  gap: 128px;
+  align-items: start;
+  width: 2336px;
+  margin: 168px 0 0 -616px;
+}
+.is-canvas .works { margin-top: 0; }
 .works__meta {
   margin: 0 0 28px;
   font-family: var(--font-mono);
@@ -1373,6 +1395,11 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   pointer-events: auto;
 }
 .work-card__thumb:hover img { transform: scale(1.12) rotate(15deg); }
+/* A wide picture with no space round it (the Polka screenshot): as tall as a logo's mark (64px,
+   the 112px thumbnail less 24px above and below) and as wide as it is, with the same 24px round
+   it, so it lines up with the logos on the cards beside it */
+.work-card__thumb--wide { width: auto; height: 112px; aspect-ratio: auto; padding: 24px; }
+.work-card__thumb--wide img { width: auto; height: 100%; object-fit: contain; }
 .work-card__name {
   margin-top: auto;
   padding-top: 16px;
@@ -1415,6 +1442,7 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   .works__list { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .work-card { min-height: 0; padding: 20px; }
   .work-card__thumb { width: 96px; margin: -16px 0 0 -16px; }
+  .work-card__thumb--wide { width: auto; height: 96px; padding: 20px; }
   .works__stamp { right: 16px; }
 }
 

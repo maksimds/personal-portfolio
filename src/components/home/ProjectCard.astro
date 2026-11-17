@@ -1,5 +1,5 @@
 ---
-// One card of "My works". With href it's a white frame that links to the case study (the whole
+// One card of "Work" or "Side projects". With href it's a white frame that links to the case study (the whole
 // card is the link); without, it's a "coming soon" card: a gray sticky with a dashed outline and
 // no link or arrow. The description is outside the link in the markup, so the link is named by
 // the project alone.
@@ -14,17 +14,20 @@ interface Props {
   // How far the logo sits from the thumbnail's edges (--logo-inset), and its corner radius (--logo-radius)
   logoInset?: string;
   logoRadius?: string;
+  // A wide picture with no space of its own round it (a screenshot): it's as tall as the logos'
+  // marks, and as wide as it needs to be
+  wide?: boolean;
   // A slight turn in degrees, on a page laid out as a canvas (for the "coming soon" stickies)
   tilt?: number;
 }
-const { href, name, desc, thumb, logoInset, logoRadius, tilt } = Astro.props;
+const { href, name, desc, thumb, logoInset, logoRadius, wide = false, tilt } = Astro.props;
 const Link = href ? 'a' : 'div';
 const thumbStyle = [logoInset && `--logo-inset: ${logoInset}`, logoRadius && `--logo-radius: ${logoRadius}`]
   .filter(Boolean).join('; ') || undefined;
 ---
 <li class:list={['work-card', { 'work-card--soon': !href }, 'drop-in']} style={tilt ? `--tilt: ${tilt}deg` : undefined}>
   <Link class="work-card__link" href={href}>
-    {thumb && <div class="work-card__thumb" style={thumbStyle}><Img src={thumb} alt="" sizes="112px" /></div>}
+    {thumb && <div class:list={['work-card__thumb', { 'work-card__thumb--wide': wide }]} style={thumbStyle}><Img src={thumb} alt="" sizes={wide ? '124px' : '112px'} /></div>}
     <span class="work-card__name">{name}</span>
     {href && <span class="work-card__cta" aria-hidden="true"><span class="arrow">→</span></span>}
   </Link>

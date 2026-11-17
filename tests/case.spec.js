@@ -104,6 +104,14 @@ test('"All work" leads to the works on the home page', async ({ page }) => {
   await expect(page.locator('#work-title')).toBeInViewport();
 });
 
+test('a side project\'s "All work" leads to the side projects', async ({ page }) => {
+  await page.goto('projects/kalorie-case-study.html');
+  await page.locator('.case-back').click();
+  await expect(page).toHaveURL(/\/#side-projects$/);
+  await expect(page.locator('#side-projects-title')).toBeInViewport();
+  await expect.poll(() => page.locator('#side-projects').evaluate((el) => Math.round(el.getBoundingClientRect().top))).toBe(120);
+});
+
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 

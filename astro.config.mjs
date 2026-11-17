@@ -24,7 +24,7 @@ function lastChanged(url) {
     // The home page: its own files, and the lines of each case study that appear in its row
     return [
       changed('--', 'src/pages/index.astro', 'src/components/home'),
-      changed('-G^(order|published|title|listDescription|thumb):', '--', 'src/content/projects', ':!src/content/projects/_template.mdx'),
+      changed('-G^(order|published|title|listDescription|side|thumb):', '--', 'src/content/projects', ':!src/content/projects/_template.mdx'),
     ].sort().at(-1) || undefined;
   } catch {
     return undefined;

@@ -27,6 +27,8 @@ const running = (page) => page.evaluate(() => [
 // The order the parts are playing in, as the script remembers it: "0312" is the welcome, the
 // third sticky, the first, the second
 const order = (page) => page.evaluate(() => localStorage.getItem('intro-cursor-order'));
+// The board's zoom (the page opens at 80%): a size on the screen over this is the size on the board
+const zoom = (page) => page.locator('.board__layer').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
 
 // Plays the scene through once (the welcome and the first round), a tenth of a second at a time,
 // and returns what there was to see at each moment: the sign, and for each sticky the words that
@@ -131,8 +133,9 @@ test.describe('on a desktop', () => {
     expect(drawn).toBeGreaterThan(0);
     expect(seen.slice(drawn).every((s) => s.sign.seen)).toBe(true);
     const full = seen.at(-1).sign.box;
-    expect(Math.round(full.width)).toBe(320);
-    expect(Math.round(full.height)).toBe(64);
+    const z = await zoom(page);
+    expect(Math.round(full.width / z)).toBe(320);
+    expect(Math.round(full.height / z)).toBe(64);
     // ...just above the intro, centred over it
     expect(full.top + full.height).toBeLessThan(intro.top);
     expect(intro.top - (full.top + full.height)).toBeLessThan(40);
@@ -307,7 +310,7 @@ test.describe('on a desktop', () => {
     await page.waitForTimeout(400);
     await expect(sign(page)).toHaveCSS('opacity', '1');
     await expect(sign(page)).toHaveText(WELCOME);
-    expect(await sign(page).evaluate((el) => Math.round(el.getBoundingClientRect().width))).toBe(320);
+    expect(Math.round(await sign(page).evaluate((el) => el.getBoundingClientRect().width) / await zoom(page))).toBe(320);
     await expect(sign(page)).not.toHaveCSS('outline-style', 'solid');
   });
 

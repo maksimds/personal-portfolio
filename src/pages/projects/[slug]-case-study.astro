@@ -22,7 +22,8 @@ const { prev, next } = await getNeighbours(project);
   {/* A page that scrolls: one column of board objects. The title and the taped logo share the top;
       everything under them comes from the case study's file. */}
   <article class="case">
-    <a class="back-link case-back" href="/#work"><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
+    {/* Back to the section the project's card is in on the home page */}
+    <a class="back-link case-back" href={data.side ? '/#side-projects' : '/#work'}><span class="arrow" aria-hidden="true">←</span> <span class="back-link__label">All work</span></a>
 
     <div class:list={['case-top', { 'case-top--logo': data.hero.logo }]}>
       <CaseHead title={data.title} subtitle={data.subtitle} status={data.status} />
