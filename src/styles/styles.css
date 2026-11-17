@@ -1167,8 +1167,8 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
    sits on one layer the size of the board (--board-w by --board-h, set per page), which
    src/scripts/board.ts moves and scales. Until that script takes over, the layer is already drawn
    at the same starting place: the board's point (--start-x, --start-y) in the middle of the
-   screen, a little above its centre, at the page's starting zoom (--start-zoom, set by `zoom` on
-   the layout; 1 when it isn't). The dots are the board's own here, so they can move and scale with it. */
+   screen, a little above its centre (or --start-top down from the screen's top, when a page sets
+   it), at the page's starting zoom (--start-zoom, set by `zoom` on the layout; 1 when it isn't). The dots are the board's own here, so they can move and scale with it. */
 html.is-canvas,
 .is-canvas body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 .is-canvas .board {
@@ -1177,7 +1177,7 @@ html.is-canvas,
   overflow: hidden;            /* for browsers without the next line */
   overflow: clip;              /* never scrolled, not even by a link to a section: the script moves the layer instead */
   background: var(--board-bg) radial-gradient(var(--board-dot) 1px, transparent 1.2px)
-    calc(50vw - var(--start-x) * var(--start-zoom, 1)) calc(46vh - var(--start-y) * var(--start-zoom, 1)) /
+    calc(50vw - var(--start-x) * var(--start-zoom, 1)) calc(var(--start-top, 46vh) - var(--start-y) * var(--start-zoom, 1)) /
     calc(var(--board-dot-gap) * var(--start-zoom, 1)) calc(var(--board-dot-gap) * var(--start-zoom, 1));
   touch-action: none;          /* a finger pans and pinches the board, not the page */
 }
@@ -1188,7 +1188,7 @@ html.is-canvas,
   width: var(--board-w);
   height: var(--board-h);
   padding: 0;
-  transform: translate(calc(50vw - var(--start-x) * var(--start-zoom, 1)), calc(46vh - var(--start-y) * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+  transform: translate(calc(50vw - var(--start-x) * var(--start-zoom, 1)), calc(var(--start-top, 46vh) - var(--start-y) * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
   transform-origin: 0 0;
 }
 /* Only while it's moving: left on, the browser would keep the text as drawn at the old zoom, and it would blur */
@@ -1235,14 +1235,17 @@ html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
 /* ---------- Home ----------
    As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
    "Work" over "Side projects" over the footer. As a canvas: the same on a 4000 × 3000 board, the
-   intro at the middle, the two sections side by side below it (.works-row) and the footer at the
-   bottom right. The layer's padding is where the column starts on the board; everything inside
-   still flows, so nothing can overlap. The page opens at 80% (`zoom` in index.astro). */
+   intro at the middle, the two sections side by side below it (.works-row) and the footer under
+   "Work". The layer's padding is where the column starts on the board; everything inside
+   still flows, so nothing can overlap. The page opens at 75% (`zoom` in index.astro), with the
+   top of the welcome sign level with the bottom of the top pills, whatever the screen's height:
+   the intro, the line splitting and the tops of the two sections in view below it. */
 html[data-page="home"] {
   --board-w: 4000px;
   --board-h: 3000px;
   --start-x: 2000px;           /* the middle of the intro */
-  --start-y: 1352px;           /* the middle of the intro and the welcome sign above it (see .intro__welcome) */
+  --start-y: 1072px;           /* the top of the welcome sign (see .intro__welcome)... */
+  --start-top: 60px;           /* ...this far down the screen: the pills' bottom edge (--chrome-inset + --chrome-h) */
 }
 html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 .is-canvas[data-page="home"] .board__layer { padding: 1160px 1448px 0; }
@@ -1250,16 +1253,21 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 /* Arriving at /#work, the layer starts at "Work" instead: where the script would put it (centred,
    its top 120px down the screen), at the page's zoom. Its place on the board is fixed: across, the
    layer's padding (1448) − 616 (see .works-row) + half its width (552) = 1384; down, the layer's
-   padding (1160) + the intro's height (472) + the gap between them (168) = 1800. */
+   padding (1160) + the intro's height (472) + the gap between them (193) = 1825. */
 .is-canvas[data-page="home"]:has(#work:target) .board__layer {
-  transform: translate(calc(50vw - 1384px * var(--start-zoom, 1)), calc(120px - 1800px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+  transform: translate(calc(50vw - 1384px * var(--start-zoom, 1)), calc(120px - 1825px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
 /* The same for /#side-projects (a side project's "All work"): 1384 + 1104 + 128 = 2616 across */
 .is-canvas[data-page="home"]:has(#side-projects:target) .board__layer {
-  transform: translate(calc(50vw - 2616px * var(--start-zoom, 1)), calc(120px - 1800px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+  transform: translate(calc(50vw - 2616px * var(--start-zoom, 1)), calc(120px - 1825px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
-/* The footer at the bottom right of the two sections, not of the intro's column */
-.is-canvas[data-page="home"] .site-footer { margin-right: -616px; }
+/* The footer under "Work", at its bottom right, 152px below it as on the other boards. Its right
+   edge is Work's, 1936 on the board (see .works-row), so it starts at 1936 − 512 = 1424, 24 left
+   of the intro's column. It comes after the two sections in the page, so it would start below the
+   taller, "Side projects" (two rows of cards, 640 tall; "Work" is one row and the years line,
+   368): it's pulled up by the difference, 152 − (640 − 368) = −120. Beside it, "Side projects"
+   carries on down, clear of it. */
+.is-canvas[data-page="home"] .site-footer { margin: -120px 0 0 -24px; }
 
 /* Intro: where and when in small technical type, the greeting, then a sticky for each status line */
 .intro__location {
@@ -1317,7 +1325,7 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 
 /* Work and Side projects: a card for each project */
 .works { margin-top: 136px; }
-/* On the canvas, side by side under the intro, 168px below it, and as wide as the two of them:
+/* On the canvas, side by side under the intro, 193px below it, and as wide as the two of them:
    each is 1104 (three 304px cards, two 64px gaps and the section's padding), with 128 between
    them, 2336 in all. That's 1232 wider than the intro's column, so it starts 616 to its left, and
    the intro is centred over the pair. */
@@ -1327,7 +1335,7 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
   gap: 128px;
   align-items: start;
   width: 2336px;
-  margin: 168px 0 0 -616px;
+  margin: 193px 0 0 -616px;
 }
 .is-canvas .works { margin-top: 0; }
 .works__meta {

@@ -27,7 +27,7 @@ const running = (page) => page.evaluate(() => [
 // The order the parts are playing in, as the script remembers it: "0312" is the welcome, the
 // third sticky, the first, the second
 const order = (page) => page.evaluate(() => localStorage.getItem('intro-cursor-order'));
-// The board's zoom (the page opens at 80%): a size on the screen over this is the size on the board
+// The board's zoom (the page opens at 75%): a size on the screen over this is the size on the board
 const zoom = (page) => page.locator('.board__layer').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
 
 // Plays the scene through once (the welcome and the first round), a tenth of a second at a time,

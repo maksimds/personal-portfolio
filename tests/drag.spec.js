@@ -23,8 +23,8 @@ async function drag(page, locator, dx, dy) {
   await page.mouse.move(x + dx, y + dy, { steps: 8 });
   await page.mouse.up();
 }
-// The home page opens at 80%, so a move of 80px on the screen is 100px on the board
-const ZOOM = 0.8;
+// The home page opens at 75%, so a move of 75px on the screen is 100px on the board
+const ZOOM = 0.75;
 // Where the "see my work" line starts on the board
 const lineStart = (page) => page.locator('[data-from="intro-notes"] .connector__line').evaluate((el) => {
   const [x, y] = el.getAttribute('d').slice(1).split(' ').map(Number);
@@ -95,7 +95,7 @@ test.describe('the home page on a desktop', () => {
     await drag(page, page.locator('.intro__title'), 100 * ZOOM, 60 * ZOOM);
     await expect.poll(() => moved(page, 'intro')).toEqual({ x: 100, y: 60 });
     const after = await places();
-    expect(after.map((p, i) => ({ x: Math.round(p.x - before[i].x), y: Math.round(p.y - before[i].y) }))).toEqual([{ x: 80, y: 48 }, { x: 80, y: 48 }]);
+    expect(after.map((p, i) => ({ x: Math.round(p.x - before[i].x), y: Math.round(p.y - before[i].y) }))).toEqual([{ x: 75, y: 45 }, { x: 75, y: 45 }]);
     expect(await outside()).toEqual([]);
   });
 
@@ -167,7 +167,7 @@ test.describe('the home page on a desktop', () => {
     // The board pans until its left edge reaches the screen's...
     await expect.poll(() => layer(page).then((l) => l.x)).toBe(0);
     await page.mouse.up();
-    // ...and the intro stops 96px in from it (on the board: 76.8 on the screen)
+    // ...and the intro stops 96px in from it (on the board: 72 on the screen)
     const left = await page.locator('[data-drag="intro"]').evaluate((el) => el.getBoundingClientRect().left);
     expect(Math.round(left / ZOOM)).toBe(96);
   });

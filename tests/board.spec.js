@@ -25,10 +25,10 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('.intro__title')).toBeInViewport();
   });
 
-  test('is a canvas that starts on the intro, at 80%, and does not scroll', async ({ page }) => {
+  test('is a canvas that starts on the intro, at 75%, and does not scroll', async ({ page }) => {
     expect(await isCanvas(page)).toBe(true);
-    await expect(zoomLabel(page)).toHaveText('80%');
-    expect((await layer(page)).zoom).toBe(0.8);
+    await expect(zoomLabel(page)).toHaveText('75%');
+    expect((await layer(page)).zoom).toBe(0.75);
     // The CSS draws the board in the same place and at the same size as the script, so nothing jumps
     expect(await drawnByCss(page)).toEqual(await layer(page));
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true);
@@ -36,11 +36,37 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('[data-tool="hand"]')).toBeVisible();
   });
 
+  test('it opens with the top of the welcome sign level with the bottom of the top pills, however tall the screen', async ({ page }) => {
+    for (const height of [900, 700, 1200]) {
+      await page.setViewportSize({ width: 1440, height });
+      await page.reload();
+      await expect(page.locator('.intro__title')).toBeInViewport();
+      const { sign, pills, intro, mid } = await page.evaluate(() => {
+        const box = (s) => document.querySelector(s).getBoundingClientRect();
+        const i = box('[data-drag="intro"]');
+        return { sign: box('[data-cursor-welcome]').top, pills: box('.chrome--top .pill').bottom, intro: i.top, mid: (i.left + i.right) / 2 };
+      });
+      expect(Math.abs(sign - pills), `${height}px tall`).toBeLessThan(1);
+      // The intro under it (88 on the board: the sign and the 24 between them) and centred across
+      expect(intro - sign).toBeCloseTo(88 * 0.75, 0);
+      expect(Math.abs(mid - 720)).toBeLessThan(1);
+    }
+  });
+
+  test('from 75%, the zoom pill goes to the next tenth: 80% in, 70% out', async ({ page }) => {
+    await page.locator('[data-zoom="in"]').click();
+    await expect(zoomLabel(page)).toHaveText('80%');
+    await page.reload();
+    await expect(zoomLabel(page)).toHaveText('75%');
+    await page.locator('[data-zoom="out"]').click();
+    await expect(zoomLabel(page)).toHaveText('70%');
+  });
+
   test('scrolling pans the board', async ({ page }) => {
     const before = await layer(page);
     await page.mouse.move(700, 450);
     await page.mouse.wheel(120, 300);
-    await expect.poll(() => layer(page)).toEqual({ x: before.x - 120, y: before.y - 300, zoom: 0.8 });
+    await expect.poll(() => layer(page)).toEqual({ x: before.x - 120, y: before.y - 300, zoom: 0.75 });
   });
 
   test('Ctrl + scroll and the zoom pill zoom, between 50% and 150%', async ({ page }) => {
@@ -75,7 +101,7 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('[data-tool="hand"]')).toHaveAttribute('aria-pressed', 'true');
     await expect(page.locator('[data-tool="select"]')).toHaveAttribute('aria-pressed', 'false');
     await drag();
-    await expect.poll(() => layer(page)).toEqual({ x: before.x - 200, y: before.y - 200, zoom: 0.8 });
+    await expect.poll(() => layer(page)).toEqual({ x: before.x - 200, y: before.y - 200, zoom: 0.75 });
   });
 
   test('holding Space drags the board with the pointer tool', async ({ page }) => {
@@ -86,7 +112,7 @@ test.describe('the home page on a desktop', () => {
     await page.mouse.move(1200, 700, { steps: 4 });
     await page.mouse.up();
     await page.keyboard.up('Space');
-    await expect.poll(() => layer(page)).toEqual({ x: before.x - 100, y: before.y - 60, zoom: 0.8 });
+    await expect.poll(() => layer(page)).toEqual({ x: before.x - 100, y: before.y - 60, zoom: 0.75 });
   });
 
   test('with reduced motion, stickies sit straight and the cursors are gone', async ({ page }) => {
@@ -100,7 +126,7 @@ test.describe('the home page on a desktop', () => {
     const before = await layer(page);
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('ArrowRight');
-    await expect.poll(() => layer(page)).toEqual({ x: before.x - 80, y: before.y - 80, zoom: 0.8 });
+    await expect.poll(() => layer(page)).toEqual({ x: before.x - 80, y: before.y - 80, zoom: 0.75 });
   });
 
   test('tabbing to something off screen brings it into view', async ({ page }) => {
@@ -108,7 +134,7 @@ test.describe('the home page on a desktop', () => {
     await expect(last).not.toBeInViewport();
     for (let i = 0; i < 60 && !(await last.evaluate((el) => el === document.activeElement)); i++) await page.keyboard.press('Tab');
     await expect(last).toBeFocused();
-    // All of it (at 80% its edges fall between pixels, so a hair under 1)
+    // All of it (at 75% its edges fall between pixels, so a hair under 1)
     await expect(last).toBeInViewport({ ratio: 0.99 });
   });
 
@@ -139,6 +165,19 @@ test.describe('the home page on a desktop', () => {
     for (const card of [kalorie, lynea]) expect(Math.abs(card.top - polka.top)).toBeLessThan(4);
     expect(turblend.top).toBeGreaterThan(polka.bottom);
     expect(Math.abs(turblend.left - polka.left)).toBeLessThan(4);
+  });
+
+  test('the sections are 193px under the intro, and the footer is under "Work", at its right, clear of "Side projects"', async ({ page }) => {
+    // Once everything has dropped in, which moves it a few pixels
+    await page.waitForFunction(() => document.getAnimations().every((a) => a.animationName !== 'drop-in' || a.playState === 'finished'));
+    const { intro, work, side, footer, zoom } = await page.evaluate(() => {
+      const box = (s) => { const r = document.querySelector(s).getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };
+      return { intro: box('[data-drag="intro"]'), work: box('#work'), side: box('#side-projects'), footer: box('.site-footer'), zoom: new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a };
+    });
+    expect(Math.round((work.top - intro.bottom) / zoom)).toBe(193);
+    expect(Math.abs((footer.top - work.bottom) / zoom - 152)).toBeLessThan(1);
+    expect(Math.abs(footer.right - work.right)).toBeLessThan(1);
+    expect(footer.right).toBeLessThan(side.left);
   });
 
   test('"see my work" splits, a branch to each section, and there is no line to the footer', async ({ page }) => {
@@ -178,7 +217,8 @@ test.describe('the home page on a desktop', () => {
   });
 
   test('a link to the works moves the board there', async ({ page }) => {
-    await expect(page.locator('#work')).not.toBeInViewport({ ratio: 0.5 });
+    // It starts lower down, its tab only just showing under the intro
+    expect(await page.locator('#work').evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThan(400);
     await page.locator('.toolbar [data-shortcut="w"]').click();
     await expect(page).toHaveURL(/#work$/);
     await expect(page.locator('#work-title')).toBeInViewport();
