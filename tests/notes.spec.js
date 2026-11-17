@@ -1,7 +1,8 @@
 // Checks the notes wall on the About page (src/components/about/Notes.astro, src/scripts/notes.ts):
 // visitors' notes show as stickies, in plain text; posting one sends only a name and a message;
 // the section says so when there are no notes, when they can't load, when a note doesn't go
-// through and when the database is pausing the visitor after 3 notes; on the canvas it's a column to the left of "Who I am" that never moves the other blocks.
+// through and when the database is pausing the visitor after 3 notes; on the canvas it's a column to the left of "Who I am" that never moves the other blocks,
+// and past two rows its notes scroll inside it, the next row's tops peeking in at its bottom edge.
 // Only the live site talks to the database, so most checks open the page as if it were on
 // dmaksimoff.com (the built files in dist/ are handed to the browser for that address, as in
 // analytics.spec.js), and the database itself is always faked: no check reads from or posts to
@@ -355,6 +356,73 @@ test.describe('the notes wall on a desktop', () => {
     await expect(button).toBeFocused();
     expect(await ring(button)).toEqual({ focused: true, outline: 'none' });
     await expect(button).toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0.5)');
+  });
+
+  test('past two rows the notes scroll inside the section, the next row\'s tops peeking in at its bottom edge', async ({ page, context }) => {
+    const list = page.locator('.notes__list');
+    // Six notes: two rows show in full, the third only its top 40px, at the section's bottom edge
+    await openLive(page, { notes: MANY.slice(0, 6).map((n, i) => ({ ...n, message: `Note ${i}` })) });
+    await expect(stickies(page)).toHaveCount(6);
+    await panToNotes(page);
+    await expect(list).toHaveClass(/\bnotes__list--scroll\b/);
+    const shown = await page.evaluate(() => {
+      const zoom = new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a;
+      const box = (el) => el.getBoundingClientRect();
+      const l = document.querySelector('.notes__list');
+      const items = [...l.children].map((el) => box(el));
+      return { zoom, list: box(l), section: box(document.querySelector('#notes')), items, scrolls: l.scrollHeight > l.clientHeight, tab: l.getAttribute('tabindex') };
+    });
+    expect(shown.scrolls).toBe(true);
+    expect(shown.tab).toBe('0');
+    // (each note has a slight tilt, so its box is a little bigger than it is)
+    for (const item of shown.items.slice(0, 4)) expect(item.bottom).toBeLessThan(shown.list.bottom);
+    for (const item of shown.items.slice(4)) expect((shown.list.bottom - item.top) / shown.zoom).toBeCloseTo(40, -1);
+    expect(Math.abs(shown.section.bottom - shown.list.bottom) / shown.zoom).toBeLessThan(3);
+
+    // The wheel over them scrolls them, not the board, down to the end and no further...
+    const board = await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    const box = await list.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    for (let i = 0; i < 10; i++) await page.mouse.wheel(0, 100);
+    await expect.poll(() => list.evaluate((el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1)).toBe(true);
+    expect(await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).toBe(board);
+    // ...where the last row has the section's padding under it
+    const end = await page.evaluate(() => {
+      const l = document.querySelector('.notes__list');
+      return (l.getBoundingClientRect().bottom - l.lastElementChild.getBoundingClientRect().bottom) / new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a;
+    });
+    expect(end).toBeGreaterThan(24);
+    // Once the wheel has rested, it pans the board again
+    await page.waitForTimeout(400);
+    await page.mouse.wheel(0, 100);
+    await expect.poll(() => page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).not.toBe(board);
+
+    // Tabbed to, the keys scroll it, not the board
+    await list.evaluate((el) => { el.scrollTop = 0; });
+    await list.focus();
+    const before = await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform);
+    await page.keyboard.press('ArrowDown');
+    await expect.poll(() => list.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+    expect(await page.locator('.board__layer').evaluate((el) => getComputedStyle(el).transform)).toBe(before);
+
+    // Four notes (two rows) fit: nothing to scroll, nothing to tab to
+    const few = await context.newPage();
+    await openLive(few, { notes: SOME.concat(note(4, 'Hi')) });
+    await expect(stickies(few)).toHaveCount(4);
+    await expect(few.locator('.notes__list')).not.toHaveClass(/\bnotes__list--scroll\b/);
+    await expect(few.locator('.notes__list')).not.toHaveAttribute('tabindex');
+  });
+
+  test('however many notes there are, the section is no taller than two rows and a peek', async ({ page }) => {
+    await openLive(page, { notes: MANY });
+    await expect(stickies(page)).toHaveCount(12);
+    await droppedIn(page);
+    const { list, rows } = await page.evaluate(() => {
+      const l = document.querySelector('.notes__list');
+      const items = [...l.children];
+      return { list: l.clientHeight, rows: items[4].offsetTop };
+    });
+    expect(list).toBe(rows + 40);
   });
 
   test('the section can be moved like the others, and the line from "Who I am" follows', async ({ page }) => {

@@ -6,6 +6,8 @@
    - Zoom: Ctrl or ⌘ + scroll, pinch, or the zoom pill; always between 50% and 150%
    - Tabbing to something off screen moves the board to it, and so does a link to a section (#work)
    - The big objects on it can be picked up and moved with the pointer tool (src/scripts/drag.ts)
+   - An area on it that scrolls by itself (data-board-scroll: the notes wall's list) takes the
+     wheel, a finger and, once tabbed to, the keys that scroll it
    The page's own order never changes, only where things are drawn, so it reads the same to a
    screen reader. Under 1024px wide, without JavaScript, or with "View as list" switched on, the
    same page is an ordinary scrolling one.
@@ -219,10 +221,30 @@ export function initBoard(): BoardView | null {
 
   /* ----- Moving it ----- */
 
+  // An area on the board that scrolls by itself (data-board-scroll: the notes wall's list), when
+  // it has more than it shows
+  const scroller = (target: EventTarget | null): HTMLElement | null => {
+    const area = target instanceof Element ? target.closest<HTMLElement>('[data-board-scroll]') : null;
+    return area && area.scrollHeight > area.clientHeight + 1 ? area : null;
+  };
+  // Over one, the wheel scrolls it up and down, while it can go that way. Once it's at the end, the
+  // board stays put until the wheel has rested a moment, so a flick that runs out there doesn't
+  // carry on into panning the board; the next turn of the wheel pans it.
+  let areaScrolledAt = -Infinity;
+  function scrollsArea(e: WheelEvent): boolean {
+    const area = scroller(e.target);
+    if (!area || e.ctrlKey || e.metaKey || e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return false;
+    const room = e.deltaY < 0 ? area.scrollTop > 0 : area.scrollTop + area.clientHeight < area.scrollHeight - 1;
+    if (!room && e.timeStamp - areaScrolledAt > 250) return false;
+    areaScrolledAt = e.timeStamp;
+    return true;
+  }
+
   // Scrolling pans. With Ctrl or ⌘ (which is also what a trackpad pinch sends) it zooms on the pointer.
   window.addEventListener('wheel', (e) => {
     if (!active()) return;
     if (e.target instanceof Element && e.target.closest('.menu, .mobile-menu')) return;   // a long menu scrolls itself
+    if (scrollsArea(e)) return;                // the browser scrolls it (and at its end, nothing moves)
     e.preventDefault();
     cancelAnimationFrame(glideFrame);
     const unit = e.deltaMode === 1 ? 16 : 1;   // a mouse wheel that counts in lines, not pixels
@@ -261,6 +283,7 @@ export function initBoard(): BoardView | null {
     if (!active()) return;
     const touch = e.pointerType === 'touch';
     if (!touch && e.button !== 1 && !(e.button === 0 && (hand || space))) return;
+    if (touch && scroller(e.target)) return;   // a finger on an area that scrolls scrolls it (touch-action in the styles)
     if (!touch) e.preventDefault();            // no text selection, and no middle-button auto-scroll
     cancelAnimationFrame(glideFrame);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -313,6 +336,8 @@ export function initBoard(): BoardView | null {
     if (!active() || e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
     const target = e.target instanceof Element ? e.target : null;
     if (target?.closest('input, textarea, select, [contenteditable], .menu, .mobile-menu')) return;
+    // Tabbed to, an area that scrolls by itself takes the keys that scroll it
+    if (scroller(target) && ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) return;
     const step = e.shiftKey ? 240 : 80;
     const moves: Record<string, [number, number]> = {
       ArrowLeft: [step, 0], ArrowRight: [-step, 0], ArrowUp: [0, step], ArrowDown: [0, -step],

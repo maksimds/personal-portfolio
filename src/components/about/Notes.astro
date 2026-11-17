@@ -33,7 +33,9 @@ import { MESSAGE_MAX, NAME_MAX } from '../../data/notes';
     <p class="notes__status" data-notes-status role="status"></p>
     {/* No notes yet, or they couldn't load */}
     <p class="notes__empty" data-notes-empty hidden></p>
-    <ul class="notes__list" data-notes-list aria-label="Notes from visitors"></ul>
+    {/* On the canvas, past two rows, it scrolls inside the section (data-board-scroll: the board
+        leaves the wheel, a finger and the keys to it; see src/scripts/notes.ts) */}
+    <ul class="notes__list" data-notes-list data-board-scroll aria-label="Notes from visitors"></ul>
 
     {/* One note, copied for each by the script, which fills in its colour, words and name */}
     <template data-notes-template><Sticky as="li" author="Name"><p></p></Sticky></template>

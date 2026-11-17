@@ -60,7 +60,36 @@ export function initNotes(): void {
       item.querySelector('.sticky__author')!.textContent = note.author_name;
       return item;
     }));
+    sizes?.disconnect();
+    [list, ...Array.from(list.children)].forEach((el) => sizes?.observe(el));
+    fit();
   }
+
+  /* ----- Scrolling through them ----- */
+
+  // On the canvas, past ROWS rows, the notes scroll inside the section (styles.css): the list is
+  // cut PEEK px into the next row, so the tops of its notes show at the section's bottom edge.
+  // Worked out again whenever the list or a note changes size (the fonts arriving, the canvas
+  // turned on or off). While it scrolls it can be tabbed to, so the keys can scroll it too.
+  const ROWS = 2;
+  const PEEK = 40;
+  function fit(): void {
+    // The first note of the row after the ones shown in full: rows are told apart by their tops
+    const tops: number[] = [];
+    const next = (Array.from(list.children) as HTMLElement[]).find((item) => {
+      if (!tops.includes(item.offsetTop)) tops.push(item.offsetTop);
+      return tops.length > ROWS;
+    });
+    list.classList.toggle('notes__list--scroll', !!next);
+    if (next) list.style.setProperty('--notes-view', `${next.offsetTop + PEEK}px`);
+    if (list.scrollHeight > list.clientHeight + 1) list.tabIndex = 0; else list.removeAttribute('tabindex');
+  }
+  // On the next frame: fitting changes the list's size, which would otherwise call this again at once
+  let fitting = 0;
+  const sizes = 'ResizeObserver' in window ? new ResizeObserver(() => {
+    cancelAnimationFrame(fitting);
+    fitting = requestAnimationFrame(fit);
+  }) : null;
 
   async function load(): Promise<void> {
     if (!connected()) {

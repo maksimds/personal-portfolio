@@ -1491,8 +1491,8 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
    column, with the other two sections beside it on the right and the playlist under it. The notes
    are a third column of the same width to the left of "Who I am" (see "The notes wall" below).
    The board is 720px wider on the left than it would be without them (592 + 128), so they have
-   the same 944px of board beside them as the right column, and taller: with twelve notes at
-   their longest (twelve lines each) the column runs to about 2300px, and still ends on the board.
+   the same 944px of board beside them as the right column. However many notes there are, the
+   column stays short: past two rows they scroll inside it (see "The notes wall").
    Everything else still flows in a grid, so nothing can overlap however long the text gets. */
 html[data-page="about"] {
   --board-w: 3920px;
@@ -1918,7 +1918,8 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
 /* The notes wall: a green "Notes" section (src/components/about/Notes.astro, filled by
    src/scripts/notes.ts). At the top, a dashed "New note" sticky that opens into the form, a yellow
    sticky to write on; under it, visitors' notes as stickies, two to a row (one on a small phone),
-   newest first. Without JavaScript it only says that it needs it. */
+   newest first; on the canvas, past two rows, they scroll inside the section. Without JavaScript
+   it only says that it needs it. */
 .notes__intro { margin: 0 0 24px; line-height: 1.6; }
 html:not(.js) .notes { display: none; }
 .js .notes__nojs { display: none; }
@@ -1992,6 +1993,7 @@ html:not(.js) .notes { display: none; }
 .notes__empty { margin: 16px 0 0; }
 
 .notes__list {
+  position: relative;          /* the notes' places are measured from it (src/scripts/notes.ts) */
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -2000,6 +2002,25 @@ html:not(.js) .notes { display: none; }
   list-style: none;
 }
 .notes__list:empty { display: none; }
+/* On the canvas, past two rows, the notes scroll inside the section instead of making it taller.
+   The list is cut just inside the third row (--notes-view, worked out by src/scripts/notes.ts),
+   so the tops of its notes peek in at the section's bottom edge: the sign that there are more.
+   It runs down to that edge (short of its 1.5px outline) and 16px past the section's padding at
+   the sides and top, so the notes' tilt and shadows aren't cut; the first row stays where it was
+   (8 + 8 = the 16 above it otherwise), and scrolled to the end, the last row has the section's
+   own padding under it. No scrollbar: the peeking notes say it all. */
+.is-canvas .notes__list--scroll {
+  max-height: var(--notes-view);
+  margin: 8px -16px calc(1.5px - var(--section-pad));
+  padding: 8px 16px calc(var(--section-pad) - 1.5px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  touch-action: pan-y;         /* a finger scrolls it, where elsewhere on the canvas it pans the board */
+}
+.is-canvas .notes__list--scroll::-webkit-scrollbar { display: none; }
+/* Tabbed to (it scrolls with the arrow keys then), a blue ring just inside its edge */
+.notes__list:focus-visible { outline: 2px solid var(--select); outline-offset: -2px; }
 /* 16px, like the form they're written in: a 200-character note fits in about eight lines */
 .notes__list .sticky { width: auto; min-height: 176px; gap: 12px; padding: 20px; font-size: 1rem; }
 /* A visitor's line breaks are kept, no long word sticks out, and no note runs past twelve lines:
