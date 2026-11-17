@@ -284,6 +284,8 @@ export function initBoard(): BoardView | null {
     const touch = e.pointerType === 'touch';
     if (!touch && e.button !== 1 && !(e.button === 0 && (hand || space))) return;
     if (touch && scroller(e.target)) return;   // a finger on an area that scrolls scrolls it (touch-action in the styles)
+    // ...and on a handle (the notes wall's resize grip and scrollbar), it works the handle
+    if (touch && e.target instanceof Element && e.target.closest('[data-board-handle]')) return;
     if (!touch) e.preventDefault();            // no text selection, and no middle-button auto-scroll
     cancelAnimationFrame(glideFrame);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });

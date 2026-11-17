@@ -1077,8 +1077,9 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
    follows the mouse (src/scripts/user-cursor.ts), in place of the system pointer. It's a popover,
    so the browser's own popover styles (a box in the middle of the screen) are undone here. It
    only shows while html.has-user-cursor is set, and never while the hand tool, Space or the
-   stamp is in use: those keep their own pointers. It doesn't move by itself, so it stays for
-   visitors who have turned on reduced motion. */
+   stamp is in use: those keep their own pointers. Nor over the notes wall's resize grip, or while
+   it's being resized: the system's resize pointer shows there instead. It doesn't move by itself,
+   so it stays for visitors who have turned on reduced motion. */
 .user-cursor {
   --hue: var(--charcoal);
   position: fixed;
@@ -1096,9 +1097,9 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
   color: inherit;
   pointer-events: none;
 }
-.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping) .user-cursor:popover-open { display: grid; }
-.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping),
-.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping) * { cursor: none !important; }
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping, .is-resizing, :has(.notes__resize:hover)) .user-cursor:popover-open { display: grid; }
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping, .is-resizing, :has(.notes__resize:hover)),
+.has-user-cursor:not(.tool-hand, .is-space, .is-grabbing, .is-stamping, .is-resizing, :has(.notes__resize:hover)) * { cursor: none !important; }
 
 /* ---------- Footer ----------
    A small gray section at the end of the board: the links on the left, the copyright on the
@@ -2002,25 +2003,75 @@ html:not(.js) .notes { display: none; }
   list-style: none;
 }
 .notes__list:empty { display: none; }
-/* On the canvas, past two rows, the notes scroll inside the section instead of making it taller.
-   The list is cut just inside the third row (--notes-view, worked out by src/scripts/notes.ts),
-   so the tops of its notes peek in at the section's bottom edge: the sign that there are more.
-   It runs down to that edge (short of its 1.5px outline) and 16px past the section's padding at
-   the sides and top, so the notes' tilt and shadows aren't cut; the first row stays where it was
-   (8 + 8 = the 16 above it otherwise), and scrolled to the end, the last row has the section's
-   own padding under it. No scrollbar: the peeking notes say it all. */
-.is-canvas .notes__list--scroll {
+/* On the canvas the notes take as many columns as fit (two as the section starts, more as it's
+   made wider), and past two rows they scroll inside the section instead of making it taller
+   (src/scripts/notes-view.ts). The list is cut just inside the third row (--notes-view), so the
+   tops of its notes peek in at the section's bottom edge: the sign that there are more. It runs
+   down to that edge (short of its 1.5px outline) and 16px past the section's padding at the sides
+   and top, so the notes' tilt and shadows aren't cut; the first row stays where it was (8 + 8 =
+   the 16 above it otherwise), and scrolled to the end, the last row has the section's own padding
+   under it. The browser's scrollbar is hidden: the view draws its own (.notes__bar). */
+.notes__view { position: relative; }
+.is-canvas .notes__list { grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); }
+.is-canvas .notes__view--scroll { margin: 8px -16px calc(1.5px - var(--section-pad)); }
+.is-canvas .notes__view--scroll .notes__list {
   max-height: var(--notes-view);
-  margin: 8px -16px calc(1.5px - var(--section-pad));
+  margin: 0;
   padding: 8px 16px calc(var(--section-pad) - 1.5px);
   overflow: hidden auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
   touch-action: pan-y;         /* a finger scrolls it, where elsewhere on the canvas it pans the board */
 }
-.is-canvas .notes__list--scroll::-webkit-scrollbar { display: none; }
+.is-canvas .notes__view--scroll .notes__list::-webkit-scrollbar { display: none; }
 /* Tabbed to (it scrolls with the arrow keys then), a blue ring just inside its edge */
 .notes__list:focus-visible { outline: 2px solid var(--select); outline-offset: -2px; }
+/* The scrollbar: a thin thumb in the gutter right of the notes, from just under the top of the list
+   to clear of the resize grip. It shows while the pointer is over the notes (and while it's held,
+   or the list has the keyboard's focus), and darkens when pointed at itself. */
+.notes__bar {
+  position: absolute;
+  top: 8px;
+  right: 5px;
+  bottom: 36px;                /* clear of the resize grip */
+  width: 6px;
+  opacity: 0;
+  touch-action: none;
+  transition: opacity 0.2s var(--ease);
+}
+.notes__bar[hidden] { display: none; }
+.notes__view:hover .notes__bar,
+.notes__bar.is-held,
+.notes__list:focus-visible + .notes__bar { opacity: 1; }
+.notes__thumb { width: 100%; border-radius: 3px; background: rgb(0 0 0 / 0.28); transition: background-color 0.15s var(--ease); }
+.notes__bar:hover .notes__thumb,
+.notes__bar.is-held .notes__thumb { background: rgb(0 0 0 / 0.5); }
+/* The resize grip: two short diagonal lines in the section's bottom-right corner, in its tab's
+   green, that take a soft white ground when pointed at. Pulled, the section has the blue outline
+   an object has while it's moved, and the system's resize pointer shows (see "The visitor's own
+   cursor"). */
+.notes__resize {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px 6px var(--r-panel) 6px;
+  color: var(--tab);
+  cursor: nwse-resize;
+  touch-action: none;
+  opacity: 0.8;
+  transition: opacity 0.15s var(--ease), background-color 0.15s var(--ease);
+}
+.notes__resize svg { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.notes__resize:hover,
+.is-resizing .notes__resize { opacity: 1; background: rgb(255 255 255 / 0.75); }
+.board-section.is-resizing { outline: 2px solid var(--select); }
+.is-resizing,
+.is-resizing * { cursor: nwse-resize !important; user-select: none; }
 /* 16px, like the form they're written in: a 200-character note fits in about eight lines */
 .notes__list .sticky { width: auto; min-height: 176px; gap: 12px; padding: 20px; font-size: 1rem; }
 /* A visitor's line breaks are kept, no long word sticks out, and no note runs past twelve lines:
@@ -2051,7 +2102,7 @@ html:not(.js) .notes { display: none; }
   grid-row: 2;
   left: calc(-720px + var(--drag-x, 0px));
   top: var(--drag-y, 0px);
-  width: 592px;
+  width: var(--notes-w, 592px);   /* wider once the visitor has resized it (src/scripts/notes-view.ts) */
 }
 /* Arriving at /about.html#notes (the toolbar's comment button), the layer starts at the notes
    instead: where the script would put them (centred, their top 120px down the screen), at the

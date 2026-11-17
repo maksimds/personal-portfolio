@@ -10,7 +10,8 @@
      cursor plays in the home page's intro, and the visitor's own cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - the dots that switch the photo on the About page, and the hobby stickers' scenes there
-   - the notes wall on the About page: visitors' notes, and the form for leaving one
+   - the notes wall on the About page: visitors' notes, the form for leaving one, and, on the
+     canvas, scrolling through the notes and resizing the wall
    - the contact form on the Contact page
    The inline script in the <head> of BaseLayout adds the "js" class to <html> before the page is
    drawn; everything here runs a moment later.

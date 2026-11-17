@@ -33,11 +33,20 @@ import { MESSAGE_MAX, NAME_MAX } from '../../data/notes';
     <p class="notes__status" data-notes-status role="status"></p>
     {/* No notes yet, or they couldn't load */}
     <p class="notes__empty" data-notes-empty hidden></p>
-    {/* On the canvas, past two rows, it scrolls inside the section (data-board-scroll: the board
-        leaves the wheel, a finger and the keys to it; see src/scripts/notes.ts) */}
-    <ul class="notes__list" data-notes-list data-board-scroll aria-label="Notes from visitors"></ul>
+    {/* On the canvas, past two rows, the list scrolls inside the section (data-board-scroll: the
+        board leaves the wheel, a finger and the keys to it), with a scrollbar of its own that shows
+        while the pointer is over the notes. See src/scripts/notes-view.ts. */}
+    <div class="notes__view" data-notes-view>
+      <ul class="notes__list" data-notes-list data-board-scroll aria-label="Notes from visitors"></ul>
+      <div class="notes__bar" data-notes-bar data-board-handle aria-hidden="true" hidden><div class="notes__thumb"></div></div>
+    </div>
 
     {/* One note, copied for each by the script, which fills in its colour, words and name */}
     <template data-notes-template><Sticky as="li" author="Name"><p></p></Sticky></template>
   </div>
+
+  {/* The grip in the bottom-right corner that resizes the section, wider and taller (on the canvas) */}
+  <span class="notes__resize canvas-only" data-notes-resize data-board-handle aria-hidden="true">
+    <svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M14 4L4 14M14 9l-5 5" /></svg>
+  </span>
 </Section>
