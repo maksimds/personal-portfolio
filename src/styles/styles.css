@@ -1593,6 +1593,7 @@ html:not(.js) .about-photo { padding-bottom: 12px; }   /* no dots without JavaSc
   clip-path: circle(50%);
 }
 .hobby__ball { position: relative; z-index: 1; display: inline-block; }   /* in front of the racket */
+.hobby__ball svg { display: block; }   /* no line's room under it, so the ball is in the middle */
 .hobby__racket,
 .hobby__pow,
 .hobby__board,

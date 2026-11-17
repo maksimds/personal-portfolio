@@ -1,7 +1,9 @@
 ---
 // What's inside the 🎾 sticker on "Who I am" (src/pages/about.astro): the ball, and a racket
 // drawn in the style of an emoji (there isn't a racket emoji), a Wilson Blade v10 in its
-// Championship Green, with the infrared hot spot on the throat. All of it is in .hobby__scene,
+// Championship Green, with the infrared hot spot on the throat. The ball is drawn too, after
+// Apple's 🎾: the emoji itself is drawn differently on each system, and on Windows it's a racket
+// with a ball, so the forehand was a racket hitting a racket. All of it is in .hobby__scene,
 // which is cut to the sticker's circle, so nothing ever shows outside it. The racket and the
 // burst at the moment it hits are hidden until the sticker is pointed at (src/scripts/hobbies.ts);
 // then the racket plays a forehand and the ball drops back in. The styles are "The hobby stickers"
@@ -10,7 +12,25 @@
 // swings around. Its lines are drawn heavier than on a real racket, so they still show at 19px.
 ---
 <span class="hobby__scene">
-  <span class="hobby__ball">🎾</span>
+  {/* The ball: fluorescent yellow felt, lit from the top left, and its two white seams curving
+      in from opposite sides */}
+  <span class="hobby__ball">
+    <svg viewBox="0 0 20 20" width="20" height="20" focusable="false">
+      <defs>
+        <radialGradient id="ball-felt" cx="0.36" cy="0.3" r="0.78">
+          <stop offset="0" stop-color="#f6ff8a" />
+          <stop offset="0.5" stop-color="#d9ec2a" />
+          <stop offset="1" stop-color="#a3b80c" />
+        </radialGradient>
+        <clipPath id="ball-round"><circle cx="10" cy="10" r="9.2" /></clipPath>
+      </defs>
+      <circle cx="10" cy="10" r="9.2" fill="url(#ball-felt)" />
+      <g clip-path="url(#ball-round)" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" transform="rotate(-28 10 10)">
+        <path d="M3.6 1.6C8.6 5 8.6 15 3.6 18.4" />
+        <path d="M16.4 1.6C11.4 5 11.4 15 16.4 18.4" />
+      </g>
+    </svg>
+  </span>
   <svg class="hobby__racket" viewBox="0 0 24 60" width="7.6" height="19" focusable="false">
     <defs>
       <linearGradient id="racket-green" x1="0" y1="0" x2="1" y2="1">
