@@ -44,7 +44,8 @@ facts:
    out of its note.
    - The Figma mock-up of the shelf's three states (Designing it in Figma first)
    - The shelf opening from the notch (Hover to open, drag to catch)
-   - The shelf in a few custom colors (Color, transparency and glass) */}
+   - The shelf in a few custom colors (Color, transparency and glass; the black shelf and the
+     settings window are already there) */}
 
 {/* Intro */}
 
@@ -127,6 +128,10 @@ Then I turned it into a prototype to see how opening, dropping and dragging woul
 
 The shelf opens after a short pause on the notch, so passing the pointer by on the way to the menu bar doesn’t trigger it. When you start dragging a file or link anywhere on the screen, the shelf opens on its own as a drop zone, and a pair of eyes watches your pointer and blinks until you let go.
 
+<CaseMedia variant="card" caption="No file to drag? Press + and paste a link" images={[
+  { src: "polka-add-link.png", alt: "Add Link at the top of the shelf: a field with https://example.com as its placeholder and an Add button, and “Press Return to add, or Esc to cancel” under it", retina: true },
+]} />
+
 </CaseDetail>
 
 <CaseDetail title="A shelf that works like Finder">
@@ -137,6 +142,10 @@ The shelf opens after a short pause on the notch, so passing the pointer by on t
 ]} />
 
 Items sit in a grid that feels familiar: move them around like apps on an iPhone, sort them by name, kind or date like a Finder window, or pin up to five to the top row. Right-click any item to rename it, preview it with Quick Look, share it with AirDrop, or convert a document to PDF. Removing an item turns it to dust, an animation inspired by Telegram.
+
+<CaseMedia variant="card" caption="Sorted by kind, with a heading for each kind" images={[
+  { src: "polka-sorted.png", alt: "The shelf sorted by kind and scrolled down a little: the three pinned items at the top, then a PDF heading over Cover Letter and Transcript.pdf, and a Links heading below them", retina: true },
+]} />
 
 </CaseDetail>
 
@@ -154,7 +163,16 @@ Polka remembers where your files are instead of copying them, so your originals 
 ]} />
 */}
 
+{/* The glass version is the screenshot in "A shelf that works like Finder" */}
+<CaseMedia variant="card" caption="The same shelf in solid black" images={[
+  { src: "polka-black.png", alt: "The open Polka shelf in solid black, with the same items: Resume.pdf, LinkedIn and Portfolio pinned in the top row, and Supabase, GitHub, a cover letter, a job search page in Notion and Transcript.pdf below them", retina: true },
+]} />
+
 The open shelf can be solid black or see-through glass that softly blurs your desktop, like the Finder sidebar. You can tint it any color from a color picker or a hex code, and Polka turns it into a deep, glassy gradient so the names on the shelf always stay easy to read. On a Mac without a notch, Polka shows a small dark bar at the top of the screen instead.
+
+<CaseMedia variant="card" caption="Settings: transparency and color, how soon the shelf opens, and how long temporary items last" images={[
+  { src: "polka-settings.png", alt: "The Polka Settings window: Open at Login; a Transparency slider at 30%, a color picker and a hex field; Open after 250 ms and a Small, Medium or Large hover area; Temporary items last 1 day; and Save Screenshots to Polka", retina: true },
+]} />
 
 </CaseDetail>
 
