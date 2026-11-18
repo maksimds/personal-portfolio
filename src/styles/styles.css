@@ -2172,7 +2172,7 @@ html:not(.js) .notes { display: none; }
 
 /* The logo, on a white card taped on at a slight angle. --logo-width, set on the figure, sizes
    the logo: 2.6 times it is the share of the card's width the image takes (the default, 36%,
-   makes the dōTERRA wordmark nearly as wide as the card). For a logo image with empty space
+   makes the Kalorie wordmark nearly as wide as the card). For a logo image with empty space
    around the mark, --logo-trim is the share of the image's height that's empty above the mark
    (and the same again below), so that space doesn't stretch the card. */
 .case-hero--logo {
