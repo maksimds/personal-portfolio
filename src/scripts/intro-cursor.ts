@@ -246,9 +246,10 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     edits[n] = { select, edit, done, typing };
   };
 
-  // The welcome; then a round: the stickies in this time's order, with a breath before each, then
-  // home, and a rest. The round starts and ends at home, so it can play over and over
-  wait(1200);
+  // A moment's pause as the page opens, the welcome; then a round: the stickies in this time's
+  // order, with a breath before each, then home, and a rest. The round starts and ends at home,
+  // so it can play over and over
+  wait(200);
   const drawing = sign && welcome(sign);
   const first = t;
   order.slice(1).forEach((part, i) => {
