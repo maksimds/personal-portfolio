@@ -9,10 +9,10 @@ export function initEmbeds(): void {
     const panel = document.getElementById(link.getAttribute('data-embed') ?? '');
     if (!panel) return;
     const label = link.querySelector('[data-embed-label]');
-    const closedText = label ? label.textContent : '';
+    const closedText = link.getAttribute('data-embed-closed-label') ?? (label ? label.textContent : '');
     const openText = link.getAttribute('data-embed-open-label') || closedText;
     link.setAttribute('role', 'button');
-    link.setAttribute('aria-expanded', 'false');
+    link.setAttribute('aria-expanded', String(panel.classList.contains('is-open')));
     link.setAttribute('aria-controls', panel.id);
     link.addEventListener('click', (e) => {
       e.preventDefault();

@@ -102,27 +102,27 @@ test('"View prototype" adds the embed only when it is opened', async ({ page }) 
 const canPlay = (page) => page.evaluate(() => !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"'));
 const playing = (video) => video.evaluate((v) => !v.paused && v.currentTime > 0);
 
-test('"See demo" on Polka sits right under "Polka on GitHub" and opens the clip, which plays only while it is open', async ({ page }) => {
+test('"Hide demo" on Polka sits right under "Polka on GitHub", the clip is open and playing, and the link closes and reopens it', async ({ page }) => {
   await page.goto('projects/polka-case-study.html');
   const github = page.locator('.case-intro a', { hasText: 'Polka on GitHub' });
   const link = page.locator('[data-embed="demo"]');
   const video = page.locator('#demo video');
-  await expect(link).toHaveText(/See demo/);
+  // Open by default
+  await expect(link).toHaveText(/Hide demo/);
+  await expect(link).toHaveAttribute('aria-expanded', 'true');
   // The next line after the GitHub link
   const [g, l] = await Promise.all([github.boundingBox(), link.boundingBox()]);
   expect(Math.abs(l.x - g.x)).toBeLessThan(1);
   expect(l.y).toBeGreaterThan(g.y + g.height - 1);
   expect(l.y - (g.y + g.height)).toBeLessThan(24);
-  // Nothing is downloaded before it opens
-  expect(await video.evaluate((v) => v.readyState)).toBe(0);
-  await link.click();
-  await expect(link).toHaveText(/Hide demo/);
-  await expect(link).toHaveAttribute('aria-expanded', 'true');
   await video.scrollIntoViewIfNeeded();
   if (await canPlay(page)) await expect.poll(() => playing(video)).toBe(true);
   await link.click();
   await expect(link).toHaveText(/See demo/);
+  await expect(link).toHaveAttribute('aria-expanded', 'false');
   await expect.poll(() => video.evaluate((v) => v.paused)).toBe(true);
+  await link.click();
+  await expect(link).toHaveText(/Hide demo/);
 });
 
 test('Polka\'s clips play while they are in view, and with less motion stay still with their controls', async ({ page }) => {
