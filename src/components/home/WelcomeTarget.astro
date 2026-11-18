@@ -1,0 +1,56 @@
+---
+// The 🎯 at the end of the welcome sign in the intro (src/components/home/Hero.astro): a target
+// and the dart that hits it, drawn in the style of the emoji (red and white rings, the dart
+// stuck in the bull from the top right), so each can move on its own, as the hobby stickers on
+// About are. The emoji itself is still there, unseen (.welcome-target__char): it keeps the
+// sign's words the same, and the drawing has its room. The cursor's script
+// (src/scripts/intro-cursor.ts) types data-cursor-key as the sign's last key, and only shows this
+// once that key is down; then the target pops up and the dart flies in and hits it. The styles
+// are "The welcome sign's target" in src/styles/styles.css.
+// The dart is drawn lying flat, its point at the left (0, 5), the end it's turned about.
+---
+<span class="welcome-target" data-cursor-key="🎯"><span class="welcome-target__char">🎯</span><span class="welcome-target__scene">
+  {/* The target: five rings, red, white, red, white and the red bull, lit from the top left */}
+  <svg class="welcome-target__board" viewBox="0 0 40 40" width="22" height="22" focusable="false">
+    <defs>
+      <radialGradient id="target-red" gradientUnits="userSpaceOnUse" cx="14" cy="12" r="32">
+        <stop offset="0" stop-color="#ff7466" />
+        <stop offset="0.5" stop-color="#e8302a" />
+        <stop offset="1" stop-color="#a8161a" />
+      </radialGradient>
+      <radialGradient id="target-white" gradientUnits="userSpaceOnUse" cx="14" cy="12" r="32">
+        <stop offset="0" stop-color="#fff" />
+        <stop offset="1" stop-color="#e3dcdc" />
+      </radialGradient>
+    </defs>
+    <circle cx="20" cy="20" r="19" fill="url(#target-red)" />
+    <circle cx="20" cy="20" r="14.4" fill="url(#target-white)" />
+    <circle cx="20" cy="20" r="10.2" fill="url(#target-red)" />
+    <circle cx="20" cy="20" r="6.2" fill="url(#target-white)" />
+    <circle cx="20" cy="20" r="2.8" fill="url(#target-red)" />
+    <path d="M5.6 13.4A15.6 15.6 0 0 1 13.4 5.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.45" />
+  </svg>
+  {/* The burst as the dart goes in: short lines all round the target, but on the dart's side */}
+  <svg class="welcome-target__pow" viewBox="0 0 36 36" width="36" height="36" focusable="false">
+    <path d="M18 3.2V.8M7.5 7.5 5.8 5.8M3.2 18H.8M7.5 28.5l-1.7 1.7M18 32.8v2.4M28.5 28.5l1.7 1.7M32.8 18h2.4" stroke="#1c1c1c" stroke-width="1.1" stroke-linecap="round" />
+  </svg>
+  {/* The dart: a steel point, a knurled barrel, the shaft and two blue flights */}
+  <svg class="welcome-target__dart" viewBox="0 0 32 10" width="16" height="5" focusable="false">
+    <defs>
+      <linearGradient id="dart-steel" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f2f4f7" />
+        <stop offset="1" stop-color="#868c96" />
+      </linearGradient>
+      <linearGradient id="dart-flight" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#5fb2ff" />
+        <stop offset="1" stop-color="#1b5fd4" />
+      </linearGradient>
+    </defs>
+    <path d="M21 5L26.6 0.6H31.6L30.4 5ZM21 5L26.6 9.4H31.6L30.4 5Z" fill="url(#dart-flight)" />
+    <rect x="12.6" y="4.1" width="10" height="1.8" rx="0.6" fill="#2b2b2b" />
+    <rect x="4.6" y="2.9" width="8.6" height="4.2" rx="1.4" fill="#3d3d3d" />
+    <path d="M6.6 3.2v3.6M8.4 3.2v3.6M10.2 3.2v3.6" stroke="#6e6e6e" stroke-width="0.8" />
+    <path d="M5.6 3.6h6.8" stroke="#fff" stroke-width="0.7" stroke-linecap="round" opacity="0.45" />
+    <path d="M0 5L5 3.5V6.5Z" fill="url(#dart-steel)" />
+  </svg>
+</span></span>

@@ -1,0 +1,10 @@
+---
+// The ✍️ on the intro's "Leave me a note" sticker (src/components/home/Hero.astro): the emoji
+// itself, and the ink it writes, a little run of joined loops along the line under the pen. The
+// pen's tip is at the bottom left of the emoji on every system, so the ink starts there. Pointed
+// at, or reached with the keyboard, the hand writes: it moves the pen along in short strokes,
+// the ink coming out under it, then lifts it and goes back to the start, over and over, and
+// always to the end of a line (src/scripts/note-pen.ts). The styles are "The note sticker's pen"
+// in src/styles/styles.css. Decoration: the link's name is its words.
+---
+<span class="note-pen" aria-hidden="true"><svg class="note-pen__ink" viewBox="0 0 26 11" width="7" height="3" focusable="false" preserveAspectRatio="none"><path d="M1 9C3 9 5 6 5 3.5C5 1.5 3.4 1.5 3.6 4C3.8 7 5.5 9 7 9C9 9 11 6 11 3.5C11 1.5 9.4 1.5 9.6 4C9.8 7 11.5 9 13 9C15 9 17 6 17 3.5C17 1.5 15.4 1.5 15.6 4C15.8 7 17.5 9 19 9C21 9 23 6 23 3.5C23 1.5 21.4 1.5 21.6 4C21.8 7 23.5 9 25 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg><span class="note-pen__hand">✍️</span></span>

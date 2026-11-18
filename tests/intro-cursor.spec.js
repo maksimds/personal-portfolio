@@ -1,7 +1,8 @@
 // Checks the scene the "Denis" cursor plays in the home page's intro (src/scripts/intro-cursor.ts).
 // On a desktop canvas it opens with the welcome, played once: it drags out the welcome sign just
 // above the intro from its top-left corner to its bottom-right, types "Welcome to my portfolio 🎯"
-// into it and clicks away, and the sign stays. Then it goes round the stickies, over and over: on
+// into it and clicks away, and the sign stays. The 🎯 is drawn: typed, the target pops up, and
+// then a dart flies in and hits it. Then it goes round the stickies, over and over: on
 // each it goes to the end of the marked words, double-clicks, deletes them a letter at a time,
 // types them back and clicks away. The stickies come in a new order on every visit, never
 // starting with the sticky the visit before started with. Their words never leave the page.
@@ -56,7 +57,8 @@ const watch = (page) => page.evaluate(async () => {
       sign: {
         seen: Number(getComputedStyle(sign).opacity) > 0.5,
         box: { left: box.left, top: box.top, width: box.width, height: box.height },
-        shown: [...text.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).map((node) => node.data).join(''),
+        // The words typed so far, and the 🎯 at the end once it's typed (a drawing; its character is data-cursor-key)
+        shown: [...text.childNodes].map((node) => (node.nodeType === Node.TEXT_NODE ? node.data : node.matches('[data-cursor-key]:not([hidden])') ? node.dataset.cursorKey : '')).join(''),
         outlined: getComputedStyle(sign).outlineStyle === 'solid',
         caret: !!text.querySelector('.type-caret'),
         // How far the arrow's tip is from the sign's bottom-right corner
@@ -289,6 +291,38 @@ test.describe('on a desktop', () => {
       const bow = Math.max(...m.map((p) => Math.abs((b.x - a.x) * (a.y - p.y) - (a.x - p.x) * (b.y - a.y)) / far));
       expect(bow).toBeGreaterThan(far * 0.03);
     }
+  });
+
+  test('the 🎯 goes in as a drawing: first the target pops up, then the dart flies in and hits the bull', async ({ page }) => {
+    const target = page.locator('.welcome-target');
+    // Not there until its key is typed
+    await expect(target).toBeHidden();
+    await expect(target).toBeVisible({ timeout: 20_000 });
+    const at = (t) => target.evaluate(async (el, t) => {
+      el.getAnimations({ subtree: true }).forEach((a) => { a.pause(); a.currentTime = t; });
+      await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+      const look = (part) => {
+        const style = getComputedStyle(el.querySelector(part));
+        return { opacity: Number(style.opacity), scale: style.scale, rotate: style.rotate, translate: style.translate };
+      };
+      return { board: look('.welcome-target__board'), dart: look('.welcome-target__dart'), running: el.getAnimations({ subtree: true }).length };
+    }, t);
+    expect((await at(0)).running).toBe(3);
+    // The target pops up while the dart is still out of sight
+    const shown = await at(450);
+    expect(shown.board.opacity).toBe(1);
+    expect(shown.dart.opacity).toBe(0);
+    // The dart on its way, from the top right
+    const flying = await at(620);
+    expect(flying.dart.opacity).toBe(1);
+    const [x, y] = flying.dart.translate.split(' ').map(parseFloat);
+    expect(x).toBeGreaterThan(0);
+    expect(y).toBeLessThan(0);
+    // At the end: in the bull, at rest, as the emoji is
+    const end = await at(1600);
+    expect(end.dart).toMatchObject({ opacity: 1, rotate: '-45deg' });
+    expect(['none', '0px', '0px 0px']).toContain(end.dart.translate);
+    expect(end.board).toMatchObject({ opacity: 1, rotate: '0deg' });
   });
 
   test('scrolled out of sight and back, it carries on where it was, and the sign stays drawn', async ({ page }) => {

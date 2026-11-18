@@ -10,6 +10,7 @@
      cursor plays in the home page's intro, and the visitor's own cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
    - short clips that play in a loop while they're in view (the Polka card and demo)
+   - the pen on the home page's "Leave me a note" sticker, which writes when pointed at
    - the dots that switch the photo on the About page, and the hobby stickers' scenes there
    - the notes wall on the About page: visitors' notes, the form for leaving one, and, on the
      canvas, scrolling through the notes and resizing the wall
@@ -33,6 +34,7 @@ import { initBackLinks } from './back-links';
 import { initYear } from './year';
 import { initPhotoDots } from './photos';
 import { initHobbies } from './hobbies';
+import { initNotePen } from './note-pen';
 import { initNotes } from './notes';
 import { initContactForm } from './contact';
 
@@ -51,5 +53,6 @@ initBackLinks();
 initYear();
 initPhotoDots();
 initHobbies();
+initNotePen();
 initNotes();
 initContactForm();

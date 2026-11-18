@@ -638,6 +638,33 @@ test.describe('the links to the notes: the toolbar\'s comment button and the hom
     expect(await drawnByCss(page)).toEqual(await layer(page));
   });
 
+  test('the sticker\'s ✍️ writes while it\'s pointed at, and finishes its line once it isn\'t', async ({ page }) => {
+    await page.goto('index.html');
+    const sticker = page.getByRole('link', { name: 'Leave me a note' });
+    const pen = page.locator('.note-pen');
+    const playing = () => pen.evaluate((el) => el.getAnimations({ subtree: true }).filter((a) => a.playState === 'running').length);
+    expect(await playing()).toBe(0);
+    await sticker.hover();
+    await expect(pen).toHaveClass(/is-writing/);
+    await expect.poll(playing).toBe(2);     // the hand and the ink
+    // The ink comes out as the hand moves along
+    await expect.poll(() => page.locator('.note-pen__ink').evaluate((el) => Number(getComputedStyle(el).opacity))).toBeGreaterThan(0);
+    // Pointed away mid-line: it carries on to the end of the loop, then stops back where it started
+    await pen.evaluate((el) => el.getAnimations({ subtree: true }).forEach((a) => { a.currentTime = 300; }));
+    await page.mouse.move(1300, 850);
+    await page.waitForTimeout(100);
+    await expect(pen).toHaveClass(/is-writing/);
+    await expect(pen).not.toHaveClass(/is-writing/, { timeout: 2000 });
+    expect(await playing()).toBe(0);
+    await expect(page.locator('.note-pen__hand')).toHaveCSS('translate', 'none');
+
+    // With reduced motion, pointing at it does nothing
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await sticker.hover();
+    await page.waitForTimeout(300);
+    expect(await playing()).toBe(0);
+  });
+
   test.describe('on a phone', () => {
     test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
