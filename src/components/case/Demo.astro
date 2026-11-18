@@ -10,7 +10,7 @@ import Video from '../Video.astro';
 interface Props { id: string; src: string; poster: string; label: string; }
 const { id, src, poster, label } = Astro.props;
 ---
-<EmbedLink id={id} href={`/videos/${src}`} label="See demo" openLabel="Hide demo" />
-<EmbedPanel id={id}>
+<EmbedLink id={id} href={`/videos/${src}`} label="See demo" openLabel="Hide demo" open />
+<EmbedPanel id={id} open>
   <Widget><div class="case-media__panel"><Video src={src} poster={poster} label={label} style="border-radius: 6px" /></div></Widget>
 </EmbedPanel>

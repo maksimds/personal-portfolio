@@ -294,8 +294,10 @@ html:not(.is-canvas) .canvas-only { display: none; }
   background: var(--accent);
   color: #fff;
   font-weight: 550;
-  transition: background-color 0.15s var(--ease);
+  transition: background-color 0.15s var(--ease), transform 0.35s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
 }
+/* Pressed: it shrinks a little, then springs back (with a bounce) once the pointer lets go or leaves */
+.button-primary:active { transform: scale(0.92); transition-duration: 0.1s; }
 .button-primary:hover,
 .button-primary:focus-visible { background: var(--accent-2); }
 
