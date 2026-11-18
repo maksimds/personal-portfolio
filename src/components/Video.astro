@@ -1,0 +1,31 @@
+---
+// A short silent clip from public/videos/ that plays in a loop while it's in view (see
+// src/scripts/videos.ts): <Video src="polka-dust.mp4" poster="polka-dust-poster.png" label="…" />.
+// poster is a 2x still in src/assets/images/, the clip's own size: it sets the size the clip shows
+// at (half its pixels, or height if given) and is what's seen until the clip plays, and instead of
+// it for visitors who've asked for less motion (who get the controls to play it themselves, unless
+// noControls, as inside a link).
+import { getImage } from 'astro:assets';
+import { getImageFile } from '../data/images';
+
+interface Props {
+  src: string;
+  poster: string;
+  // What the clip shows, for screen readers
+  label?: string;
+  // The height it shows at in CSS pixels (default: half the poster's)
+  height?: number;
+  noControls?: boolean;
+  class?: string;
+  style?: string;
+}
+const { src, poster, label, height, noControls = false, class: className, style } = Astro.props;
+const file = getImageFile(poster);
+const h = height ?? Math.round(file.height / 2);
+const w = Math.round((file.width * h) / file.height);
+const still = await getImage({ src: file, format: 'webp', width: Math.min(file.width, w * 2) });
+---
+<video class={className} src={`/videos/${src}`} poster={still.src} width={w} height={h}
+  style={[`aspect-ratio: ${file.width} / ${file.height}`, style].filter(Boolean).join('; ')}
+  muted loop playsinline preload="none" disablepictureinpicture
+  aria-label={label} aria-hidden={label ? undefined : 'true'} data-loop data-controls={noControls ? undefined : ''}></video>

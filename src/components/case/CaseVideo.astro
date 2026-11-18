@@ -1,0 +1,21 @@
+---
+// A clip on a widget card, like <CaseMedia variant="card">: at its size on the Mac (half its
+// pixels), playing in a loop while it's in view, with an optional caption. src is a file in
+// public/videos/, poster its 2x still in src/assets/images/ (see src/components/Video.astro).
+// radius rounds its corners, e.g. "0 0 20px 20px" for the Polka shelf.
+import Video from '../Video.astro';
+import Widget from '../board/Widget.astro';
+
+interface Props {
+  src: string;
+  poster: string;
+  label: string;
+  caption?: string;
+  radius?: string;
+}
+const { src, poster, label, caption, radius } = Astro.props;
+---
+<figure class="case-media case-media--card">
+  <Widget><div class="case-media__panel"><Video src={src} poster={poster} label={label} style={radius && `border-radius: ${radius}`} /></div></Widget>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

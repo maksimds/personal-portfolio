@@ -1386,12 +1386,15 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   margin: -20px 0 0 -20px;
   pointer-events: none;
 }
-.work-card__thumb img {
+.work-card__thumb img,
+.work-card__thumb video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.6s var(--ease);
 }
+/* A clip (Polka's screen, Kalorie's and Lynea's phones): its corners round as much as its hit area's */
+.work-card__thumb video { display: block; border-radius: var(--logo-radius, 0); }
 /* Pointing at the logo itself makes it grow and tilt. The hit area is an invisible box over the
    mark's own bounds: --logo-inset (and --logo-radius for a round one), set on the thumbnail when
    its logo has a different shape (the default fits the dōTERRA mark). */
@@ -1403,12 +1406,14 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   border-radius: var(--logo-radius, 0);
   pointer-events: auto;
 }
-.work-card__thumb:hover img { transform: scale(1.12) rotate(15deg); }
+.work-card__thumb:hover img,
+.work-card__thumb:hover video { transform: scale(1.12) rotate(15deg); }
 /* A wide picture with no space round it (the Polka screenshot): as tall as a logo's mark (64px,
    the 112px thumbnail less 24px above and below) and as wide as it is, with the same 24px round
    it, so it lines up with the logos on the cards beside it */
 .work-card__thumb--wide { width: auto; height: 112px; aspect-ratio: auto; padding: 24px; }
-.work-card__thumb--wide img { width: auto; height: 100%; object-fit: contain; }
+.work-card__thumb--wide img,
+.work-card__thumb--wide video { width: auto; height: 100%; object-fit: contain; }
 .work-card__name {
   margin-top: auto;
   padding-top: 16px;
@@ -2141,15 +2146,23 @@ html:not(.js) .notes { display: none; }
 .back-link:focus-visible .arrow { animation: arrow-nudge-left 0.9s 0.04s both; }
 .case-back { margin-bottom: 40px; }
 
-/* The top: the title block, and beside it (from tablet width up) the logo on its card. A picture
-   instead of a logo goes under the title, as wide as the column. */
+/* The top: the title block, and beside it (from tablet width up) the logo on its card. The two
+   line up at the bottom, so the subtitle ends a little above the card's bottom edge however many
+   lines it runs to; a longer one puts the title higher. A picture instead of a logo goes under
+   the title, as wide as the column. */
 .case-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
 @media (min-width: 768px) {
-  .case-top--logo { grid-template-columns: minmax(0, 1fr) 352px; column-gap: 56px; align-items: center; }
+  .case-top--logo { grid-template-columns: minmax(0, 1fr) 352px; column-gap: 56px; align-items: end; }
+  .case-top--logo .case-head { margin-bottom: 12px; }
 }
 /* Title, status, subtitle. The stamp sits right after the title on its line; in the page's own
-   order it comes last, after the subtitle, as it always has. */
+   order it comes last, after the subtitle, as it always has. From tablet width up there's more
+   room between the title and the subtitle; on a phone the title is smaller beside the same stamp,
+   so the gap already looks as big. */
 .case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+@media (min-width: 768px) {
+  .case-head { row-gap: 20px; }
+}
 .case-head h1 { order: 1; min-width: 0; }
 /* The status stamp is the large stamp made 15% smaller, text and all, with its words kept on one
    line ("In progress", "Completed") */
@@ -2167,7 +2180,7 @@ html:not(.js) .notes { display: none; }
 
 /* The logo, on a white card taped on at a slight angle. --logo-width, set on the figure, sizes
    the logo: 2.6 times it is the share of the card's width the image takes (the default, 36%,
-   makes the dōTERRA wordmark nearly as wide as the card). For a logo image with empty space
+   makes the Kalorie wordmark nearly as wide as the card). For a logo image with empty space
    around the mark, --logo-trim is the share of the image's height that's empty above the mark
    (and the same again below), so that space doesn't stretch the card. */
 .case-hero--logo {
@@ -2276,6 +2289,8 @@ html:not(.js) .notes { display: none; }
 .case-media--stack .case-media__panel { flex-direction: column; gap: clamp(16px, 3vw, 28px); }
 /* A small UI piece at its real size: mark the 2x screenshot with retina so it shows at half its pixel size */
 .case-media--card .case-media__panel img { width: auto; }
+/* A clip (<CaseVideo>, <Demo>): at its own size, narrower on a small screen */
+.case-media__panel video { display: block; max-width: 100%; height: auto; }
 .case-media figcaption { margin-top: 12px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; line-height: 1.5; }
 /* A link under a media card that opens another card below it ("See how it was before") */
 .case-body .case-media__toggle { margin-top: -0.35em; }

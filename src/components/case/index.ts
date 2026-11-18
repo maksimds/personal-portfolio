@@ -12,6 +12,8 @@ import CasePersonas from './CasePersonas.astro';
 import CaseQuote from './CaseQuote.astro';
 import CaseRule from './CaseRule.astro';
 import CaseSection from './CaseSection.astro';
+import CaseVideo from './CaseVideo.astro';
+import Demo from './Demo.astro';
 import Prototype from './Prototype.astro';
 import StoreLink from './StoreLink.astro';
 
@@ -29,6 +31,8 @@ export const caseComponents = {
   CaseQuote,
   CaseRule,
   CaseSection,
+  CaseVideo,
+  Demo,
   Prototype,
   StoreLink,
 };

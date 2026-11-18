@@ -7,14 +7,17 @@ subtitle: "A macOS app that turns the MacBook notch into a little shelf for file
 status: "v1.0 released"
 description: "Polka: a macOS app that turns the MacBook notch into a little shelf for files, links, pictures and text."
 
-# On the home page: a screenshot of the app, its panel cut out, as tall as the other logos' marks
-# and as wide as it is. The hit area is the panel, rounded at the bottom like it.
+# On the home page: the demo (see "See demo" below), playing in a loop, as tall as the other logos'
+# marks and as wide as it is. The hit area is the clip, its corners rounded like it.
 listDescription: "Designed and developed a macOS app that lives in the notch"
 side: true
 thumb: "polka-app.png"
 thumbWide: true
+thumbVideo:
+  src: "polka-card.mp4"
+  poster: "polka-demo-poster.png"
 thumbInset: "24px"
-thumbRadius: "0 0 5px 5px"
+thumbRadius: "4px"
 
 # The app icon, on the page background. The tile fills four fifths of the image (Apple's icon
 # grid), so it's set narrower than the other logos and comes out about as big.
@@ -39,12 +42,16 @@ facts:
 ---
 
 {/* ===== Case study: Polka =====
-   To do: three images from the draft aren't here yet. Each has a note below where it goes, with
+   To do: two images from the draft aren't here yet. Each has a note below where it goes, with
    its block ready: put the file in src/assets/images/, fill in the alt text and take the block
-   out of its note.
+   out of its note. (The draft's third, the shelf opening from the notch, is the demo.)
    - The Figma mock-up of the shelf's three states (Designing it in Figma first)
-   - The shelf opening from the notch (Hover to open, drag to catch)
-   - The shelf in a few custom colors (Color, transparency and glass) */}
+   - The shelf in a few custom colors (Color, transparency and glass; the black shelf and the
+     settings window are already there)
+
+   The clips are cut from two screen recordings of the selected area round the notch, at 2x, as
+   H.264 MP4s in public/videos/, each ending with its last half second fading into its first so it
+   loops. The stills shown before they play are frames from the same recordings. */}
 
 {/* Intro */}
 
@@ -53,6 +60,10 @@ facts:
 Polka is a personal project I designed and built from scratch: a native macOS app that lives in the MacBook notch. Move your pointer to the notch and a shelf opens, where you can keep files, folders, links, pictures and text, then drag them back out into any app. It was also my first time building a macOS app, and my first real project engineered with Claude Code. Polka went from an empty Xcode project to v1.0 in about a week, and it’s free and open source on GitHub.
 
 <ArrowLink href="https://github.com/maksimds/Polka">Polka on GitHub</ArrowLink>
+
+{/* The screen round the notch: hovering opens the shelf and leaving closes it, then the Lynea
+   folder is dragged in, dropped, and the shelf scrolls through its items */}
+<Demo id="demo" src="polka-demo.mp4" poster="polka-demo-poster.png" label="Polka at work: the pointer rests on the notch and the shelf opens with its items, then closes when the pointer leaves. A folder is dragged toward the notch, the shelf opens as a drop zone with a pair of eyes watching it, and once it's dropped the folder joins the items on the shelf." />
 
 </CaseIntro>
 
@@ -119,24 +130,34 @@ Then I turned it into a prototype to see how opening, dropping and dragging woul
 
 <CaseDetail title="Hover to open, drag to catch">
 
-{/* Image to add: the shelf opening from the notch
-<CaseMedia caption="The shelf grows out of the notch after a short hover" images={[
-  { src: "polka-opening.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
-]} />
-*/}
-
 The shelf opens after a short pause on the notch, so passing the pointer by on the way to the menu bar doesn’t trigger it. When you start dragging a file or link anywhere on the screen, the shelf opens on its own as a drop zone, and a pair of eyes watches your pointer and blinks until you let go.
+
+<CaseMedia variant="card" caption="Start dragging anything and the shelf opens as a drop zone" images={[
+  { src: "polka-drop.png", alt: "The shelf open as a drop zone: a pair of eyes at the top, and a dashed outline around a tray icon and “Drop here”", retina: true },
+]} />
+
+<CaseVideo src="polka-add-link.mp4" poster="polka-add-link-poster.png" radius="0 0 20px 20px"
+  caption="No file to drag? Press +, choose Link and type or paste it"
+  label="Adding a link: + at the top of the shelf opens a menu with Link, File and Paste Link. Choosing Link turns the shelf into an Add Link field, google.com is typed in and added, and Google joins the items on the shelf." />
 
 </CaseDetail>
 
 <CaseDetail title="A shelf that works like Finder">
 
-{/* The same screenshot as the home page card, at the size it is on the Mac */}
+{/* At the size it is on the Mac, like the screenshots and clips below */}
 <CaseMedia variant="card" caption="Files, links, pictures and text on one shelf" images={[
   { src: "polka-app.png", alt: "The open Polka shelf, a dark panel under the notch: Resume.pdf, LinkedIn and Portfolio pinned in the top row, and Supabase, GitHub, a cover letter, a job search page in Notion and Transcript.pdf below them", retina: true },
 ]} />
 
 Items sit in a grid that feels familiar: move them around like apps on an iPhone, sort them by name, kind or date like a Finder window, or pin up to five to the top row. Right-click any item to rename it, preview it with Quick Look, share it with AirDrop, or convert a document to PDF. Removing an item turns it to dust, an animation inspired by Telegram.
+
+<CaseMedia variant="card" caption="Sorted by kind, with a heading for each kind" images={[
+  { src: "polka-sorted.png", alt: "The shelf sorted by kind and scrolled down a little: the three pinned items at the top, then a PDF heading over Cover Letter and Transcript.pdf, and a Links heading below them", retina: true },
+]} />
+
+<CaseVideo src="polka-dust.mp4" poster="polka-dust-poster.png" radius="0 0 20px 20px"
+  caption="Remove an item and it turns to dust"
+  label="Removing an item: right-clicking Google on the shelf opens a menu with Rename, Share, Pin, Temporary and Remove. Choosing Remove turns Google into a cloud of dust, and the other items slide over to fill its place." />
 
 </CaseDetail>
 
@@ -154,7 +175,16 @@ Polka remembers where your files are instead of copying them, so your originals 
 ]} />
 */}
 
+{/* The glass version is the screenshot in "A shelf that works like Finder" */}
+<CaseMedia variant="card" caption="The same shelf in solid black" images={[
+  { src: "polka-black.png", alt: "The open Polka shelf in solid black, with the same items: Resume.pdf, LinkedIn and Portfolio pinned in the top row, and Supabase, GitHub, a cover letter, a job search page in Notion and Transcript.pdf below them", retina: true },
+]} />
+
 The open shelf can be solid black or see-through glass that softly blurs your desktop, like the Finder sidebar. You can tint it any color from a color picker or a hex code, and Polka turns it into a deep, glassy gradient so the names on the shelf always stay easy to read. On a Mac without a notch, Polka shows a small dark bar at the top of the screen instead.
+
+<CaseMedia variant="card" caption="Settings: transparency and color, how soon the shelf opens, and how long temporary items last" images={[
+  { src: "polka-settings.png", alt: "The Polka Settings window: Open at Login; a Transparency slider at 30%, a color picker and a hex field; Open after 250 ms and a Small, Medium or Large hover area; Temporary items last 1 day; and Save Screenshots to Polka", retina: true },
+]} />
 
 </CaseDetail>
 

@@ -53,7 +53,7 @@ const person = {
       <ul class="works__list">
         {work.map((project, i) => (
           <ProjectCard href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
-            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide}
+            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide} video={project.data.thumbVideo}
             logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[i % tilts.length]} />
         ))}
         {/* The Focal tile, with the same margin as the other logos; the hit area matches its rounded corners */}
@@ -66,7 +66,7 @@ const person = {
       <ul class="works__list">
         {sideProjects.map((project, i) => (
           <ProjectCard href={project.data.published ? projectUrl(project) : undefined} name={project.data.title}
-            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide}
+            desc={project.data.listDescription} thumb={project.data.thumb} wide={project.data.thumbWide} video={project.data.thumbVideo}
             logoInset={project.data.thumbInset} logoRadius={project.data.thumbRadius} tilt={project.data.published ? undefined : tilts[i % tilts.length]} />
         ))}
       </ul>

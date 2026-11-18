@@ -9,6 +9,7 @@
    - the board's connectors (lines between objects), its drifting cursors, the scene the "Denis"
      cursor plays in the home page's intro, and the visitor's own cursor that follows the mouse
    - embedded prototypes and "before" screenshots, back links, current year in the footer
+   - short clips that play in a loop while they're in view (the Polka card and demo)
    - the dots that switch the photo on the About page, and the hobby stickers' scenes there
    - the notes wall on the About page: visitors' notes, the form for leaving one, and, on the
      canvas, scrolling through the notes and resizing the wall
@@ -27,6 +28,7 @@ import { initCursors } from './cursors';
 import { initIntroCursor } from './intro-cursor';
 import { initUserCursor } from './user-cursor';
 import { initEmbeds } from './embeds';
+import { initVideos } from './videos';
 import { initBackLinks } from './back-links';
 import { initYear } from './year';
 import { initPhotoDots } from './photos';
@@ -44,6 +46,7 @@ initIntroCursor();
 initUserCursor();
 initDrag(initBoard());
 initEmbeds();
+initVideos();
 initBackLinks();
 initYear();
 initPhotoDots();
