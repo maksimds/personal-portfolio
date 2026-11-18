@@ -294,10 +294,16 @@ html:not(.is-canvas) .canvas-only { display: none; }
   background: var(--accent);
   color: #fff;
   font-weight: 550;
-  transition: background-color 0.15s var(--ease), transform 0.35s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+  transition: background-color 0.15s var(--ease), transform var(--press-back);
 }
-/* Pressed: it shrinks a little, then springs back (with a bounce) once the pointer lets go or leaves */
-.button-primary:active { transform: scale(0.92); transition-duration: 0.1s; }
+/* Pressed: it shrinks a little, then springs back (with a bounce) once the pointer lets go or
+   leaves. The violet buttons (Contact, Post, Send message), the site's name in the top-left pill,
+   and a sticker that's a link ("Leave me a note"); each has transform var(--press-back) in its
+   transition. It's transform, so it adds to a sticker's own scale and tilt. */
+:root { --press-back: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.button-primary:active,
+.file-pill__name:active,
+a.stamp:active { transform: scale(0.92); transition-duration: 0.1s; }
 .button-primary:hover,
 .button-primary:focus-visible { background: var(--accent-2); }
 
@@ -321,6 +327,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
   border-radius: var(--r-sm);
   font-weight: 550;
   white-space: nowrap;
+  transition: transform var(--press-back);   /* shrinks while pressed (see .button-primary) */
 }
 .file-pill__name:hover { background: var(--chrome-hover); }
 .page-switch { gap: 6px; min-width: 0; }
@@ -828,7 +835,7 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
 .stamp--gray { --fill: var(--sticky-gray); }
 .stamp--white { --fill: var(--sticky-white); }
 /* A stamp that's a link lifts and straightens halfway when pointed at */
-a.stamp { transition: rotate 0.3s var(--ease-out), scale 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
+a.stamp { transition: rotate 0.3s var(--ease-out), scale 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform var(--press-back); }   /* and shrinks while pressed (see .button-primary) */
 a.stamp:hover,
 a.stamp:focus-visible { rotate: calc(var(--tilt, -8deg) / 2); scale: 1.06; box-shadow: var(--shadow-float); }
 
@@ -1490,6 +1497,95 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   pointer-events: none;
 }
 .intro__welcome.is-edited { outline: 2px solid var(--tab-violet); outline-offset: 3px; }
+
+/* The welcome sign's target: its last key, the 🎯 (src/components/home/WelcomeTarget.astro). The
+   emoji itself is there unseen, for its room; the drawing is centred on it, 22 across. The script
+   shows it (takes hidden off) as the key goes in, and that starts it: the target pops up, and
+   then the dart flies in from the top right, along its length, and hits the bull. It's turned
+   about its point, -45° (up to the right) at rest, so translate is where the point is from the
+   bull. The whole drawing is turned 15° to the right, flight and all, so the dart ends up 30°
+   above level, as it sticks out of the emoji. Once over, it stays as the emoji is, the dart in
+   the middle.
+   - 0–27%: the target pops up, turning, a little too big, and settles
+   - 30–44%: the dart flies in, faster as it comes, nose dipping, and hits at 44% (0.7s)
+   - 44–62%: the target gives and springs back; the burst round it
+   - 44–92%: the dart's end wobbles, less each time, and comes to rest */
+.welcome-target { position: relative; display: inline-block; }
+.welcome-target[hidden] { display: none; }
+.welcome-target__char { opacity: 0; }
+.welcome-target__scene { position: absolute; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; rotate: 15deg; }   /* the dart 30° up to the right, as the emoji's is */
+.welcome-target__scene svg { position: absolute; display: block; overflow: visible; }
+.welcome-target__board { left: 0; top: 0; }
+.welcome-target__pow { left: -7px; top: -7px; opacity: 0; }
+.welcome-target__dart { left: 11px; top: 8.5px; transform-origin: 0 50%; rotate: -45deg; }   /* its point on the bull */
+@media (prefers-reduced-motion: no-preference) {
+  .welcome-target__board { animation: target-shows 1.6s both; }
+  .welcome-target__dart { animation: dart-hits 1.6s both; }
+  .welcome-target__pow { animation: target-pow 1.6s both; }
+}
+@keyframes target-shows {
+  0% { opacity: 0; scale: 0.2; rotate: -60deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }
+  12% { opacity: 1; scale: 1.15; rotate: 8deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  20% { scale: 0.95; rotate: -3deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  27%, 44% { opacity: 1; scale: 1; rotate: 0deg; animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }   /* waiting */
+  48% { scale: 0.88; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }   /* hit: it gives... */
+  55% { scale: 1.05; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }   /* ...and springs back */
+  62%, 100% { opacity: 1; scale: 1; rotate: 0deg; }
+}
+@keyframes dart-hits {
+  0%, 30% { opacity: 0; translate: 30px -30px; rotate: -36deg; animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.55); }   /* off to the top right */
+  34% { opacity: 1; }
+  44% { translate: 0 0; rotate: -45deg; animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1); }   /* in the bull */
+  50% { rotate: -33deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  57% { rotate: -54deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  64% { rotate: -39deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  71% { rotate: -49.5deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  78% { rotate: -42.5deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  85% { rotate: -46.5deg; animation-timing-function: cubic-bezier(0.37, 0, 0.63, 1); }
+  92%, 100% { opacity: 1; translate: 0 0; rotate: -45deg; }
+}
+@keyframes target-pow {
+  0%, 44% { opacity: 0; scale: 0.6; }
+  46% { opacity: 1; scale: 1; }
+  58%, 100% { opacity: 0; scale: 1.25; }
+}
+
+/* The note sticker's pen: the ✍️ on "Leave me a note" (src/components/home/NotePen.astro), which
+   writes while the sticker is pointed at (src/scripts/note-pen.ts adds is-writing, and takes it
+   off at the end of a loop). The hand turns and moves about the pen's tip, at the bottom left of
+   the emoji, where the ink starts; the ink is drawn on as the hand moves right, at one speed, so
+   the line comes out under the pen. One loop, 1.4s:
+   - 0–6%: the pen goes down
+   - 6–54%: it writes four letters, a stroke up and one down each, 6.4px along
+   - 54–64%: it lifts; 64–90%: it goes back to the start of the line
+   - 62–82%: the ink fades, and it's taken back off out of sight, for the next line */
+.note-pen { position: relative; display: inline-block; }
+.note-pen__hand { display: inline-block; transform-origin: 10% 88%; }
+.note-pen__ink { position: absolute; left: 0.05em; top: 0.8em; display: block; color: var(--charcoal); opacity: 0; overflow: visible; }
+@media (prefers-reduced-motion: no-preference) {
+  .note-pen.is-writing .note-pen__hand { animation: pen-writes 1.4s infinite; }
+  .note-pen.is-writing .note-pen__ink { animation: pen-ink 1.4s infinite; }
+}
+@keyframes pen-writes {
+  0% { translate: 0 0; rotate: 0deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  6% { translate: 0 0.5px; rotate: -3deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }   /* down */
+  12% { translate: 0.8px -0.7px; rotate: 2deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  18% { translate: 1.6px 0.5px; rotate: -3deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  24% { translate: 2.4px -0.7px; rotate: 2deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  30% { translate: 3.2px 0.5px; rotate: -3deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  36% { translate: 4px -0.7px; rotate: 2deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  42% { translate: 4.8px 0.5px; rotate: -3deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  48% { translate: 5.6px -0.7px; rotate: 2deg; animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1); }
+  54% { translate: 6.4px 0.5px; rotate: -3deg; animation-timing-function: cubic-bezier(0.3, 0.6, 0.5, 1); }   /* the last letter */
+  64% { translate: 6.8px -1.8px; rotate: 7deg; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }   /* lifted */
+  90%, 100% { translate: 0 0; rotate: 0deg; }   /* back at the start */
+}
+@keyframes pen-ink {
+  0%, 6% { opacity: 1; clip-path: inset(-1px 100% -1px -1px); animation-timing-function: linear; }
+  54% { clip-path: inset(-1px -1px -1px -1px); }
+  62% { opacity: 1; }
+  82%, 100% { opacity: 0; clip-path: inset(-1px -1px -1px -1px); }
+}
 
 /* ---------- About ----------
    As a document: one column, the name and bio (with the photo print beside them from tablet

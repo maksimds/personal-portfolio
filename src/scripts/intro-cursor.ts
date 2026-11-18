@@ -3,7 +3,8 @@
    moving the way a hand moves a mouse. It has two parts:
    - the welcome, played once: it drags out a rectangle just above the intro (the sign marked
      data-cursor-welcome) from one corner to the other, types the sign's words into it ("Welcome
-     to my portfolio 🎯") and clicks back down on the board, where it rests, to let go. The sign stays.
+     to my portfolio 🎯", the 🎯 a drawing that plays as it goes in) and clicks back down on the
+     board, where it rests, to let go. The sign stays.
    - then round the stickies, over and over: on each one it double-clicks the words marked
      data-cursor-edit, deletes them, types them back and clicks on the empty board beside the
      sticky to let go
@@ -245,9 +246,10 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     edits[n] = { select, edit, done, typing };
   };
 
-  // The welcome; then a round: the stickies in this time's order, with a breath before each, then
-  // home, and a rest. The round starts and ends at home, so it can play over and over
-  wait(1200);
+  // A moment's pause as the page opens, the welcome; then a round: the stickies in this time's
+  // order, with a breath before each, then home, and a rest. The round starts and ends at home,
+  // so it can play over and over
+  wait(200);
   const drawing = sign && welcome(sign);
   const first = t;
   order.slice(1).forEach((part, i) => {
@@ -268,10 +270,18 @@ export function initIntroCursor(): void {
   const edits = Array.from(cursor.parentElement?.querySelectorAll<HTMLElement>('[data-cursor-edit]') ?? [])
     .map((target) => ({ target, sticky: target.closest<HTMLElement>('.sticky'), words: target.textContent ?? '', drawn: '' }))
     .filter((e): e is typeof e & { sticky: HTMLElement } => !!e.sticky && !!e.words);
-  // What it draws: the welcome sign, and the words it types into it
+  // What it draws: the welcome sign, and the words it types into it. Its last key can be a
+  // drawing (data-cursor-key, the character it stands for): the words end with that character,
+  // and the drawing shows once it's typed, playing as it goes in (the 🎯, WelcomeTarget.astro).
+  // The words typed so far are one text node in front of it, so the drawing is never taken out
+  // and put back, which would start it over.
   const signEl = cursor.parentElement?.querySelector<HTMLElement>('[data-cursor-welcome]');
   const signText = signEl?.querySelector<HTMLElement>('.shape__text') ?? signEl;
-  const sign = signEl && signText?.textContent ? { el: signEl, text: signText, words: signText.textContent, drawn: '' } : null;
+  const key = signText?.querySelector<HTMLElement>('[data-cursor-key]') ?? null;
+  const lead = signText ? Array.from(signText.childNodes).filter((n) => n !== key).map((n) => n.textContent).join('') : '';
+  const words = lead + (key?.dataset.cursorKey ?? '');
+  const sign = signEl && signText && words ? { el: signEl, text: signText, typed: document.createTextNode(lead), key, lead, words, drawn: '' } : null;
+  sign?.text.replaceChildren(sign.typed, ...(key ? [key] : []));
   if (!edits.length && !sign) return;
   const arrow = cursor.querySelector<SVGElement>('.cursor__arrow');
 
@@ -328,14 +338,18 @@ export function initIntroCursor(): void {
 
   // The sign at one moment: outlined while it's selected, with the words typed so far, and the
   // caret after them while it's being typed into. Its text grows from the middle, as it does in a
-  // shape on a board.
+  // shape on a board. A drawn last key shows from the moment it's typed.
   function drawSign(selected: boolean, editing: boolean, shown: number): void {
     if (!sign) return;
     const state = `${selected} ${editing} ${shown}`;
     if (state === sign.drawn) return;
     sign.drawn = state;
     sign.el.classList.toggle('is-edited', selected);
-    sign.text.replaceChildren(sign.words.slice(0, shown), ...(editing ? [caret()] : []));
+    const whole = shown >= sign.words.length;
+    sign.typed.data = sign.key && whole ? sign.lead : sign.words.slice(0, shown);
+    if (sign.key) sign.key.hidden = !whole;
+    sign.text.querySelector('.type-caret')?.remove();
+    if (editing) sign.text.append(caret());
   }
 
   // How many characters show at a moment, going by the keys pressed before it
