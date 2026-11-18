@@ -2146,15 +2146,23 @@ html:not(.js) .notes { display: none; }
 .back-link:focus-visible .arrow { animation: arrow-nudge-left 0.9s 0.04s both; }
 .case-back { margin-bottom: 40px; }
 
-/* The top: the title block, and beside it (from tablet width up) the logo on its card. A picture
-   instead of a logo goes under the title, as wide as the column. */
+/* The top: the title block, and beside it (from tablet width up) the logo on its card. The two
+   line up at the bottom, so the subtitle ends a little above the card's bottom edge however many
+   lines it runs to; a longer one puts the title higher. A picture instead of a logo goes under
+   the title, as wide as the column. */
 .case-top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 48px; }
 @media (min-width: 768px) {
-  .case-top--logo { grid-template-columns: minmax(0, 1fr) 352px; column-gap: 56px; align-items: center; }
+  .case-top--logo { grid-template-columns: minmax(0, 1fr) 352px; column-gap: 56px; align-items: end; }
+  .case-top--logo .case-head { margin-bottom: 12px; }
 }
 /* Title, status, subtitle. The stamp sits right after the title on its line; in the page's own
-   order it comes last, after the subtitle, as it always has. */
+   order it comes last, after the subtitle, as it always has. From tablet width up there's more
+   room between the title and the subtitle; on a phone the title is smaller beside the same stamp,
+   so the gap already looks as big. */
 .case-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+@media (min-width: 768px) {
+  .case-head { row-gap: 20px; }
+}
 .case-head h1 { order: 1; min-width: 0; }
 /* The status stamp is the large stamp made 15% smaller, text and all, with its words kept on one
    line ("In progress", "Completed") */
