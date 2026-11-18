@@ -145,9 +145,17 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('#work-title')).toHaveText('Work');
     await expect(page.locator('#side-projects-title')).toHaveText('Side projects');
     await expect(page.locator('#side-projects .work-card').first()).toContainText('Designed and developed a macOS app that lives in the notch');
-    // Polka's card (a screenshot rather than a logo) leads to its case study
+    // Polka's card (its demo playing, rather than a logo) leads to its case study. The clip is as
+    // tall as the logos' marks and isn't read out (the card is named by the project)
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__link')).toHaveAttribute('href', '/projects/polka-case-study.html');
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__thumb--wide')).toHaveCount(1);
+    const clip = page.locator('#side-projects .work-card').first().locator('.work-card__thumb video');
+    await expect(clip).toHaveAttribute('src', '/videos/polka-card.mp4');
+    await expect(clip).toHaveAttribute('aria-hidden', 'true');
+    expect(await clip.evaluate((v) => v.offsetHeight)).toBe(64);
+    if (await page.evaluate(() => !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"'))) {
+      await expect.poll(() => clip.evaluate((v) => !v.paused && v.currentTime > 0)).toBe(true);
+    }
 
     const boxes = await page.evaluate(() => {
       const box = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };

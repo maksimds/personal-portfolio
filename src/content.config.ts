@@ -33,6 +33,9 @@ const projects = defineCollection({
     // A wide picture with no space round it (a screenshot, as on Polka) instead of a square logo:
     // as tall as the other logos' marks and as wide as it is
     thumbWide: z.boolean().default(false),
+    // A clip that plays in a loop in place of the picture (with thumbWide): src a file in
+    // public/videos/, poster its 2x still in src/assets/images/ (see src/components/Video.astro)
+    thumbVideo: z.object({ src: z.string(), poster: z.string() }).optional(),
 
     // The big image under the heading. With logo: true it's a logo on the page background, sized
     // with logoWidth (--logo-width) and logoTrim (--logo-trim, the share of empty space around it).

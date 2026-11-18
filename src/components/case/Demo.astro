@@ -1,0 +1,16 @@
+---
+// "See demo": opens a screen recording below the link, on a widget card, the way "View prototype"
+// opens a Figma prototype. It plays in a loop while the panel is open and is only downloaded then.
+// Without JavaScript the link opens the clip itself. src and poster as on <CaseVideo>.
+import EmbedLink from './EmbedLink.astro';
+import EmbedPanel from './EmbedPanel.astro';
+import Widget from '../board/Widget.astro';
+import Video from '../Video.astro';
+
+interface Props { id: string; src: string; poster: string; label: string; }
+const { id, src, poster, label } = Astro.props;
+---
+<EmbedLink id={id} href={`/videos/${src}`} label="See demo" openLabel="Hide demo" />
+<EmbedPanel id={id}>
+  <Widget><div class="case-media__panel"><Video src={src} poster={poster} label={label} style="border-radius: 6px" /></div></Widget>
+</EmbedPanel>

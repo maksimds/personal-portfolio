@@ -1,7 +1,7 @@
 // Checks the case studies (src/components/case/): each is a page that scrolls, never a canvas; its
 // sections carry their headings; the links that open a panel under them ("See how it was before",
-// "View prototype", "App Store link") work with the mouse and the keyboard; and on a phone nothing
-// is wider than the screen.
+// "View prototype", "App Store link", "See demo") work with the mouse and the keyboard; Polka's
+// clips play while they're in view; and on a phone nothing is wider than the screen.
 const { test, expect } = require('@playwright/test');
 const { pages } = require('./helpers');
 
@@ -97,6 +97,53 @@ test('"View prototype" adds the embed only when it is opened', async ({ page }) 
   await expect(panel.locator('iframe')).toHaveAttribute('title', /\S/);
 });
 
+// Playwright's own Chromium (on GitHub) can't play H.264, so the clips only have to play where the
+// browser can (your Chrome)
+const canPlay = (page) => page.evaluate(() => !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"'));
+const playing = (video) => video.evaluate((v) => !v.paused && v.currentTime > 0);
+
+test('"See demo" on Polka sits right under "Polka on GitHub" and opens the clip, which plays only while it is open', async ({ page }) => {
+  await page.goto('projects/polka-case-study.html');
+  const github = page.locator('.case-intro a', { hasText: 'Polka on GitHub' });
+  const link = page.locator('[data-embed="demo"]');
+  const video = page.locator('#demo video');
+  await expect(link).toHaveText(/See demo/);
+  // The next line after the GitHub link
+  const [g, l] = await Promise.all([github.boundingBox(), link.boundingBox()]);
+  expect(Math.abs(l.x - g.x)).toBeLessThan(1);
+  expect(l.y).toBeGreaterThan(g.y + g.height - 1);
+  expect(l.y - (g.y + g.height)).toBeLessThan(24);
+  // Nothing is downloaded before it opens
+  expect(await video.evaluate((v) => v.readyState)).toBe(0);
+  await link.click();
+  await expect(link).toHaveText(/Hide demo/);
+  await expect(link).toHaveAttribute('aria-expanded', 'true');
+  await video.scrollIntoViewIfNeeded();
+  if (await canPlay(page)) await expect.poll(() => playing(video)).toBe(true);
+  await link.click();
+  await expect(link).toHaveText(/See demo/);
+  await expect.poll(() => video.evaluate((v) => v.paused)).toBe(true);
+});
+
+test('Polka\'s clips play while they are in view, and with less motion stay still with their controls', async ({ page }) => {
+  await page.goto('projects/polka-case-study.html');
+  const clips = page.locator('.case-detail video[data-loop]');
+  await expect(clips).toHaveCount(2);
+  for (const clip of await clips.all()) {
+    await expect(clip).toHaveAttribute('aria-label', /\S/);
+    await expect(clip).toHaveAttribute('poster', /\.webp$/);
+    await clip.scrollIntoViewIfNeeded();
+    if (await canPlay(page)) await expect.poll(() => playing(clip)).toBe(true);
+  }
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.reload();
+  for (const clip of await clips.all()) {
+    await clip.scrollIntoViewIfNeeded();
+    await expect.poll(() => clip.evaluate((v) => v.controls)).toBe(true);
+    expect(await clip.evaluate((v) => v.paused)).toBe(true);
+  }
+});
+
 test('"All work" leads to the works on the home page', async ({ page }) => {
   await page.goto('projects/tap-case-study.html');
   await page.locator('.case-back').click();
@@ -121,5 +168,10 @@ test.describe('without JavaScript', () => {
     await expect(link).toBeVisible();
     await expect(link).toHaveAttribute('href', /^https:\/\/www\.figma\.com\/proto\//);
     await expect(link).toHaveAttribute('target', '_blank');
+    // "See demo" opens the clip itself
+    const demo = page.locator('[data-embed="demo"]');
+    await page.goto('projects/polka-case-study.html');
+    await expect(demo).toHaveAttribute('href', '/videos/polka-demo.mp4');
+    await expect(demo).toHaveAttribute('target', '_blank');
   });
 });
