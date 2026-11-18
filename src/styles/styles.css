@@ -294,10 +294,16 @@ html:not(.is-canvas) .canvas-only { display: none; }
   background: var(--accent);
   color: #fff;
   font-weight: 550;
-  transition: background-color 0.15s var(--ease), transform 0.35s var(--ease-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+  transition: background-color 0.15s var(--ease), transform var(--press-back);
 }
-/* Pressed: it shrinks a little, then springs back (with a bounce) once the pointer lets go or leaves */
-.button-primary:active { transform: scale(0.92); transition-duration: 0.1s; }
+/* Pressed: it shrinks a little, then springs back (with a bounce) once the pointer lets go or
+   leaves. The violet buttons (Contact, Post, Send message), the site's name in the top-left pill,
+   and a sticker that's a link ("Leave me a note"); each has transform var(--press-back) in its
+   transition. It's transform, so it adds to a sticker's own scale and tilt. */
+:root { --press-back: 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.button-primary:active,
+.file-pill__name:active,
+a.stamp:active { transform: scale(0.92); transition-duration: 0.1s; }
 .button-primary:hover,
 .button-primary:focus-visible { background: var(--accent-2); }
 
@@ -321,6 +327,7 @@ html:not(.is-canvas) .canvas-only { display: none; }
   border-radius: var(--r-sm);
   font-weight: 550;
   white-space: nowrap;
+  transition: transform var(--press-back);   /* shrinks while pressed (see .button-primary) */
 }
 .file-pill__name:hover { background: var(--chrome-hover); }
 .page-switch { gap: 6px; min-width: 0; }
@@ -828,7 +835,7 @@ a.shape--diamond:focus-visible { translate: 0 -2px; }
 .stamp--gray { --fill: var(--sticky-gray); }
 .stamp--white { --fill: var(--sticky-white); }
 /* A stamp that's a link lifts and straightens halfway when pointed at */
-a.stamp { transition: rotate 0.3s var(--ease-out), scale 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out); }
+a.stamp { transition: rotate 0.3s var(--ease-out), scale 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out), transform var(--press-back); }   /* and shrinks while pressed (see .button-primary) */
 a.stamp:hover,
 a.stamp:focus-visible { rotate: calc(var(--tilt, -8deg) / 2); scale: 1.06; box-shadow: var(--shadow-float); }
 

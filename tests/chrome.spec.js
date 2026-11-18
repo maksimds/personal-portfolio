@@ -83,3 +83,31 @@ test.describe('on a phone', () => {
     await expect(menu).toBeHidden();
   });
 });
+
+// Pressed, a button shrinks a little and springs back once the pointer leaves (see .button-primary
+// in src/styles/styles.css): Contact and the site's name in the pills, "Leave me a note", Post on
+// the notes wall and Send message on the Contact page
+test('the buttons shrink while pressed, and spring back once the pointer leaves', async ({ page }) => {
+  const buttons = [
+    ['index.html', '.collab-pill .button-primary'],
+    ['index.html', '.file-pill__name'],
+    ['index.html', '.intro__hint'],
+    ['about.html', '.notes__post', '[data-notes-open]'],
+    ['contact.html', '.contact-form__button'],
+  ];
+  for (const [url, selector, open] of buttons) {
+    await page.goto(url);
+    if (open) await page.locator(open).click();
+    const button = page.locator(selector);
+    await expect(button).toBeVisible();
+    await button.scrollIntoViewIfNeeded();
+    const box = await button.boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await expect(button, selector).toHaveCSS('transform', 'matrix(0.92, 0, 0, 0.92, 0, 0)');
+    // Let go somewhere else, so nothing is clicked
+    await page.mouse.move(4, 450);
+    await page.mouse.up();
+    await expect(button, selector).toHaveCSS('transform', 'none');
+  }
+});
