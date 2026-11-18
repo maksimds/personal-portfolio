@@ -1393,7 +1393,7 @@ a.work-card__link:focus-visible::after { outline: 2px solid var(--select); outli
   object-fit: cover;
   transition: transform 0.6s var(--ease);
 }
-/* A clip (Polka's screen, Kalorie's phone): its corners round as much as its hit area's */
+/* A clip (Polka's screen, Kalorie's and Lynea's phones): its corners round as much as its hit area's */
 .work-card__thumb video { display: block; border-radius: var(--logo-radius, 0); }
 /* Pointing at the logo itself makes it grow and tilt. The hit area is an invisible box over the
    mark's own bounds: --logo-inset (and --logo-radius for a round one), set on the thumbnail when

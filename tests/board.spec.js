@@ -146,12 +146,12 @@ test.describe('the home page on a desktop', () => {
     await expect(page.locator('#side-projects-title')).toHaveText('Side projects');
     await expect(page.locator('#side-projects .work-card').first()).toContainText('Designed and developed a macOS app that lives in the notch');
     // Polka's card (its demo playing, rather than a logo) leads to its case study. Its clip, and
-    // Kalorie's (the prototype in its phone frame), are as tall as the logos' marks and aren't read
-    // out (the card is named by the project)
+    // Kalorie's and Lynea's (each prototype in its phone frame), are as tall as the logos' marks
+    // and aren't read out (the card is named by the project)
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__link')).toHaveAttribute('href', '/projects/polka-case-study.html');
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__thumb--wide')).toHaveCount(1);
     const canPlay = await page.evaluate(() => !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"'));
-    for (const [i, src] of [[0, '/videos/polka-card.mp4'], [1, '/videos/kalorie-card.mp4']]) {
+    for (const [i, src] of [[0, '/videos/polka-card.mp4'], [1, '/videos/kalorie-card.mp4'], [2, '/videos/lynea-card.mp4']]) {
       const clip = page.locator('#side-projects .work-card').nth(i).locator('.work-card__thumb video');
       await expect(clip).toHaveAttribute('src', src);
       await expect(clip).toHaveAttribute('aria-hidden', 'true');
