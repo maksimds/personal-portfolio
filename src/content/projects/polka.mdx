@@ -4,7 +4,7 @@ published: true
 
 title: "Polka"
 subtitle: "A macOS app that turns the MacBook notch into a little shelf for files, links, pictures and text"
-status: "v1.0 released"
+status: "v2.0 released"
 description: "Polka: a macOS app that turns the MacBook notch into a little shelf for files, links, pictures and text."
 
 # On the home page: the demo (see "See demo" below), playing in a loop, as tall as the other logos'
@@ -48,6 +48,17 @@ facts:
    - The Figma mock-up of the shelf's three states (Designing it in Figma first)
    - The shelf in a few custom colors (Color, transparency and glass; the black shelf and the
      settings window are already there)
+   Added with v2.0, each with its block in a note where it goes:
+   - The Send To box beside the shelf while an item is dragged (Nearby Sharing: designing it)
+   - An incoming item on the receiving Mac, with Accept and Decline (same section)
+   - Two Macs showing the same 6-digit code while being remembered (same section)
+   - A short clip of an item sent from one Mac and arriving on the other (same section)
+   - The Nearby Sharing tab in Settings (Engineering Nearby Sharing)
+   - The shelf with folders, and a folder opened with "Polka / work" at the top (Folders)
+   - Folders under the drop area while something is dragged to the notch (Folders)
+   - The new right-click menu: Copy, Rename, Send To, Move To (Everything else in 2.0)
+   - The redesigned Settings window, General tab (Color, transparency and glass; it can
+     replace polka-settings.png, which shows the v1.0 window)
 
    The clips are cut from two screen recordings of the selected area round the notch, at 2x, as
    H.264 MP4s in public/videos/, each ending with its last half second fading into its first so it
@@ -57,7 +68,7 @@ facts:
 
 <CaseIntro>
 
-Polka is a personal project I designed and built from scratch: a native macOS app that lives in the MacBook notch. Move your pointer to the notch and a shelf opens, where you can keep files, folders, links, pictures and text, then drag them back out into any app. It was also my first time building a macOS app, and my first real project engineered with Claude Code. Polka went from an empty Xcode project to v1.0 in about a week, and it’s free and open source on GitHub.
+Polka is a personal project I designed and built from scratch: a native macOS app that lives in the MacBook notch. Move your pointer to the notch and a shelf opens, where you can keep files, folders, links, pictures and text, then drag them back out into any app. It was also my first time building a macOS app, and my first real project engineered with Claude Code. Polka went from an empty Xcode project to v1.0 in about a week. One week later, v2.0 added sending items to Macs nearby and folders on the shelf. It’s free and open source on GitHub, and more than 20 people use it now.
 
 <ArrowLink href="https://github.com/maksimds/Polka">Polka on GitHub</ArrowLink>
 
@@ -149,7 +160,7 @@ The shelf opens after a short pause on the notch, so passing the pointer by on t
   { src: "polka-app.png", alt: "The open Polka shelf, a dark panel under the notch: Resume.pdf, LinkedIn and Portfolio pinned in the top row, and Supabase, GitHub, a cover letter, a job search page in Notion and Transcript.pdf below them", retina: true },
 ]} />
 
-Items sit in a grid that feels familiar: move them around like apps on an iPhone, sort them by name, kind or date like a Finder window, or pin up to five to the top row. Right-click any item to rename it, preview it with Quick Look, share it with AirDrop, or convert a document to PDF. Removing an item turns it to dust, an animation inspired by Telegram.
+Items sit in a grid that feels familiar: move them around like apps on an iPhone, sort them by name, kind or date like a Finder window, or pin up to five to the top row. Right-click any item to copy it, rename it, preview it with Quick Look, see its info, share it with AirDrop, or convert a document to PDF. Removing an item turns it to dust, an animation inspired by Telegram.
 
 <CaseMedia variant="card" caption="Sorted by kind, with a heading for each kind" images={[
   { src: "polka-sorted.png", alt: "The shelf sorted by kind and scrolled down a little: the three pinned items at the top, then a PDF heading over Cover Letter and Transcript.pdf, and a Links heading below them", retina: true },
@@ -163,7 +174,9 @@ Items sit in a grid that feels familiar: move them around like apps on an iPhone
 
 <CaseDetail title="Your files never move">
 
-Polka remembers where your files are instead of copying them, so your originals stay where they are and Polka even follows them if you rename or move them later. If a file gets deleted, its item shows as unavailable instead of quietly disappearing. For things you want to keep safe, **Keep a Copy** saves Polka’s own copy, and **Temporary** removes an item after 24 hours. New screenshots can go straight to the shelf, too.
+Polka remembers where your files are instead of copying them, so your originals stay where they are and Polka even follows them if you rename or move them later. If a file gets deleted, its item shows as unavailable instead of quietly disappearing. For things you want to keep safe, **Keep a Copy** saves Polka’s own copy. New screenshots can go straight to the shelf, too.
+
+Version 1.0 also had **Temporary** items that removed themselves after 24 hours. I took them out in 2.0: now everything simply stays on the shelf until you remove it.
 
 </CaseDetail>
 
@@ -182,7 +195,14 @@ Polka remembers where your files are instead of copying them, so your originals 
 
 The open shelf can be solid black or see-through glass that softly blurs your desktop, like the Finder sidebar. You can tint it any color from a color picker or a hex code, and Polka turns it into a deep, glassy gradient so the names on the shelf always stay easy to read. On a Mac without a notch, Polka shows a small dark bar at the top of the screen instead.
 
-<CaseMedia variant="card" caption="Settings: transparency and color, how soon the shelf opens, and how long temporary items last" images={[
+{/* Image to add: the redesigned Settings window from v2.0, General tab, with the General and
+   Nearby Sharing tabs at the top. It can replace the v1.0 window below.
+<CaseMedia variant="card" caption="Settings in 2.0: General and Nearby Sharing tabs, like System Settings" images={[
+  { src: "polka-settings-v2.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+<CaseMedia variant="card" caption="Settings in v1.0: transparency and color, how soon the shelf opens, and how long temporary items last" images={[
   { src: "polka-settings.png", alt: "The Polka Settings window: Open at Login; a Transparency slider at 30%, a color picker and a hex field; Open after 250 ms and a Small, Medium or Large hover area; Temporary items last 1 day; and Save Screenshots to Polka", retina: true },
 ]} />
 
@@ -202,13 +222,113 @@ Everything stays on your Mac, with no accounts and no cloud. Link previews never
 
 </CaseDetail>
 
+{/* Version 2.0 */}
+
+<CaseSection title="Version 2.0: Sending to Macs nearby, and folders to keep the shelf tidy">
+
+After v1.0, I used Polka every single day, and the more I used it, the more I noticed what was still missing. So I went back to the same process: design it first, then engineer it. One week later, Polka 2.0 was out. The biggest change is Nearby Sharing, then folders, plus a handful of smaller things that make the shelf feel even more like Finder.
+
+</CaseSection>
+
+<CaseDetail title="Nearby Sharing: designing it">
+
+You can now send files, links and text from your shelf straight to another Mac’s shelf, without AirDrop, and the two Macs don’t even need to be on the same network.
+
+{/* Image to add: the Send To box beside the shelf while an item is dragged
+<CaseMedia variant="card" caption="Start dragging and the Macs nearby appear beside the shelf" images={[
+  { src: "polka-send-box.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+As a designer, I wanted sending something to feel as natural as dropping it on the shelf. So when you start dragging an item, a small box with the Macs nearby appears right beside the shelf, and you just drop it on the one you want. You can also right-click any item and choose **Send To**.
+
+{/* Image to add: an incoming item on the receiving Mac's shelf, with Accept and Decline
+<CaseMedia variant="card" caption="On the other Mac, the shelf opens and asks before anything arrives" images={[
+  { src: "polka-offer.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+On the other side, the shelf opens on its own and shows what’s arriving, with clear **Accept** and **Decline** buttons. **Decline and Block** turns a Mac away when someone you don’t know keeps sending things.
+
+{/* Image to add: two Macs showing the same 6-digit code while being remembered
+<CaseMedia caption="Remembering a Mac you trust: if the codes match, you’re done" images={[
+  { src: "polka-pairing.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]" },
+]} />
+*/}
+
+For Macs you trust, I designed a simple pairing flow: both screens show a 6-digit code, and if they match, everything between those two Macs arrives without asking from then on.
+
+{/* Clip to add: an item sent from one Mac and arriving on the other, recorded like the others
+<CaseVideo src="polka-nearby.mp4" poster="polka-nearby-poster.png" radius="0 0 20px 20px"
+  caption="A file sent from one Mac lands on the other Mac’s shelf"
+  label="[YOUR DESCRIPTION OF THE CLIP]" />
+*/}
+
+</CaseDetail>
+
+<CaseDetail title="Nearby Sharing: engineering it">
+
+Engineering it with Claude Code was the most challenging part of the project so far. Since this feature lets another device send things to your Mac, it had to be safe, not just work. I built it in six small steps: finding Macs nearby, sending links and text, sending files with previews, progress and a cancel button, remembering trusted Macs, and the Send To box.
+
+Then I finished by testing it against a fake “hostile” Mac that tried to break it, followed by a security review and a couple of fixes. Offers are capped at 50 items and 1 GB at a time, and you can set Polka to receive only from Macs you’ve remembered, so no one else can even see you. It was a good reminder that the features that look simplest on the surface often need the most care underneath.
+
+{/* Image to add: the Nearby Sharing tab in Settings
+<CaseMedia variant="card" caption="The Nearby Sharing tab: your name, who can send to you, and the Macs you trust" images={[
+  { src: "polka-nearby-settings.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+</CaseDetail>
+
+<CaseDetail title="Folders">
+
+My shelf quickly filled up with job search links, my resume, portfolio and project files, and it started to look a lot like the cluttered Desktop I was trying to escape. Now you can create folders right on the shelf and sort items into them.
+
+{/* Image to add: the shelf with folders, and a folder opened with "Polka / work" at the top
+<CaseMedia variant="stack" caption="Folders on the shelf, and one opened, with the path at the top" images={[
+  { src: "polka-folders.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+  { src: "polka-folder-open.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+I designed them to feel familiar: double-click a folder to open it, and the path at the top shows where you are and takes you back. Each folder keeps its own order and pinned items, and a folder you want to take somewhere can be compressed into a single .zip file.
+
+{/* Image to add: folders under the drop area while something is dragged to the notch
+<CaseMedia variant="card" caption="Drag something to the notch and drop it straight into a folder" images={[
+  { src: "polka-folder-drop.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+When you drag something up to the notch, your folders appear under the drop area, so you can drop it straight where it belongs. Folders only live inside Polka, so nothing gets created or moved in Finder.
+
+</CaseDetail>
+
+<CaseDetail title="Everything else in 2.0">
+
+{/* Image to add: the new right-click menu, with Copy, Rename, Send To and Move To
+<CaseMedia variant="card" caption="The right-click menu in 2.0" images={[
+  { src: "polka-menu-v2.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+]} />
+*/}
+
+The rest of the update makes the shelf work even more like Finder. Polka also tells you when something is already on the shelf instead of adding it twice, Shift-click selects a range of items, and the Settings window got General and Nearby Sharing tabs, like System Settings.
+
+<CaseFeatures reveal={false} items={[
+  "Copy and paste with ⌘C and ⌘V right on the shelf",
+  "Rename the actual file or edit a link’s address",
+  "Compress a folder into a single .zip file",
+  "Get Info, just like in Finder",
+]} />
+
+</CaseDetail>
+
 <CaseRule />
 
 {/* Impact */}
 
 <CaseSection title="Impact: Designed, built, shipped, and my Desktop is finally clean (mostly)" afterRule>
 
-There are no download numbers to share yet, since Polka was built for me first. What I can say is that it went from an idea and a Figma prototype to a released v1.0 in about a week, and it’s now the first place I drop a file instead of the Desktop. Along the way I delivered a PRD, a Figma mock-up and prototype, a native macOS app, a user guide in the README, and a free, open-source release under the MIT license. I’m planning to keep improving it, so feature ideas are always welcome.
+Polka was built for me first, so I honestly didn’t expect more than 20 people to start using it within a couple of weeks. It went from an idea and a Figma prototype to v1.0 in about a week, and to v2.0, with Nearby Sharing and folders, a week after that. It’s now the first place I drop a file instead of the Desktop. Along the way I delivered a PRD, a Figma mock-up and prototype, a native macOS app, a user guide in the README, and two free, open-source releases under the MIT license. I’m planning to keep improving it, so feature ideas are always welcome.
 
 **Try it:** download Polka from the <a class="link" href="https://github.com/maksimds/Polka/releases" target="_blank" rel="noopener">Releases page on GitHub</a>.
 
