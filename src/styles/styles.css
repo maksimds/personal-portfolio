@@ -1289,6 +1289,17 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 }
 .intro__clock { font-variant-numeric: tabular-nums; font-weight: 600; }
 .intro__title { margin-bottom: 40px; }
+/* The greeting's second sentence, on a line of its own in smaller type. Kept to one line on the
+   canvas, where the intro has a fixed height and room for about 50px more under the greeting. */
+.intro__tagline {
+  display: block;
+  margin-top: 12px;
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.is-canvas .intro__title { margin-bottom: 24px; }   /* so the stickies stay clear of the intro's bottom edge */
 .intro { margin-top: 32px; }   /* room above for the tab and the portrait's tape */
 .is-canvas .intro { margin-top: 0; }
 /* On each sticky the label is small and technical, the value big underneath it */
