@@ -30,12 +30,11 @@ const person = {
   image: new URL(portrait.src, Astro.site).href,
   email: `mailto:${site.email}`,
   jobTitle: 'Product Designer',
-  worksFor: { '@type': 'Organization', name: 'dōTERRA' },
   address: { '@type': 'PostalAddress', addressLocality: 'Cincinnati', addressRegion: 'OH', addressCountry: 'US' },
   sameAs: [site.linkedinUrl, site.githubUrl],
 };
 ---
-<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer, currently @ dōTERRA. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" board="canvas" page="home" zoom={0.75}>
+<BaseLayout title="Denis Maksimov — Portfolio" description="Product designer finishing up a Bachelor’s degree in IT. Seeking full-time design roles after graduation in May ’27." canonicalPath="/" board="canvas" page="home" zoom={0.75}>
 
   <script slot="head" type="application/ld+json" is:inline set:html={JSON.stringify(person)}></script>
 
