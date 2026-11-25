@@ -53,12 +53,10 @@ facts:
    - An incoming item on the receiving Mac, with Accept and Decline (same section)
    - Two Macs showing the same 6-digit code while being remembered (same section)
    - A short clip of an item sent from one Mac and arriving on the other (same section)
-   - The Nearby Sharing tab in Settings (Engineering Nearby Sharing)
-   - The shelf with folders, and a folder opened with "Polka / work" at the top (Folders)
+   - The shelf with a few folders on it (Folders; the opened folder is already there)
    - Folders under the drop area while something is dragged to the notch (Folders)
-   - The new right-click menu: Copy, Rename, Send To, Move To (Everything else in 2.0)
-   - The redesigned Settings window, General tab (Color, transparency and glass; it can
-     replace polka-settings.png, which shows the v1.0 window)
+   Already in from v2.0: the Settings window's General and Nearby Sharing tabs, an opened
+   folder, and the right-click menu.
 
    The clips are cut from two screen recordings of the selected area round the notch, at 2x, as
    H.264 MP4s in public/videos/, each ending with its last half second fading into its first so it
@@ -195,12 +193,11 @@ Version 1.0 also had **Temporary** items that removed themselves after 24 hours.
 
 The open shelf can be solid black or see-through glass that softly blurs your desktop, like the Finder sidebar. You can tint it any color from a color picker or a hex code, and Polka turns it into a deep, glassy gradient so the names on the shelf always stay easy to read. On a Mac without a notch, Polka shows a small dark bar at the top of the screen instead.
 
-{/* Image to add: the redesigned Settings window from v2.0, General tab, with the General and
-   Nearby Sharing tabs at the top. It can replace the v1.0 window below.
 <CaseMedia variant="card" caption="Settings in 2.0: General and Nearby Sharing tabs, like System Settings" images={[
-  { src: "polka-settings-v2.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+  { src: "polka-settings-v2.png", alt: "The open shelf above the Polka Settings window on its General tab, with a Nearby Sharing tab beside it: Open at Login switched on, a Transparency slider at 40%, a color picker and the hex field at #5F5F5F", retina: true },
 ]} />
-*/}
+
+{/* The v1.0 window below can go now that the 2.0 one is above it */}
 
 <CaseMedia variant="card" caption="Settings in v1.0: transparency and color, how soon the shelf opens, and how long temporary items last" images={[
   { src: "polka-settings.png", alt: "The Polka Settings window: Open at Login; a Transparency slider at 30%, a color picker and a hex field; Open after 250 ms and a Small, Medium or Large hover area; Temporary items last 1 day; and Save Screenshots to Polka", retina: true },
@@ -272,11 +269,9 @@ Engineering it with Claude Code was the most challenging part of the project so 
 
 Then I finished by testing it against a fake “hostile” Mac that tried to break it, followed by a security review and a couple of fixes. Offers are capped at 50 items and 1 GB at a time, and you can set Polka to receive only from Macs you’ve remembered, so no one else can even see you. It was a good reminder that the features that look simplest on the surface often need the most care underneath.
 
-{/* Image to add: the Nearby Sharing tab in Settings
 <CaseMedia variant="card" caption="The Nearby Sharing tab: your name, who can send to you, and the Macs you trust" images={[
-  { src: "polka-nearby-settings.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+  { src: "polka-nearby-settings.png", alt: "The open shelf above the Polka Settings window on its Nearby Sharing tab: Share with Macs Nearby switched off, the name CEO of Polka, Receive From set to Everyone, and under Remembered Macs, “No remembered Macs yet” with a Remember a Nearby Mac button", retina: true },
 ]} />
-*/}
 
 </CaseDetail>
 
@@ -284,12 +279,17 @@ Then I finished by testing it against a fake “hostile” Mac that tried to bre
 
 My shelf quickly filled up with job search links, my resume, portfolio and project files, and it started to look a lot like the cluttered Desktop I was trying to escape. Now you can create folders right on the shelf and sort items into them.
 
-{/* Image to add: the shelf with folders, and a folder opened with "Polka / work" at the top
-<CaseMedia variant="stack" caption="Folders on the shelf, and one opened, with the path at the top" images={[
+{/* Image to add: the shelf with a few folders on it. When it's here, put both in one block:
+   variant="stack", caption "Folders on the shelf, and one opened, with the path at the top",
+   polka-folders.png first.
+<CaseMedia variant="card" caption="Folders on the shelf" images={[
   { src: "polka-folders.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
-  { src: "polka-folder-open.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
 ]} />
 */}
+
+<CaseMedia variant="card" caption="Inside a folder, the path at the top shows where you are" images={[
+  { src: "polka-folder-open.png", alt: "The shelf inside a folder called Work, with “Polka / Work” at the top and a Portfolio link inside it", retina: true },
+]} />
 
 I designed them to feel familiar: double-click a folder to open it, and the path at the top shows where you are and takes you back. Each folder keeps its own order and pinned items, and a folder you want to take somewhere can be compressed into a single .zip file.
 
@@ -305,11 +305,9 @@ When you drag something up to the notch, your folders appear under the drop area
 
 <CaseDetail title="Everything else in 2.0">
 
-{/* Image to add: the new right-click menu, with Copy, Rename, Send To and Move To
 <CaseMedia variant="card" caption="The right-click menu in 2.0" images={[
-  { src: "polka-menu-v2.png", alt: "[YOUR DESCRIPTION OF THE IMAGE]", retina: true },
+  { src: "polka-menu-v2.png", alt: "Resume.pdf right-clicked on the shelf, with a menu of Quick Look, Get Info, Copy, Rename, Share, Move To, Unpin, Keep a Copy and Remove", retina: true },
 ]} />
-*/}
 
 The rest of the update makes the shelf work even more like Finder. Polka also tells you when something is already on the shelf instead of adding it twice, Shift-click selects a range of items, and the Settings window got General and Nearby Sharing tabs, like System Settings.
 
