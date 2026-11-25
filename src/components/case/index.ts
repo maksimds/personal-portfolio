@@ -15,7 +15,6 @@ import CaseSection from './CaseSection.astro';
 import CaseVideo from './CaseVideo.astro';
 import Demo from './Demo.astro';
 import Prototype from './Prototype.astro';
-import StoreLink from './StoreLink.astro';
 
 export const caseComponents = {
   ArrowLink,
@@ -34,5 +33,4 @@ export const caseComponents = {
   CaseVideo,
   Demo,
   Prototype,
-  StoreLink,
 };
