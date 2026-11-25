@@ -141,17 +141,17 @@ test.describe('the home page on a desktop', () => {
   test('"Work" and "Side projects" sit side by side under the intro, their cards in order', async ({ page }) => {
     const names = (id) => page.locator(`#${id} .work-card__name`).allTextContents();
     expect(await names('work')).toEqual(['dōTERRA', 'tap.', 'Focal']);
-    expect(await names('side-projects')).toEqual(['Polka', 'Kalorie', 'Lynea', 'Turblend']);
+    expect(await names('side-projects')).toEqual(['Polka', 'Lynea', 'Kalorie', 'Turblend']);
     await expect(page.locator('#work-title')).toHaveText('Work');
     await expect(page.locator('#side-projects-title')).toHaveText('Side projects');
     await expect(page.locator('#side-projects .work-card').first()).toContainText('Designed and developed a macOS app that lives in the notch');
     // Polka's card (its demo playing, rather than a logo) leads to its case study. Its clip, and
-    // Kalorie's and Lynea's (each prototype in its phone frame), are as tall as the logos' marks
+    // Lynea's and Kalorie's (each prototype in its phone frame), are as tall as the logos' marks
     // and aren't read out (the card is named by the project)
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__link')).toHaveAttribute('href', '/projects/polka-case-study.html');
     await expect(page.locator('#side-projects .work-card').first().locator('.work-card__thumb--wide')).toHaveCount(1);
     const canPlay = await page.evaluate(() => !!document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"'));
-    for (const [i, src] of [[0, '/videos/polka-card.mp4'], [1, '/videos/kalorie-card.mp4'], [2, '/videos/lynea-card.mp4']]) {
+    for (const [i, src] of [[0, '/videos/polka-card.mp4'], [1, '/videos/lynea-card.mp4'], [2, '/videos/kalorie-card.mp4']]) {
       const clip = page.locator('#side-projects .work-card').nth(i).locator('.work-card__thumb video');
       await expect(clip).toHaveAttribute('src', src);
       await expect(clip).toHaveAttribute('aria-hidden', 'true');
@@ -174,8 +174,8 @@ test.describe('the home page on a desktop', () => {
     expect(boxes.work.right).toBeLessThan(boxes.side.left);
     expect(Math.abs((boxes.work.left + boxes.side.right) / 2 - (boxes.intro.left + boxes.intro.right) / 2)).toBeLessThan(1);
     // Three to a row in "Side projects": Turblend starts the second, under Polka
-    const [polka, kalorie, lynea, turblend] = boxes.cards;
-    for (const card of [kalorie, lynea]) expect(Math.abs(card.top - polka.top)).toBeLessThan(4);
+    const [polka, lynea, kalorie, turblend] = boxes.cards;
+    for (const card of [lynea, kalorie]) expect(Math.abs(card.top - polka.top)).toBeLessThan(4);
     expect(turblend.top).toBeGreaterThan(polka.bottom);
     expect(Math.abs(turblend.left - polka.left)).toBeLessThan(4);
   });
