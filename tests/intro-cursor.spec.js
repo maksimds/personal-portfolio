@@ -13,7 +13,7 @@ const { test, expect } = require('@playwright/test');
 const STICKIES = [
   { text: 'Finishing up my Bachelor’s degree in IT', words: 'degree in IT' },
   { text: 'Design roles after graduation in May ’27', words: 'May ’27' },
-  { text: 'Mobile apps, websites, platforms & design systems', words: 'design systems' },
+  { text: 'Mobile apps, web apps, design systems, and front-end development', words: 'development' },
 ];
 const WELCOME = 'Welcome to my portfolio 🎯';
 const cursor = (page) => page.locator('.home-cursor');
