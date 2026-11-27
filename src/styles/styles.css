@@ -1245,8 +1245,8 @@ html:not([data-board="canvas"]) [data-pref="list"] { display: none; }
 /* ---------- Home ----------
    As a document (phones, tablets, "View as list", no JavaScript): one column, the intro over
    "Work" over "Side projects" over the footer. As a canvas: the same on a 4000 × 3000 board, the
-   intro at the middle, the two sections side by side below it (.works-row) and the footer under
-   "Work". The layer's padding is where the column starts on the board; everything inside
+   intro at the middle, the two sections side by side below it (.works-row), "Work" a little lower
+   than "Side projects", and the footer under "Work". The layer's padding is where the column starts on the board; everything inside
    still flows, so nothing can overlap. The page opens at 75% (`zoom` in index.astro), with the
    top of the welcome sign level with the bottom of the top pills, whatever the screen's height:
    the intro, the line splitting and the tops of the two sections in view below it. */
@@ -1262,22 +1262,23 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 .is-canvas[data-page="home"] main { width: auto; }
 /* Arriving at /#work, the layer starts at "Work" instead: where the script would put it (centred,
    its top 120px down the screen), at the page's zoom. Its place on the board is fixed: across, the
-   layer's padding (1448) − 616 (see .works-row) + half its width (552) = 1384; down, the layer's
-   padding (1160) + the intro's height (472) + the gap between them (193) = 1825. */
+   layer's padding (1448) − 624 (see .works-row) + half its width (552) = 1376; down, the layer's
+   padding (1160) + the intro's height (472) + the gap under it (208) + Work's own 48 = 1888. */
 .is-canvas[data-page="home"]:has(#work:target) .board__layer {
-  transform: translate(calc(50vw - 1384px * var(--start-zoom, 1)), calc(120px - 1825px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+  transform: translate(calc(50vw - 1376px * var(--start-zoom, 1)), calc(120px - 1888px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
-/* The same for /#side-projects (a side project's "All work"): 1384 + 1104 + 128 = 2616 across */
+/* The same for /#side-projects (a side project's "All work"): 1376 + 1104 + 160 = 2640 across,
+   1888 − 48 = 1840 down */
 .is-canvas[data-page="home"]:has(#side-projects:target) .board__layer {
-  transform: translate(calc(50vw - 2616px * var(--start-zoom, 1)), calc(120px - 1825px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
+  transform: translate(calc(50vw - 2640px * var(--start-zoom, 1)), calc(120px - 1840px * var(--start-zoom, 1))) scale(var(--start-zoom, 1));
 }
-/* The footer under "Work", centred under it, 152px below it as on the other boards. Work's middle
-   is 1384 on the board (see .works-row), so the footer starts at 1384 − 512 / 2 = 1128, 320 left
-   of the intro's column. It comes after the two sections in the page, so it would start below the
-   taller, "Side projects" (two rows of cards, 640 tall; "Work" is one row and the years line,
-   368): it's pulled up by the difference, 152 − (640 − 368) = −120. Beside it, "Side projects"
+/* The footer under "Work", 112px below it and 20px right of its middle: it starts at 1544 − 400 =
+   1144 on the board, 304 left of the intro's column. It comes after the two sections in the page,
+   so it would start below the taller, "Side projects" (two rows of cards, 640 tall, its top 208
+   under the intro; "Work" is one row and the years line, 368, its top 256 under it): it's pulled
+   up by the difference, (256 + 368 + 112) − (208 + 640) = −112. Beside it, "Side projects"
    carries on down, clear of it. */
-.is-canvas[data-page="home"] .site-footer { margin: -120px 0 0 -320px; }
+.is-canvas[data-page="home"] .site-footer { margin: -112px 0 0 -304px; }
 
 /* Intro: where and when in small technical type, the greeting, then a sticky for each status line */
 .intro__location {
@@ -1346,19 +1347,20 @@ html[data-page="home"] main { width: min(1104px, 100% - 32px); margin: 0 auto; }
 
 /* Work and Side projects: a card for each project */
 .works { margin-top: 136px; }
-/* On the canvas, side by side under the intro, 193px below it, and as wide as the two of them:
-   each is 1104 (three 304px cards, two 64px gaps and the section's padding), with 128 between
-   them, 2336 in all. That's 1232 wider than the intro's column, so it starts 616 to its left, and
-   the intro is centred over the pair. */
+/* On the canvas, side by side under the intro: each is 1104 (three 304px cards, two 64px gaps and
+   the section's padding), with 160 between them, 2368 in all. The row starts 624 left of the
+   intro's column (720 left of the intro itself) and 208px below the intro, where "Side projects"
+   starts; "Work" sits 48px lower. */
 .is-canvas .works-row {
   display: grid;
   grid-template-columns: 1104px 1104px;
-  gap: 128px;
+  gap: 160px;
   align-items: start;
-  width: 2336px;
-  margin: 193px 0 0 -616px;
+  width: 2368px;
+  margin: 208px 0 0 -624px;
 }
 .is-canvas .works { margin-top: 0; }
+.is-canvas .works-row > .works:not(.works--side) { margin-top: 48px; }
 .works__meta {
   margin: 0 0 28px;
   font-family: var(--font-mono);

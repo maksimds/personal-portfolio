@@ -168,11 +168,12 @@ test.describe('the home page on a desktop', () => {
         cards: [...document.querySelectorAll('#side-projects .work-card')].map(box),
       };
     });
-    // Both below the intro, their tops level, "Work" on the left, and the intro centred over the pair
-    expect(boxes.work.top).toBeGreaterThan(boxes.intro.bottom);
-    expect(Math.abs(boxes.work.top - boxes.side.top)).toBeLessThan(1);
+    // Both below the intro, "Work" on the left and a little lower, the intro between them
+    expect(boxes.side.top).toBeGreaterThan(boxes.intro.bottom);
+    expect(boxes.work.top).toBeGreaterThan(boxes.side.top);
     expect(boxes.work.right).toBeLessThan(boxes.side.left);
-    expect(Math.abs((boxes.work.left + boxes.side.right) / 2 - (boxes.intro.left + boxes.intro.right) / 2)).toBeLessThan(1);
+    expect(boxes.work.left).toBeLessThan(boxes.intro.left);
+    expect(boxes.side.right).toBeGreaterThan(boxes.intro.right);
     // Three to a row in "Side projects": Turblend starts the second, under Polka
     const [polka, lynea, kalorie, turblend] = boxes.cards;
     for (const card of [lynea, kalorie]) expect(Math.abs(card.top - polka.top)).toBeLessThan(4);
@@ -180,16 +181,18 @@ test.describe('the home page on a desktop', () => {
     expect(Math.abs(turblend.left - polka.left)).toBeLessThan(4);
   });
 
-  test('the sections are 193px under the intro, and the footer is centred under "Work", clear of "Side projects"', async ({ page }) => {
+  test('the sections and the footer start where the layout puts them, the footer clear of "Side projects"', async ({ page }) => {
     // Once everything has dropped in, which moves it a few pixels
     await page.waitForFunction(() => document.getAnimations().every((a) => a.animationName !== 'drop-in' || a.playState === 'finished'));
     const { intro, work, side, footer, zoom } = await page.evaluate(() => {
       const box = (s) => { const r = document.querySelector(s).getBoundingClientRect(); return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }; };
       return { intro: box('[data-drag="intro"]'), work: box('#work'), side: box('#side-projects'), footer: box('.site-footer'), zoom: new DOMMatrix(getComputedStyle(document.querySelector('.board__layer')).transform).a };
     });
-    expect(Math.round((work.top - intro.bottom) / zoom)).toBe(193);
-    expect(Math.abs((footer.top - work.bottom) / zoom - 152)).toBeLessThan(1);
-    expect(Math.abs((footer.left + footer.right) / 2 - (work.left + work.right) / 2)).toBeLessThan(1);
+    // Each one's top-left corner, in board pixels from the intro's
+    const at = (box) => [Math.round((box.left - intro.left) / zoom), Math.round((box.top - intro.top) / zoom)];
+    expect(at(work)).toEqual([-720, 728]);
+    expect(at(side)).toEqual([544, 680]);
+    expect(at(footer)).toEqual([-400, 1208]);
     expect(footer.right).toBeLessThan(side.left);
   });
 
