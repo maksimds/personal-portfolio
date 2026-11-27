@@ -1055,23 +1055,34 @@ div.widget__bar { justify-content: flex-end; }   /* no name: just the dots */
    has no route of its own and no chat bubble: it waits where it's placed for the script. */
 .cursor--scripted { animation: none; }
 .cursor--scripted .cursor__chat { display: none; }
-/* What such a cursor is editing: the sticky is outlined in the cursor's colour, as someone
+/* What such a cursor is editing: the sticky (or the words themselves, off a sticky) is outlined in the cursor's colour, as someone
    else's selection is on a shared board, and a caret stands in its text. The caret takes up no
    room, and the words the cursor has "deleted" (.type-rest) are only see-through, still in
    their place, so nothing on the sticky moves; the words being edited can't break across lines
    either, which the caret in the middle of one would otherwise allow. The caret blinks once
    it's been still a while. */
 .sticky.is-edited { outline: 2px solid var(--tab-violet); }
-.is-edited [data-cursor-edit] { white-space: nowrap; }
+/* Words that aren't on a sticky (the intro's greeting) are outlined themselves, a little clear of the letters */
+[data-cursor-edit].is-edited { outline: 2px solid var(--tab-violet); outline-offset: 4px; }
+.is-edited [data-cursor-edit],
+[data-cursor-edit].is-edited { white-space: nowrap; }
 .type-rest { opacity: 0; }
 .type-caret {
+  /* No size of its own, sitting on the baseline, so it never makes a line taller or wider (the
+     greeting's lines are set tighter than the bar is tall); the bar is drawn over it */
   display: inline-block;
+  position: relative;
   width: 0;
-  height: 1.1em;
-  margin-right: -2px;
-  border-left: 2px solid var(--tab-violet);
-  vertical-align: -0.18em;
+  height: 0;
   animation: caret-blink 1.06s steps(1) infinite;
+}
+.type-caret::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.18em;
+  height: 1.1em;
+  border-left: 2px solid var(--tab-violet);
 }
 @keyframes caret-blink {
   50% { opacity: 0; }
