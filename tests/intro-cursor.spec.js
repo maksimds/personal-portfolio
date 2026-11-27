@@ -2,15 +2,19 @@
 // On a desktop canvas it opens with the welcome, played once: it drags out the welcome sign just
 // above the intro from its top-left corner to its bottom-right, types "Welcome to my portfolio 🎯"
 // into it and clicks away, and the sign stays. The 🎯 is drawn: typed, the target pops up, and
-// then a dart flies in and hits it. Then it goes round the stickies, over and over: on
-// each it goes to the end of the marked words, double-clicks, deletes them a letter at a time,
-// types them back and clicks away. The stickies come in a new order on every visit, never
-// starting with the sticky the visit before started with. Their words never leave the page.
+// then a dart flies in and hits it. Then it goes round the spots, over and over (the greeting's
+// two lines and the three stickies): on each it goes to the end of the marked words,
+// double-clicks, deletes them a letter at a time, types them back and clicks away. The spots
+// come in a new order on every visit, never starting with the spot the visit before started
+// with. Their words never leave the page.
 // As a list, with reduced motion and on a phone, nothing plays and there's no sign.
 const { test, expect } = require('@playwright/test');
 
-// The stickies in the page's order: the whole line, and the words of it that are retyped
-const STICKIES = [
+// The spots in the page's order: the whole line, and the words of it that are retyped. The
+// greeting's two lines are retyped whole, and outlined themselves; on a sticky, the sticky is
+const SPOTS = [
+  { text: 'Hi, this is Denis', words: 'Hi, this is Denis' },
+  { text: 'A product designer who also engineers', words: 'A product designer who also engineers' },
   { text: 'Finishing up my Bachelor’s degree in IT', words: 'degree in IT' },
   { text: 'Design roles after graduation in May ’27', words: 'May ’27' },
   { text: 'Mobile apps, web apps, design systems, and front-end development', words: 'development' },
@@ -25,14 +29,14 @@ const running = (page) => page.evaluate(() => [
   ...document.querySelector('.home-cursor').getAnimations({ subtree: true }),
   ...document.querySelector('[data-cursor-welcome]').getAnimations(),
 ].length);
-// The order the parts are playing in, as the script remembers it: "0312" is the welcome, the
-// third sticky, the first, the second
+// The order the parts are playing in, as the script remembers it: "031254" is the welcome, the
+// first sticky, the headline, the line under it, the third sticky, the second
 const order = (page) => page.evaluate(() => localStorage.getItem('intro-cursor-order'));
 // The board's zoom (the page opens at 75%): a size on the screen over this is the size on the board
 const zoom = (page) => page.locator('.board__layer').evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
 
 // Plays the scene through once (the welcome and the first round), a tenth of a second at a time,
-// and returns what there was to see at each moment: the sign, and for each sticky the words that
+// and returns what there was to see at each moment: the sign, and for each spot the words that
 // show, the page's own text, the outline, the caret, how far the arrow's tip is from the end of
 // the words, and its lines' places. Then a few moments of later rounds, to see the sign stays.
 const watch = (page) => page.evaluate(async () => {
@@ -64,9 +68,10 @@ const watch = (page) => page.evaluate(async () => {
         // How far the arrow's tip is from the sign's bottom-right corner
         fromCorner: Math.hypot(tip.x - box.right, tip.y - box.bottom),
       },
-      stickies: targets.map((target) => {
-        const sticky = target.closest('.sticky');
-        const strong = sticky.querySelector('strong');
+      spots: targets.map((target) => {
+        // What's outlined (the sticky, or off a sticky the words themselves), and the whole line
+        const sticky = target.closest('.sticky') ?? target;
+        const strong = target.closest('strong') ?? target;
         const lines = target.getClientRects();
         const end = lines[lines.length - 1];
         return {
@@ -75,8 +80,10 @@ const watch = (page) => page.evaluate(async () => {
           outlined: getComputedStyle(sticky).outlineStyle === 'solid',
           caret: !!target.querySelector('.type-caret'),
           fromEnd: Math.round(Math.hypot(tip.x - end.right, tip.y - (end.top + end.height / 2))),
-          // Where the sticky and each line of its text are: none of it may move
-          layout: [sticky, strong].flatMap((el) => [...el.getClientRects()]).map((b) => [b.left, b.top, b.width, b.height].map(Math.round).join(' ')).join(', '),
+          // Where the spot and each line of its text are: none of it may move. Off a sticky, the
+          // words' width is left out: split where the caret is, a pair of letters can lose its
+          // kerning by a pixel, in the part that's see-through
+          layout: [sticky, strong].flatMap((el) => [...el.getClientRects()]).map((b) => [b.left, b.top, sticky === target ? 0 : b.width, b.height].map(Math.round).join(' ')).join(', '),
         };
       }),
     };
@@ -120,15 +127,18 @@ test.describe('on a desktop', () => {
     await expect.poll(() => running(page)).toBe(5);
   });
 
-  test('it draws the welcome sign above the intro and types into it, then retypes the words on each sticky, one at a time, in the order it picked', async ({ page }) => {
+  test('it draws the welcome sign above the intro and types into it, then retypes the words of each spot, one at a time, in the order it picked', async ({ page }) => {
+    // It looks at the whole first round a tenth of a second at a time: with five spots, that
+    // takes most of a minute, more on a busy machine
+    test.setTimeout(150_000);
     const played = await order(page);
-    expect(played).toMatch(/^0[123]{3}$/);
-    expect(played.split('').sort().join('')).toBe('0123');
+    expect(played).toMatch(/^0[1-5]{5}$/);
+    expect(played.split('').sort().join('')).toBe('012345');
     const { first, round, seen, later, intro } = await watch(page);
     expect(first, `order ${played}`).toBeGreaterThan(5000);
     expect(first, `order ${played}`).toBeLessThan(12000);
-    expect(round, `order ${played}`).toBeGreaterThan(20000);
-    expect(round, `order ${played}`).toBeLessThan(40000);
+    expect(round, `order ${played}`).toBeGreaterThan(30000);
+    expect(round, `order ${played}`).toBeLessThan(70000);
 
     // The sign: not there until it's drawn, and from then on there for good
     const drawn = seen.findIndex((s) => s.sign.seen);
@@ -162,7 +172,7 @@ test.describe('on a desktop', () => {
     const selected = seen.filter((s) => s.sign.outlined);
     expect(selected[0].t).toBe(seen[drawn].t);
     expect(selected.at(-1).t - selected[0].t).toBe((selected.length - 1) * 100);
-    expect(selected.every((s) => s.sign.seen && s.stickies.every((x) => !x.outlined && !x.caret))).toBe(true);
+    expect(selected.every((s) => s.sign.seen && s.spots.every((x) => !x.outlined && !x.caret))).toBe(true);
     const typing = seen.filter((s) => s.sign.caret);
     expect(typing.length).toBeGreaterThan(20);
     expect(typing.every((s) => s.sign.outlined)).toBe(true);
@@ -181,26 +191,26 @@ test.describe('on a desktop', () => {
       expect(s.cursor, `at ${s.t}ms`).toBe(s.again.cursor);
     }
 
-    const starts = [seen[drawn].t];       // when each part starts: the welcome, then the stickies in the page's order
-    STICKIES.forEach(({ text, words: whole }, i) => {
-      const at = seen.map((s) => ({ t: s.t, sign: s.sign, ...s.stickies[i] }));
+    const starts = [seen[drawn].t];       // when each part starts: the welcome, then the spots in the page's order
+    SPOTS.forEach(({ text, words: whole }, i) => {
+      const at = seen.map((s) => ({ t: s.t, sign: s.sign, ...s.spots[i] }));
       const where = `order ${played}, "${whole}"`;
 
-      // The page's own text is whole at every moment, whatever shows, and nothing on the sticky moves
+      // The page's own text is whole at every moment, whatever shows, and nothing in the spot moves
       expect([...new Set(at.map((s) => s.text))], where).toEqual([text]);
       expect([...new Set(at.map((s) => s.layout))], where).toHaveLength(1);
 
       // It's selected for one stretch of a round, after the welcome, with nothing else going on
-      // meanwhile: the sign let go of, and no other sticky outlined or with a caret
+      // meanwhile: the sign let go of, and no other spot outlined or with a caret
       const picked = at.filter((s) => s.outlined);
       starts.push(picked[0].t);
       expect(picked[0].t, where).toBeGreaterThan(selected.at(-1).t);
       expect(picked.at(-1).t - picked[0].t, where).toBe((picked.length - 1) * 100);
       const meanwhile = seen.filter((s) => s.t >= picked[0].t && s.t <= picked.at(-1).t);
-      expect(meanwhile.some((s) => s.sign.outlined || s.stickies.some((other, j) => j !== i && (other.outlined || other.caret))), where).toBe(false);
+      expect(meanwhile.some((s) => s.sign.outlined || s.spots.some((other, j) => j !== i && (other.outlined || other.caret))), where).toBe(false);
 
       // The caret arrives with the arrow's tip at the end of the words, and only ever shows on
-      // the outlined sticky; without it, the words are all there
+      // the outlined spot; without it, the words are all there
       const editing = at.filter((s) => s.caret);
       expect(editing[0].shown, where).toBe(whole);
       expect(editing[0].fromEnd, where).toBeLessThan(6);
@@ -220,13 +230,13 @@ test.describe('on a desktop', () => {
       expect(editing.at(-1).shown, where).toBe(whole);
     });
 
-    // The parts came in the order it picked, and by the end every sticky is as it was
-    expect([0, 1, 2, 3].sort((a, b) => starts[a] - starts[b]).join('')).toBe(played);
-    expect(seen.at(-1).stickies.some((s) => s.outlined || s.caret)).toBe(false);
+    // The parts came in the order it picked, and by the end every spot is as it was
+    expect([0, 1, 2, 3, 4, 5].sort((a, b) => starts[a] - starts[b]).join('')).toBe(played);
+    expect(seen.at(-1).spots.some((s) => s.outlined || s.caret)).toBe(false);
     await expect(words(page).locator('*')).toHaveCount(0);
   });
 
-  test('every visit opens with the welcome, then goes round the stickies in a new order, starting with a different one, and stays over the intro and the sign', async ({ page }) => {
+  test('every visit opens with the welcome, then goes round the spots in a new order, starting with a different one, and stays over the intro and the sign', async ({ page }) => {
     const orders = [await order(page)];
     expect(await outside(page)).toEqual([]);
     for (let visit = 0; visit < 7; visit++) {
@@ -249,8 +259,8 @@ test.describe('on a desktop', () => {
     await expect(words(page).locator('*')).toHaveCount(0);
 
     for (const [i, o] of orders.entries()) {
-      expect(o, orders.join(' ')).toMatch(/^0[123]{3}$/);
-      expect(o.split('').sort().join(''), orders.join(' ')).toBe('0123');
+      expect(o, orders.join(' ')).toMatch(/^0[1-5]{5}$/);
+      expect(o.split('').sort().join(''), orders.join(' ')).toBe('012345');
       if (i) expect(o[1], orders.join(' ')).not.toBe(orders[i - 1][1]);
     }
     expect(new Set(orders).size, orders.join(' ')).toBeGreaterThan(2);
@@ -360,15 +370,15 @@ test.describe('on a desktop', () => {
       }
     });
     await expect(page.locator('[data-cursor-edit] .type-caret')).toHaveCount(1);
-    await expect(page.locator('.intro .sticky.is-edited')).toHaveCount(1);
+    await expect(page.locator('.intro .is-edited')).toHaveCount(1);
 
     await page.locator('#help-button').click();
     await page.locator('[data-pref="list"]').click();
     await expect(cursor(page)).toBeHidden();
     await expect(sign(page)).toBeHidden();
     await expect(words(page).locator('*')).toHaveCount(0);
-    await expect(words(page)).toHaveText(STICKIES.map((s) => s.words));
-    await expect(page.locator('.intro .sticky.is-edited')).toHaveCount(0);
+    await expect(words(page)).toHaveText(SPOTS.map((s) => s.words));
+    await expect(page.locator('.intro .is-edited')).toHaveCount(0);
     expect(await running(page)).toBe(0);
 
     await page.locator('[data-pref="list"]').click();
@@ -394,6 +404,6 @@ test('on a phone there\'s no cursor and no sign, and the words are plain text', 
   await expect(sign(page)).toBeHidden();
   await page.waitForTimeout(600);
   expect(await running(page)).toBe(0);
-  await expect(words(page)).toHaveText(STICKIES.map((s) => s.words));
+  await expect(words(page)).toHaveText(SPOTS.map((s) => s.words));
   await expect(words(page).locator('*')).toHaveCount(0);
 });

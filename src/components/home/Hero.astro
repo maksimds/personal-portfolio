@@ -5,10 +5,11 @@
 // on the canvas only: it's part of the section, so it goes wherever the visitor moves the intro.
 // It plays a scene (src/scripts/intro-cursor.ts): once, as the page opens, it draws the welcome
 // sign (data-cursor-welcome) just above the intro and types the sign's words into it; then, round
-// and round, on each sticky, in a new order on every visit, it deletes the words in the
-// data-cursor-edit span and types them back. To have it retype other words, move that span (keep
-// it at the end of the sticky's text, and to a few words). A sticky without the span is left
-// alone. The sign's words are the ones in it here; where it sits and its size are .intro__welcome
+// and round, on the greeting's two lines and on each sticky, in a new order on every visit, it
+// deletes the words in a data-cursor-edit span and types them back. To have it retype other
+// words, move that span (on a sticky, keep it at the end of the text, and to a few words). On a
+// sticky the sticky is what's outlined while it's edited; anywhere else, the span itself. Text
+// without the span is left alone. The sign's words are the ones in it here; where it sits and its size are .intro__welcome
 // in the styles. Its last key is the 🎯, drawn (WelcomeTarget.astro): typed, the target pops up
 // and a dart hits it. Like the cursor, it's decoration, and only there while the cursor is.
 // A pink sticker, "Leave me a note", links to the notes wall on the About page, as the toolbar's
@@ -30,7 +31,7 @@ import NotePen from './NotePen.astro';
     {/* The time zone is set in src/data/site.ts */}
     <strong class="intro__clock" data-clock data-timezone={site.timezone}></strong>
   </p>
-  <h1 id="hero-title" class="intro__title drop-in">Hi, this is Denis. <span class="intro__tagline">A product designer who also engineers sometimes.</span></h1>
+  <h1 id="hero-title" class="intro__title drop-in"><span data-cursor-edit>Hi, this is Denis</span> <span class="intro__tagline"><span data-cursor-edit>A product designer who also engineers</span></span></h1>
   {/* The connector to "Work" and "Side projects" starts from this row (see index.astro) */}
   <div class="intro__notes sticky-grid sticky-grid--stack" id="intro-notes">
     <Sticky color="yellow" tilt={-1.2} dropIn><p>Currently <span class="arrow">→</span> <strong>Finishing up my Bachelor’s <span class="nowrap" data-cursor-edit>degree in IT</span></strong></p></Sticky>

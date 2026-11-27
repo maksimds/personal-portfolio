@@ -5,11 +5,11 @@
      data-cursor-welcome) from one corner to the other, types the sign's words into it ("Welcome
      to my portfolio 🎯", the 🎯 a drawing that plays as it goes in) and clicks back down on the
      board, where it rests, to let go. The sign stays.
-   - then round the stickies, over and over: on each one it double-clicks the words marked
-     data-cursor-edit, deletes them, types them back and clicks on the empty board beside the
-     sticky to let go
-   The stickies are the same every round, but their order is shuffled whenever the scene starts
-   (the page is opened, reloaded or come back to), and it never goes first to the sticky it went
+   - then round the spots, over and over: the greeting's two lines (the headline and the line
+     under it) and the stickies. On each one it double-clicks the words marked data-cursor-edit,
+     deletes them, types them back and clicks on the empty board beside them to let go
+   The spots are the same every round, but their order is shuffled whenever the scene starts
+   (the page is opened, reloaded or come back to), and it never goes first to the spot it went
    to first the time before, so no two visits in a row play alike. The browser remembers the last
    order (KEY).
 
@@ -26,19 +26,20 @@
    stickies follow that same clock (sync, below), so pausing or seeking the animations takes the
    typing with them.
 
-   A sticky's words never leave the page: the "deleted" ones are only see-through (still there
+   A spot's words never leave the page: the "deleted" ones are only see-through (still there
    for screen readers and search engines, and still taking up their room, so no line of the
-   sticky ever moves), and its text is put back exactly as it was whenever the cursor isn't
-   editing it. The sign is decoration, hidden from screen readers. The cursor stops while it's
-   off screen, and where it isn't drawn at all ("View as list", reduced motion) nothing runs, the
-   sign isn't there and the stickies' text is left alone. */
+   text ever moves), and its text is put back exactly as it was whenever the cursor isn't
+   editing it. While it's edited, a spot on a sticky has the sticky outlined; the greeting's
+   lines, the words themselves. The sign is decoration, hidden from screen readers. The cursor
+   stops while it's off screen, and where it isn't drawn at all ("View as list", reduced motion)
+   nothing runs, the sign isn't there and the spots' text is left alone. */
 
 interface Point { x: number; y: number }
-// One sticky's words, and the two places the cursor needs there
+// One spot's words, and the two places the cursor needs there
 interface Spot {
   words: string;
   end: Point;       // the end of the words, where the caret goes
-  away: Point;      // on the empty board beside the sticky, for the click that lets go of it
+  away: Point;      // on the empty board beside the spot, for the click that lets go of it
 }
 // The sign's words, and where its top-left corner is and how big it is once it's drawn
 interface Sign extends Point {
@@ -48,7 +49,7 @@ interface Sign extends Point {
 }
 type Typing = { t: number; shown: number }[];   // how many of the words' characters show from each moment on
 interface Editing {
-  select: number;                         // the first click: the sticky is selected
+  select: number;                         // the first click: the spot is selected
   edit: number;                           // the second: the caret is in its text
   done: number;                           // the click away
   typing: Typing;
@@ -84,9 +85,9 @@ function seeded(seed: number): () => number {
   };
 }
 
-// The order to play the parts in this time (part 0 is the welcome, part 1 the first sticky, and
-// so on): the welcome, then the stickies shuffled, never starting with the sticky the last order
-// started with
+// The order to play the parts in this time (part 0 is the welcome, part 1 the first spot, and
+// so on): the welcome, then the spots shuffled, never starting with the spot the last order
+// started with (there are fewer than ten parts, so each is one digit)
 function pickOrder(parts: number): number[] {
   const order = Array.from({ length: parts }, (_, i) => i);
   for (let i = parts - 1; i > 1; i--) {
@@ -214,9 +215,9 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     return { start, size, edit, done, typing };
   };
 
-  // A sticky: to the end of its words, where a double click puts the caret; the mouse is moved
+  // A spot: to the end of its words, where a double click puts the caret; the mouse is moved
   // out of the way, under the text; the words go, a key at a time, and after a moment's thought
-  // come back; then a click on the empty board beside the sticky lets go of it
+  // come back; then a click on the empty board beside it lets go of it
   const rewrite = (spot: Spot, n: number): void => {
     const { words, end } = spot;
     aim({ x: end.x - TIP + 1, y: end.y - TIP });
@@ -226,7 +227,7 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     const edit = t;
     click();
     wait(200);
-    glide({ x: end.x - 36, y: end.y + 58 });
+    glide({ x: end.x - 36, y: end.y + 52 });
 
     // The first backspace is held a little
     const typing: Typing = [];
@@ -246,7 +247,7 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
     edits[n] = { select, edit, done, typing };
   };
 
-  // A moment's pause as the page opens, the welcome; then a round: the stickies in this time's
+  // A moment's pause as the page opens, the welcome; then a round: the spots in this time's
   // order, with a breath before each, then home, and a rest. The round starts and ends at home,
   // so it can play over and over
   wait(200);
@@ -266,10 +267,12 @@ function writeScene(home: Point, sign: Sign | null, spots: Spot[], order: number
 export function initIntroCursor(): void {
   const cursor = document.querySelector<HTMLElement>('[data-cursor-script="intro"]');
   if (!cursor || !cursor.animate || !('IntersectionObserver' in window)) return;
-  // What it edits: the marked words of each sticky around it, in the page's order
+  // What it edits: the marked words around it, in the page's order (the greeting's two lines,
+  // then the stickies), and what's outlined while it does: the sticky the words are on, or else
+  // the words themselves
   const edits = Array.from(cursor.parentElement?.querySelectorAll<HTMLElement>('[data-cursor-edit]') ?? [])
-    .map((target) => ({ target, sticky: target.closest<HTMLElement>('.sticky'), words: target.textContent ?? '', drawn: '' }))
-    .filter((e): e is typeof e & { sticky: HTMLElement } => !!e.sticky && !!e.words);
+    .map((target) => ({ target, box: target.closest<HTMLElement>('.sticky') ?? target, words: target.textContent ?? '', drawn: '' }))
+    .filter((e) => !!e.words);
   // What it draws: the welcome sign, and the words it types into it. Its last key can be a
   // drawing (data-cursor-key, the character it stands for): the words end with that character,
   // and the drawing shows once it's typed, playing as it goes in (the 🎯, WelcomeTarget.astro).
@@ -292,21 +295,25 @@ export function initIntroCursor(): void {
   let visible = false;
   let attempt = 0;        // goes up on every start and stop, so a start that's still waiting knows it's been overtaken
 
-  // Where each sticky's words end and where to click beside it, measured from the corner the
-  // cursor is placed from, in the board's own units (so the same at any zoom). The click is in
-  // the gap between the sticky and its neighbour: to its right, or to its left for the last one.
+  // Where each spot's words end and where to click beside it, measured from the corner the
+  // cursor is placed from, in the board's own units (so the same at any zoom). Beside a sticky,
+  // the click is in the gap between it and its neighbour: to its right, or to its left for the
+  // last one. Beside words that aren't on a sticky, it's on the empty space after them.
   function measure(): Spot[] {
     const board = cursor!.offsetParent as HTMLElement;
     const box = board.getBoundingClientRect();
     const zoom = box.width / board.offsetWidth || 1;
     const x = (px: number): number => (px - box.left) / zoom - board.clientLeft;
     const y = (px: number): number => (px - box.top) / zoom - board.clientTop;
-    return edits.map(({ target, sticky, words }, i) => {
+    const stickies = edits.filter((e) => e.box !== e.target);
+    return edits.map(({ target, box, words }) => {
       const lines = target.getClientRects();
       const last = lines[lines.length - 1];
-      const edge = sticky.getBoundingClientRect();
       const end = { x: x(last.right), y: y(last.top + last.height / 2) };
-      const right = i < edits.length - 1 || edits.length === 1;
+      if (box === target) return { words, end, away: { x: end.x + 64, y: end.y + 14 } };
+      const i = stickies.findIndex((e) => e.box === box);
+      const edge = box.getBoundingClientRect();
+      const right = i < stickies.length - 1 || stickies.length === 1;
       return { words, end, away: { x: right ? x(edge.right) + 26 : x(edge.left) - 34, y: end.y + 8 + i * 9 } };
     });
   }
@@ -319,13 +326,13 @@ export function initIntroCursor(): void {
     return el;
   }
 
-  // A sticky as it is at one moment of the scene: outlined once it's selected; while it's being
+  // A spot as it is at one moment of the scene: outlined once it's selected; while it's being
   // edited, the caret after the words that show, and the rest see-through, in its place
   function draw(e: (typeof edits)[number], selected: boolean, editing: boolean, shown: number): void {
     const state = `${selected} ${editing} ${shown}`;
     if (state === e.drawn) return;
     e.drawn = state;
-    e.sticky.classList.toggle('is-edited', selected);
+    e.box.classList.toggle('is-edited', selected);
     if (!editing) {
       if (e.target.childElementCount) e.target.textContent = e.words;
       return;
@@ -362,8 +369,8 @@ export function initIntroCursor(): void {
     return shown;
   }
 
-  // Every frame: the sign's words and each sticky's for the moment the animations are at. Until
-  // the rounds start, the stickies are left as they are.
+  // Every frame: the sign's words and each spot's for the moment the animations are at. Until
+  // the rounds start, the spots are left as they are.
   function sync(): void {
     frame = requestAnimationFrame(sync);
     if (!scene || !clock) return;
@@ -406,9 +413,9 @@ export function initIntroCursor(): void {
   async function start(): Promise<void> {
     const mine = ++attempt;
     // The words must be where they'll stay before they're measured: the fonts loaded, and the
-    // stickies done dropping in (2s at most, in case either never says so)
+    // stickies and the greeting done dropping in (2s at most, in case either never says so)
     await Promise.race([
-      Promise.allSettled([document.fonts.ready, ...edits.flatMap((e) => e.sticky.getAnimations().map((a) => a.finished))]),
+      Promise.allSettled([document.fonts.ready, ...edits.flatMap((e) => (e.box.closest<HTMLElement>('.drop-in') ?? e.box).getAnimations().map((a) => a.finished))]),
       new Promise((resolve) => setTimeout(resolve, 2000)),
     ]);
     if (mine !== attempt || !cursor!.getClientRects().length) return;
